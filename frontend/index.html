@@ -17,8 +17,22 @@
        (--field #0d1230) karşı ölçüldü, hepsi WCAG AA (4.5:1) üstünde.
        ========================================================================== */
 
-    /* Yerel dosyalar. CDN YOK — zayıf ağda ve başka makinede aynı görünsün.
-       İki dosya: Space Grotesk değişken (300-700) + Space Mono 400. */
+    /* --------------------------------------------------------------------------
+       FONTLAR — yerel dosyalar, CDN YOK (zayıf ağda ve başka makinede aynı
+       görünsün diye). İki dosya: Space Grotesk değişken (300-700) + Space Mono 400.
+
+       Copyright 2020 The Space Grotesk Project Authors (https://github.com/floriankarsten/space-grotesk)
+       Copyright 2016 The Space Mono Project Authors (https://github.com/googlefonts/spacemono)
+
+       Bu yazı tipleri SIL Open Font License 1.1 ile lisanslanmıştır.
+       Lisans metni: https://openfontlicense.org/open-font-license-official-text/
+
+       Dosyalar Google Fonts üzerinden ALTKÜMELENMİŞ olarak alındı: glif seti
+       index.html + src/main.js içindeki her karakterden üretildi, üstüne tam
+       ASCII, tam Türk alfabesi ve kullanılan simgeler eklendi (150 karakter).
+       Türkçe kapsama doğrulandı — ı/İ U+0130-0131, ğ/Ğ U+011E-011F,
+       ş/Ş U+015E-015F, ç ö ü hepsi unicode-range içinde.
+       -------------------------------------------------------------------------- */
     @font-face {
       font-family: "Space Grotesk";
       src: url("/fonts/SpaceGrotesk.woff2") format("woff2");
