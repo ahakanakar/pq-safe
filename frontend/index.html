@@ -316,7 +316,7 @@
     .shadow { position: absolute; left: 50%; bottom: 6%; width: 70%; height: 40px; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(0,0,0,.55), transparent); filter: blur(6px); }
     .scene-cap { position: absolute; bottom: 0; right: 0; text-align: right; }
     .scene-cap .label { display: block; white-space: nowrap; }
-    @media (max-width: 900px) { .hero { grid-template-columns: 1fr; } .scene { height: 340px; } }
+    @media (max-width: 900px) { .hero { grid-template-columns: minmax(0,1fr); } .scene { height: 340px; } }
     @media (max-width: 600px) { .h-copy h1 { font-size: clamp(52px,16vw,80px); } .h-copy h1 em { font-size: clamp(32px,9vw,44px); } }
 
     /* ---- hizli baslangic seridi ---- */
@@ -333,8 +333,8 @@
     .who { display: inline-flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
     .who i { font: 600 10px var(--mono); letter-spacing: .08em; font-style: normal; padding: 4px 8px; border-radius: 999px; background: var(--raised); color: var(--muted); }
     .who i.own { background: rgba(241,220,114,.14); color: var(--butter); }
-    @media (max-width: 980px) { .quick-in { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 560px) { .quick-in { grid-template-columns: 1fr; } }
+    @media (max-width: 980px) { .quick-in { grid-template-columns: minmax(0,1fr) minmax(0,1fr); } }
+    @media (max-width: 560px) { .quick-in { grid-template-columns: minmax(0,1fr); } }
 
     /* ---- dar ekran duzeltmeleri (390px'de olculdu) ----
        max-width: 44ch (~380px) + 2x16px gutter = 412px > 390 idi; metin
