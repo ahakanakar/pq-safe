@@ -368,6 +368,174 @@
       .scene { height: 230px; }
     }
 
+    /* ================================================== A3 BÖLÜMLERİ (v3) == */
+
+    .sec { padding-block: clamp(72px,10vw,130px); }
+    .sec-top { display: grid; grid-template-columns: minmax(0,1.1fr) minmax(0,1fr); gap: 24px 72px; align-items: end; margin-bottom: 52px; position: relative; }
+    .sec-top h2 { font: 700 clamp(34px,4.6vw,62px)/1.02 var(--sans); letter-spacing: -.045em; margin: 14px 0 0; }
+    .sec-top h2 em.s { color: var(--accent-2); }
+    .sec-top p { margin: 0; color: var(--muted); max-width: 56ch; font-size: 16.5px; }
+    @media (max-width: 860px) { .sec-top { grid-template-columns: minmax(0,1fr); } }
+
+    /* tehdit */
+    .threat { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+    .th { border-radius: var(--r-card); padding: 28px 26px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 12px; align-content: start; position: relative; overflow: hidden; transition: transform .25s, border-color .25s; }
+    .th:hover { transform: translateY(-4px); border-color: var(--line-2); }
+    .th .big { font: 400 italic 64px/.9 var(--serif); color: var(--accent-2); }
+    .th h3 { font: 700 21px/1.2 var(--sans); letter-spacing: -.02em; margin: 0; }
+    .th p { margin: 0; color: var(--muted); font-size: 15px; }
+    .th.safe { background: var(--lilac); color: #1f1440; border-color: transparent; }
+    .th.safe .big { color: #1f1440; }
+    .th.safe p { color: #3a2c66; }
+    .th-note { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; padding: 16px 22px; border-radius: 16px; border: 1px dashed var(--line-2); color: var(--muted); font-size: 14.5px; }
+    .th-note b { color: var(--text); }
+    @media (max-width: 900px) { .threat { grid-template-columns: minmax(0,1fr); } }
+
+    /* ürün */
+    .prod { display: grid; grid-template-columns: repeat(12, minmax(0,1fr)); gap: 14px; }
+    .pc { border-radius: var(--r-card); background: var(--surface); border: 1px solid var(--line); padding: 26px; display: grid; gap: 10px; align-content: start; transition: transform .25s; min-width: 0; }
+    .pc:hover { transform: translateY(-4px) rotate(-.3deg); }
+    .pc .label { color: var(--accent-2); }
+    .pc h3 { font: 700 24px/1.1 var(--sans); letter-spacing: -.03em; margin: 0; }
+    .pc h3 code { font-size: .8em; color: var(--bone); }
+    .pc p { margin: 0; color: var(--muted); font-size: 15px; }
+    .pc .gas { margin-top: 8px; font: 500 12.5px var(--mono); color: var(--text); display: flex; flex-wrap: wrap; gap: 8px; }
+    .pc .gas span { display: inline-block; padding: 6px 11px; border-radius: 999px; background: var(--inset); border: 1px solid var(--line); }
+    .pc .gas a { color: var(--accent-2); }
+    .pc.w6 { grid-column: span 6; } .pc.w4 { grid-column: span 4; }
+    .pc.hl { background: var(--bone); color: var(--ink); border-color: transparent; }
+    .pc.hl p { color: var(--ink-muted); } .pc.hl .label { color: #c43d0c; } .pc.hl h3 code { color: var(--ink); }
+    .pc.hl .gas span { background: var(--cream-2); border-color: var(--ink-line); color: var(--ink); }
+    .deploy { grid-column: span 12; display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: baseline; justify-content: space-between; padding: 20px 26px; border-radius: var(--r-card); background: var(--inset); border: 1px solid var(--line); }
+    .deploy b { font: 800 34px var(--sans); letter-spacing: -.04em; }
+    .deploy b small { font: 400 italic 18px var(--serif); letter-spacing: 0; margin-left: 6px; color: var(--muted); }
+    @media (max-width: 900px) { .pc.w6, .pc.w4 { grid-column: span 12; } }
+
+    /* süreç */
+    .pipe { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; }
+    .node { background: var(--surface); border-radius: var(--r-card); padding: 26px 24px 28px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--line); transition: transform .25s, border-color .25s; min-width: 0; }
+    .node:hover { transform: translateY(-4px); border-color: var(--line-2); }
+    .node .where { display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; }
+    .node .where span:last-child { font: 500 10.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; background: var(--raised); color: var(--muted); }
+    .node.chainside .where span:last-child { background: var(--accent-soft); color: var(--accent-2); }
+    .node .num { font: 400 italic 44px/1 var(--serif); color: var(--taupe); }
+    .node h3 { font: 600 20px/1.2 var(--sans); letter-spacing: -.02em; margin: 0; }
+    .node p { margin: 0; font-size: 14.5px; color: var(--muted); }
+    .node .out { margin-top: auto; padding-top: 18px; font: 500 12.5px var(--mono); color: var(--text); }
+    .node .out span { display: inline-block; padding: 7px 12px; border-radius: 999px; background: var(--inset); border: 1px solid var(--line); }
+    @media (max-width: 980px) { .pipe { grid-template-columns: minmax(0,1fr) minmax(0,1fr); } }
+    @media (max-width: 560px) { .pipe { grid-template-columns: minmax(0,1fr); } }
+    .formula { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 12px 22px; align-items: center; padding: 20px 26px; border-radius: var(--r-card); background: var(--inset); border: 1px solid var(--line); }
+    .formula code { font-size: 14px; color: var(--text); overflow-wrap: anywhere; }
+    .formula code span { color: var(--accent-2); }
+    .bytes { margin-top: 14px; border-radius: var(--r-card); background: var(--surface); border: 1px solid var(--line); padding: clamp(24px,3vw,40px); display: grid; grid-template-columns: minmax(0,320px) minmax(0,1fr); gap: 32px 56px; }
+    .bytes h3 { font: 700 30px/1.08 var(--sans); letter-spacing: -.035em; margin: 12px 0 14px; }
+    .bytes h3 em.s { color: var(--accent-2); }
+    .bytes p { margin: 0; color: var(--muted); font-size: 15px; }
+    .ratio { margin-top: 26px; font: 400 italic 88px/.9 var(--serif); color: var(--text); }
+    .ratio small { display: block; font: 500 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-top: 10px; font-style: normal; }
+    .map-row { display: grid; grid-template-columns: 130px minmax(0,1fr); gap: 18px; padding: 18px 0; border-top: 1px solid var(--line); }
+    .map-row:first-child { border-top: 0; padding-top: 0; }
+    .map-row .k { font: 500 12px/1.5 var(--mono); color: var(--muted); }
+    .map-row .k b { display: block; color: var(--text); font: 700 16px var(--sans); letter-spacing: -.01em; }
+    .map-row svg { width: 100%; height: auto; display: block; }
+    .c13 rect { fill: var(--accent); } .ecd rect { fill: var(--taupe); }
+    @media (max-width: 860px) { .bytes { grid-template-columns: minmax(0,1fr); } .map-row { grid-template-columns: minmax(0,1fr); } }
+
+    /* krem bant */
+    .light { background: var(--cream); color: var(--ink); border-radius: 36px; margin: 0 clamp(8px,1.5vw,20px); }
+    .light .wrap { padding-block: clamp(72px,10vw,130px); }
+    .light .sec { padding-block: 0; }
+    .light .label { color: #5a4636; }
+    .light .sec-top p { color: #5a4636; }
+    .light .sec-top h2 em.s { color: #b8380a; }
+    .light .chart, .light .table-scroll { background: #fbf6ee; border-color: var(--ink-line); }
+    .light .chart-top h3, .light .bar .tot, .light .bar .lab { color: var(--ink); }
+    .light .legend { color: #5a4636; }
+    .light .track { background: repeating-linear-gradient(90deg, transparent 0 calc(20% - 1px), var(--ink-line) calc(20% - 1px) 20%); }
+    .light .axis .ticks { color: #5a4636; }
+    .light .diff { background: var(--cream-2); border-color: var(--ink-line); }
+    .light .diff span, .light .diff .label { color: #5a4636; }
+    .light th { color: #5a4636; border-color: var(--ink-line); }
+    .light td { border-color: var(--ink-line); color: var(--ink); }
+    .light td a { color: #b8380a; }
+    .light .limits { background: rgba(184,56,10,.06); border-color: rgba(184,56,10,.25); color: #5a4636; }
+    .light .limits b { color: var(--ink); }
+    .light .stat.a { background: #fff; box-shadow: 0 1px 0 var(--ink-line); }
+    .light .seg.int { background: #9c8b74; }
+    .dots { position: absolute; inset: 0; pointer-events: none; }
+    .dots i { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); }
+
+    .stats { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; margin-bottom: 14px; }
+    .stat { padding: 26px; border-radius: var(--r-card); display: grid; gap: 14px; min-width: 0; color: #2a1a10; position: relative; transition: transform .25s; }
+    .stat:hover { transform: translateY(-4px) rotate(-.4deg); }
+    .stat.a { background: var(--bone); } .stat.b { background: var(--accent); color: #2a0f04; } .stat.c { background: var(--lilac); color: #1f1440; }
+    .stat .label { color: inherit; opacity: .78; }
+    .stat .v { font: 800 clamp(38px,4.6vw,60px)/.95 var(--sans); letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+    .stat .v small { font: 400 italic 22px var(--serif); letter-spacing: 0; margin-left: 6px; }
+    .stat a { font: 500 12px var(--mono); color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+    .sticker { position: absolute; top: -14px; right: 18px; font: 700 11px var(--mono); letter-spacing: .06em; padding: 8px 12px; border-radius: 999px; background: var(--ink); color: var(--cream); transform: rotate(6deg); box-shadow: 0 8px 20px -8px rgba(0,0,0,.4); transition: transform .25s; }
+    .stat:hover .sticker { transform: rotate(-4deg) scale(1.05); }
+    @media (max-width: 760px) { .stats { grid-template-columns: minmax(0,1fr); } }
+
+    .chart { border-radius: var(--r-card); padding: 30px 28px 24px; background: var(--surface); border: 1px solid var(--line); }
+    .chart-top { display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; align-items: baseline; margin-bottom: 24px; }
+    .chart-top h3 { font: 700 20px var(--sans); letter-spacing: -.02em; margin: 0; }
+    .legend { display: flex; gap: 18px; font: 500 12px var(--mono); color: var(--muted); }
+    .legend span { display: inline-flex; align-items: center; gap: 8px; }
+    .legend i { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+    .i-int { background: var(--clay); } .i-exe { background: var(--accent); }
+    .bars { display: grid; gap: 14px; }
+    .bar { display: grid; grid-template-columns: 40px minmax(0,1fr) 92px; gap: 14px; align-items: center; }
+    .bar .lab { font: 400 italic 26px var(--serif); }
+    .track { position: relative; height: 34px; border-radius: 10px; background: repeating-linear-gradient(90deg, transparent 0 calc(20% - 1px), var(--line) calc(20% - 1px) 20%); }
+    .seg { position: absolute; top: 0; bottom: 0; }
+    .seg.int { left: 0; background: var(--clay); border-radius: 10px 0 0 10px; }
+    .seg.exe { background: var(--accent); border-radius: 0 10px 10px 0; }
+    .bar .tot { font: 700 16px var(--sans); font-variant-numeric: tabular-nums; text-align: right; }
+    .axis { display: grid; grid-template-columns: 40px minmax(0,1fr) 92px; gap: 14px; margin-top: 8px; }
+    .axis .ticks { position: relative; height: 18px; font: 500 11px var(--mono); color: var(--faint); }
+    .axis .ticks span { position: absolute; transform: translateX(-50%); }
+    .axis .ticks span:first-child { transform: none; } .axis .ticks span:last-child { transform: translateX(-100%); }
+    .diffs3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-top: 22px; }
+    .diff { border-radius: 16px; padding: 18px 20px; display: grid; gap: 6px; background: var(--inset); border: 1px solid var(--line); min-width: 0; }
+    .diff b { font: 700 26px var(--sans); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+    .diff span { font-size: 13.5px; color: var(--muted); }
+    @media (max-width: 760px) { .diffs3 { grid-template-columns: minmax(0,1fr); } .bar, .axis { grid-template-columns: 30px minmax(0,1fr) 80px; gap: 10px; } }
+
+    .t-olc { color: #0e2a1a; background: var(--ok); } .t-hes { color: #1f1440; background: var(--lilac); } .t-cik { color: #2a2208; background: var(--butter); }
+    table.gas2 { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 14px; }
+    table.gas2 th, table.gas2 td { padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    table.gas2 th { font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    table.gas2 td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); }
+    table.gas2 tr:last-child td { border-bottom: 0; }
+
+    /* SSS akordeon */
+    .faq2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .faq2 > div { display: grid; gap: 12px; align-content: start; }
+    .qa { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; transition: transform .25s, border-color .25s; }
+    .qa summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 34px minmax(0,1fr) 22px; gap: 10px; padding: 20px 22px; font: 600 16.5px var(--sans); letter-spacing: -.015em; }
+    .qa summary::-webkit-details-marker { display: none; }
+    .qa summary .q { font: 400 italic 20px/1.1 var(--serif); color: var(--faint); }
+    .qa summary::after { content: "+"; font: 400 22px/1 var(--sans); color: var(--faint); text-align: right; }
+    .qa[open] { background: var(--raised); }
+    .qa[open] summary::after { content: "−"; color: var(--accent-2); }
+    .qa .a { padding: 0 22px 22px 66px; color: var(--muted); font-size: 15px; }
+    .qa .a p { margin: 0 0 10px; } .qa .a p:last-child { margin-bottom: 0; }
+    .qa .a b { color: var(--text); font-weight: 600; }
+    @media (max-width: 860px) { .faq2 { grid-template-columns: minmax(0,1fr); } .qa .a { padding-left: 22px; } }
+
+    /* son çağrı + alt bilgi */
+    .final { text-align: center; padding-block: clamp(80px,11vw,150px); }
+    .final h2 { font: 800 clamp(44px,7vw,104px)/.95 var(--sans); letter-spacing: -.055em; margin: 0; }
+    .final h2 em { font: 400 italic 1em var(--serif); letter-spacing: -.01em; color: var(--accent-2); }
+    .final p { color: var(--muted); max-width: 52ch; margin: 22px auto 32px; font-size: 17px; }
+    .final .h-cta { justify-content: center; }
+    .foot2 { margin-top: 40px; border-radius: 28px 28px 0 0; background: var(--accent); color: #2a0f04; padding: clamp(40px,6vw,72px) clamp(24px,5vw,64px) 36px; }
+    .foot2 h2 { font: 800 clamp(56px,11vw,168px)/.85 var(--sans); letter-spacing: -.07em; margin: 0; }
+    .foot2 h2 em { font: 400 italic .55em var(--serif); letter-spacing: -.01em; }
+    .foot-row { display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; margin-top: 36px; font: 500 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+
     /* ================================================== DEMO PANELİ (v3) ==
        Prototipin kart/ray/konsol yapısı. main.js yalnız getElementById
        kullandığı için bu sarmalayıcılar serbestçe eklenebiliyor. */
@@ -706,48 +874,65 @@
     </div>
   </section>
 
-  <div class="wrap">
-    <hr class="divider" aria-hidden="true" />
+  <main class="wrap">
 
-    <section class="static reveal">
-      <p class="eyebrow-s">Nasıl çalışır</p>
-      <h2 class="h-static">Dört adım</h2>
+  <section class="sec" id="tehdit">
+    <div class="sec-top reveal">
+      <div><span class="label">Tehdit</span><h2>Bugünkü imzalar <em class="s">kuantuma karşı açık.</em></h2></div>
+      <p>Ethereum hesaplarını koruyan ECDSA, eliptik eğri üzerindeki ayrık logaritma probleminin zorluğuna dayanır. Kuantum bilgisayarlar bu varsayımı ortadan kaldırıyor.</p>
+    </div>
+    <div class="threat reveal">
+      <div class="th"><span class="big">Shor</span><h3>Açık anahtardan özel anahtara</h3><p>Yeterince büyük, hata toleranslı bir kuantum bilgisayar Shor algoritmasıyla ayrık logaritmayı çözer. Açık anahtarı bilen, özel anahtarı hesaplayabilir.</p></div>
+      <div class="th"><span class="big">1. işlem</span><h3>Açık anahtar zincirde kalır</h3><p>Bir hesap ilk işlemini imzaladığında açık anahtarı imzadan geri elde edilebilir. O andan sonra zincirde herkesin görebileceği yerde durur.</p></div>
+      <div class="th safe"><span class="big">Hash</span><h3>Hash tabanlı imza</h3><p>SPHINCS ailesi yalnızca hash fonksiyonunun güvenliğine dayanır. Bilinen kuantum saldırıları hash'lere karşı yalnızca karekök hızlanma sağlar.</p></div>
+    </div>
+    <div class="th-note reveal"><b>Ne zaman?</b> Bu ölçekte bir kuantum bilgisayarın ne zaman çıkacağı bilinmiyor. PQ-Safe, geçişin bugünden nasıl yapılabileceğini gösteren bir araştırma prototipidir.</div>
+  </section>
 
-      <ol class="steps">
-        <li>
-          <span class="step-n" aria-hidden="true">01</span>
-          <h3>Anahtar tarayıcıda türetilir</h3>
-          <p>12 kelimelik BIP-39 tohumundan BIP-44 yoluyla SPHINCS-/C13 anahtar
-             çifti üretilir. Üretim Rust/WASM imzalayıcıda, tarayıcının içinde
-             yapılır. Ölçülen boyutlar: açık anahtar 64 bayt, imza 3.688 bayt.</p>
-        </li>
-        <li>
-          <span class="step-n" aria-hidden="true">02</span>
-          <h3>Digest hesaplanır ve imzalanır</h3>
-          <p>İşlemin digest'i dondurulmuş bir formülden gelir: alan ayırıcı,
-             nonce, alıcı, değer ve verinin özeti birlikte özetlenir. İmza bu
-             digest üzerine atılır; alanlardan biri değişirse digest de değişir.</p>
-        </li>
-        <li>
-          <span class="step-n" aria-hidden="true">03</span>
-          <h3>Doğrulama zincir üstünde yapılır</h3>
-          <p><code>PQWallet.execute</code> digest'i kendi hesaplar ve doğrulayıcıya
-             sorar. Doğrulayıcı geçersiz imzada revert etmez, <code>false</code>
-             döner; cüzdan o zaman işlemi geri alır. İtiraz penceresi ya da
-             teminat yok — doğrulama her işlemde, doğrudan zincirde.</p>
-        </li>
-        <li>
-          <span class="step-n" aria-hidden="true">04</span>
-          <h3>Nonce artar, tekrar oynatma engellenir</h3>
-          <p>Nonce, dış çağrıdan <em>önce</em> artırılır. Böylece aynı imza ikinci
-             kez kullanılamaz; yeniden giriş (reentrancy) ile de kullanılamaz.
-             SPHINCS- durumsuzdur — yaprak sayacı yoktur, tek sayaç nonce'tur.</p>
-        </li>
-      </ol>
-    </section>
+  <section class="sec" id="urun">
+    <div class="sec-top reveal">
+      <div><span class="label">Ürün</span><h2>Üç kontrat, bir imzalayıcı, <em class="s">bir arayüz.</em></h2></div>
+      <p>Hepsi 1 Eylül 2026'da Sepolia'ya kuruldu. Kontrat başına kuruluş maliyetleri Foundry test ölçümü; toplam, zincirde ölçülen değer.</p>
+    </div>
+    <div class="prod reveal">
+      <div class="pc w6 hl"><span class="label">Cüzdan</span><h3><code>PQWallet</code></h3><p>Parayı yalnızca geçerli bir SPHINCS-/C13 imzasıyla hareket ettiren akıllı kontrat cüzdan. Nonce ile tekrar oynatmaya kapalı.</p><div class="gas"><span>kuruluş · 461.947 gas · Foundry</span></div></div>
+      <div class="pc w6"><span class="label">Doğrulayıcı</span><h3><code>SPHINCSVerifier</code></h3><p>İmzayı her işlemde zincir üstünde doğrular. Geçersiz imzada revert etmez, false döner.</p><div class="gas"><span>kuruluş · 460.466 gas · Foundry</span><span>doğrulama · 106.672 gas</span></div></div>
+      <div class="pc w4"><span class="label">Geçiş</span><h3><code>Migration</code></h3><p>Eski ECDSA adresinin sahipliği kanıtlanır ve adres kalıcı olarak işaretlenir. Para taşımaz. Sepolia'da bir kez çalıştırıldı.</p><div class="gas"><span>kuruluş · 289.095 gas · Foundry</span><span><a href="https://sepolia.etherscan.io/tx/0x1ccc11f14c8eaaad4fd0cb8e346234dc6256576c9e9c900c3632d4c32c75a609" target="_blank" rel="noopener noreferrer">gerçek işlem ↗</a></span></div></div>
+      <div class="pc w4"><span class="label">İmzalayıcı</span><h3>Rust / WASM</h3><p>BIP-39/44 ile anahtar türetir, imzayı tarayıcının içinde üretir.</p><div class="gas"><span>imza · 3.688 B</span></div></div>
+      <div class="pc w4"><span class="label">Arayüz</span><h3>Bu sayfa</h3><p>Anahtar, bağlantı ve işlem adımlarını Sepolia'ya karşı canlı çalıştırır.</p><div class="gas"><span>ağ · Sepolia</span></div></div>
+      <div class="deploy"><span class="label">Toplam kuruluş · Sepolia <span class="tag-m t-olc">ÖLÇÜM</span></span><b>1.256.479<small>gas</small></b></div>
+    </div>
+  </section>
 
-    <hr class="divider" aria-hidden="true" />
+  <section class="sec" id="surec">
+    <div class="sec-top reveal">
+      <div><span class="label">Süreç</span><h2>İmza tarayıcıda atılır, <em class="s">zincirde doğrulanır.</em></h2></div>
+      <p>İlk iki adım kullanıcının tarayıcısında, son ikisi Sepolia'daki PQWallet kontratında olur. Aradaki tek köprü imzalı işlemdir.</p>
+    </div>
+    <div class="pipe reveal">
+      <div class="node"><div class="where"><span class="num">1</span><span>Tarayıcı</span></div><h3>Anahtar tarayıcıda türetilir</h3><p>12 kelimelik BIP-39 tohumundan BIP-44 yoluyla SPHINCS-/C13 anahtar çifti üretilir. Üretim Rust/WASM imzalayıcıda, tarayıcının içinde yapılır. Ölçülen boyutlar: açık anahtar 64 bayt, imza 3.688 bayt.</p><div class="out"><span>açık anahtar · 64 B</span></div></div>
+      <div class="node"><div class="where"><span class="num">2</span><span>Tarayıcı</span></div><h3>Digest hesaplanır ve imzalanır</h3><p>İşlemin digest'i dondurulmuş bir formülden gelir: alan ayırıcı, nonce, alıcı, değer ve verinin özeti birlikte özetlenir. İmza bu digest üzerine atılır; alanlardan biri değişirse digest de değişir.</p><div class="out"><span>imza · 3.688 B</span></div></div>
+      <div class="node chainside"><div class="where"><span class="num">3</span><span>Sepolia</span></div><h3>Doğrulama zincir üstünde yapılır</h3><p><code>PQWallet.execute</code> digest'i kendi hesaplar ve doğrulayıcıya sorar. Doğrulayıcı geçersiz imzada revert etmez, <code>false</code> döner; cüzdan o zaman işlemi geri alır. İtiraz penceresi ya da teminat yok — doğrulama her işlemde, doğrudan zincirde.</p><div class="out"><span>doğrulayıcı · 106.672 gas</span></div></div>
+      <div class="node chainside"><div class="where"><span class="num">4</span><span>Sepolia</span></div><h3>Nonce artar, tekrar oynatma engellenir</h3><p>Nonce, dış çağrıdan <em>önce</em> artırılır. Böylece aynı imza ikinci kez kullanılamaz; yeniden giriş (reentrancy) ile de kullanılamaz. SPHINCS- durumsuzdur — yaprak sayacı yoktur, tek sayaç nonce'tur.</p><div class="out"><span>nonce · n → n+1</span></div></div>
+    </div>
+    <div class="formula reveal"><span class="label">digest</span><code><span>keccak256</span>(abi.encode(DOMAIN_SEPARATOR, nonce, to, value, <span>keccak256</span>(data)))</code></div>
+    <div class="bytes reveal">
+      <div>
+        <span class="label">Bir imza, bayt bayt</span>
+        <h3>Kuantum sonrası güvenliğin <em class="s">boyutu</em></h3>
+        <p>Her kare bir bayt. Karma tabanlı imzalar eliptik eğri imzalarından çok daha büyüktür; bu boyut hem calldata hem doğrulama maliyeti demektir.</p>
+        <div class="ratio">~57×<small>3.688 / 65 bayt</small></div>
+      </div>
+      <div>
+        <div class="map-row"><div class="k"><b>ECDSA</b>65 bayt</div><svg class="ecd" viewBox="0 0 920 8" role="img" aria-label="65 bayt"><defs><pattern id="pe" width="64" height="32" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="6" height="6" rx="1" opacity="0.55"/><rect x="8" y="0" width="6" height="6" rx="1" opacity="0.55"/><rect x="16" y="0" width="6" height="6" rx="1" opacity="0.55"/><rect x="24" y="0" width="6" height="6" rx="1" opacity="0.75"/><rect x="32" y="0" width="6" height="6" rx="1" opacity="0.6"/><rect x="40" y="0" width="6" height="6" rx="1" opacity="0.55"/><rect x="48" y="0" width="6" height="6" rx="1" opacity="0.6"/><rect x="56" y="0" width="6" height="6" rx="1" opacity="0.45"/><rect x="0" y="8" width="6" height="6" rx="1" opacity="0.55"/><rect x="8" y="8" width="6" height="6" rx="1" opacity="0.9"/><rect x="16" y="8" width="6" height="6" rx="1" opacity="0.6"/><rect x="24" y="8" width="6" height="6" rx="1" opacity="0.45"/><rect x="32" y="8" width="6" height="6" rx="1" opacity="0.3"/><rect x="40" y="8" width="6" height="6" rx="1" opacity="1"/><rect x="48" y="8" width="6" height="6" rx="1" opacity="0.55"/><rect x="56" y="8" width="6" height="6" rx="1" opacity="0.6"/><rect x="0" y="16" width="6" height="6" rx="1" opacity="0.3"/><rect x="8" y="16" width="6" height="6" rx="1" opacity="0.45"/><rect x="16" y="16" width="6" height="6" rx="1" opacity="0.3"/><rect x="24" y="16" width="6" height="6" rx="1" opacity="0.3"/><rect x="32" y="16" width="6" height="6" rx="1" opacity="0.75"/><rect x="40" y="16" width="6" height="6" rx="1" opacity="0.75"/><rect x="48" y="16" width="6" height="6" rx="1" opacity="0.3"/><rect x="56" y="16" width="6" height="6" rx="1" opacity="0.55"/><rect x="0" y="24" width="6" height="6" rx="1" opacity="1"/><rect x="8" y="24" width="6" height="6" rx="1" opacity="0.55"/><rect x="16" y="24" width="6" height="6" rx="1" opacity="0.75"/><rect x="24" y="24" width="6" height="6" rx="1" opacity="0.75"/><rect x="32" y="24" width="6" height="6" rx="1" opacity="0.9"/><rect x="40" y="24" width="6" height="6" rx="1" opacity="0.55"/><rect x="48" y="24" width="6" height="6" rx="1" opacity="0.3"/><rect x="56" y="24" width="6" height="6" rx="1" opacity="0.45"/></pattern></defs><rect width="520" height="8" fill="url(#pe)"/></svg></div>
+        <div class="map-row"><div class="k"><b>SPHINCS-/C13</b>3.688 bayt</div><svg class="c13" viewBox="0 0 920 264" role="img" aria-label="3.688 bayt"><defs><pattern id="pc" width="64" height="32" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="6" height="6" rx="1" opacity="0.55"/><rect x="8" y="0" width="6" height="6" rx="1" opacity="0.55"/><rect x="16" y="0" width="6" height="6" rx="1" opacity="0.55"/><rect x="24" y="0" width="6" height="6" rx="1" opacity="0.75"/><rect x="32" y="0" width="6" height="6" rx="1" opacity="0.6"/><rect x="40" y="0" width="6" height="6" rx="1" opacity="0.55"/><rect x="48" y="0" width="6" height="6" rx="1" opacity="0.6"/><rect x="56" y="0" width="6" height="6" rx="1" opacity="0.45"/><rect x="0" y="8" width="6" height="6" rx="1" opacity="0.55"/><rect x="8" y="8" width="6" height="6" rx="1" opacity="0.9"/><rect x="16" y="8" width="6" height="6" rx="1" opacity="0.6"/><rect x="24" y="8" width="6" height="6" rx="1" opacity="0.45"/><rect x="32" y="8" width="6" height="6" rx="1" opacity="0.3"/><rect x="40" y="8" width="6" height="6" rx="1" opacity="1"/><rect x="48" y="8" width="6" height="6" rx="1" opacity="0.55"/><rect x="56" y="8" width="6" height="6" rx="1" opacity="0.6"/><rect x="0" y="16" width="6" height="6" rx="1" opacity="0.3"/><rect x="8" y="16" width="6" height="6" rx="1" opacity="0.45"/><rect x="16" y="16" width="6" height="6" rx="1" opacity="0.3"/><rect x="24" y="16" width="6" height="6" rx="1" opacity="0.3"/><rect x="32" y="16" width="6" height="6" rx="1" opacity="0.75"/><rect x="40" y="16" width="6" height="6" rx="1" opacity="0.75"/><rect x="48" y="16" width="6" height="6" rx="1" opacity="0.3"/><rect x="56" y="16" width="6" height="6" rx="1" opacity="0.55"/><rect x="0" y="24" width="6" height="6" rx="1" opacity="1"/><rect x="8" y="24" width="6" height="6" rx="1" opacity="0.55"/><rect x="16" y="24" width="6" height="6" rx="1" opacity="0.75"/><rect x="24" y="24" width="6" height="6" rx="1" opacity="0.75"/><rect x="32" y="24" width="6" height="6" rx="1" opacity="0.9"/><rect x="40" y="24" width="6" height="6" rx="1" opacity="0.55"/><rect x="48" y="24" width="6" height="6" rx="1" opacity="0.3"/><rect x="56" y="24" width="6" height="6" rx="1" opacity="0.45"/></pattern></defs><rect width="920" height="256" fill="url(#pc)"/><rect y="256" width="64" height="8" fill="url(#pc)"/></svg></div>
+      </div>
+    </div>
+  </section>
 
+  </main>
+
+  <main class="wrap">
     <!-- ============================================================ PANEL ==
          Kart/ray/konsol yapısı prototipten. ÖRNEK DURUM KOPYALANMADI:
          adres, nonce, bakiye ve alıcı boş başlar, main.js doldurur. -->
@@ -844,156 +1029,84 @@
       </div>
     </section>
 
-    <hr class="divider" aria-hidden="true" />
+  </main>
 
-    <!-- ================================================ ÖLÇÜLEN SONUÇLAR == -->
-    <section class="static reveal">
-      <p class="eyebrow-s">Ölçülen sonuçlar</p>
-      <h2 class="h-static">Sepolia'da <code>execute()</code> gas defteri</h2>
-      <p class="lead-static">Üç işlem, üç farklı alıcı koşulu. Her satır gerçek
-         bir Sepolia işlemidir; hiçbiri tahmin değildir.</p>
-
-      <div class="table-scroll">
-        <table class="gas">
-          <thead>
-            <tr>
-              <th>satır</th><th>alıcı durumu</th>
-              <th><code>gasUsed</code><span class="tag-m tag-olcum">ÖLÇÜM</span></th>
-              <th><code>z</code></th>
-              <th>intrinsic<span class="tag-m tag-hesap">HESAP</span></th>
-              <th>yürütme<span class="tag-m tag-hesap">HESAP</span></th>
-              <th>işlem</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><b>A</b></td><td>sıcak + var olan</td>
-              <td class="num"><b>216.269</b></td><td class="num">206</td>
-              <td class="num">81.056</td><td class="num"><b>135.213</b></td>
-              <td><a href="https://sepolia.etherscan.io/tx/0x0fd4b9b3c992053c7a3c8b3133cfbfdcefacf0242e42b88750b921c718c3e71c" rel="noopener noreferrer" target="_blank"><code>0x0fd4b9b3…</code></a></td>
-            </tr>
-            <tr>
-              <td><b>B</b></td><td>soğuk + var olan</td>
-              <td class="num"><b>218.721</b></td><td class="num">210</td>
-              <td class="num">81.008</td><td class="num"><b>137.713</b></td>
-              <td><a href="https://sepolia.etherscan.io/tx/0x6b8bbecd0bc7fefc36ed5120d09410af7aff970950599652510828c28cd312ff" rel="noopener noreferrer" target="_blank"><code>0x6b8bbecd…</code></a></td>
-            </tr>
-            <tr>
-              <td><b>C</b></td><td>soğuk + <b>boş</b></td>
-              <td class="num"><b>243.817</b></td><td class="num">202</td>
-              <td class="num">81.104</td><td class="num"><b>162.713</b></td>
-              <td><a href="https://sepolia.etherscan.io/tx/0x222556c3e0f9d2f5ff8661a1affcd8aa03d2b4120a539c65ea98a64044b11475" rel="noopener noreferrer" target="_blank"><code>0x222556c3…</code></a></td>
-            </tr>
-          </tbody>
-        </table>
+  <div class="light">
+  <div class="wrap">
+  <section class="sec" id="sonuc">
+    <div class="sec-top reveal">
+      <div class="dots" aria-hidden="true"><i style="left:46%;top:8%"></i><i style="left:52%;top:30%;width:8px;height:8px"></i><i style="left:40%;top:62%;width:9px;height:9px;background:var(--lilac)"></i></div>
+      <div><span class="label">Ölçülen sonuçlar</span><h2>Üç gerçek işlem, <em class="s">üç alıcı koşulu.</em></h2></div>
+      <p>Her satır Sepolia'da gönderilmiş bir işlemdir. B ve C için beklenti işlemden önce yazılıp depoya gönderildi; ikisinde de ölçülen değerle fark sıfır çıktı.</p>
+    </div>
+    <div class="stats reveal">
+      <div class="stat a"><span class="sticker">ölçüm</span><span class="label">A · sıcak + var olan alıcı</span><div class="v">216.269<small>gas</small></div><a href="https://sepolia.etherscan.io/tx/0x0fd4b9b3c992053c7a3c8b3133cfbfdcefacf0242e42b88750b921c718c3e71c" target="_blank" rel="noopener noreferrer">0x0fd4b9b3… ↗</a></div>
+      <div class="stat b"><span class="sticker">ön kayıt · fark 0</span><span class="label">B · soğuk + var olan alıcı</span><div class="v">218.721<small>gas</small></div><a href="https://sepolia.etherscan.io/tx/0x6b8bbecd0bc7fefc36ed5120d09410af7aff970950599652510828c28cd312ff" target="_blank" rel="noopener noreferrer">0x6b8bbecd… ↗</a></div>
+      <div class="stat c"><span class="sticker">ön kayıt · fark 0</span><span class="label">C · soğuk + boş alıcı</span><div class="v">243.817<small>gas</small></div><a href="https://sepolia.etherscan.io/tx/0x222556c3e0f9d2f5ff8661a1affcd8aa03d2b4120a539c65ea98a64044b11475" target="_blank" rel="noopener noreferrer">0x222556c3… ↗</a></div>
+    </div>
+    <div class="chart reveal">
+      <div class="chart-top"><h3>gasUsed'in dağılımı<span class="tag-m t-hes">HESAP</span></h3><div class="legend"><span><i class="i-int"></i>intrinsic (taban + calldata)</span><span><i class="i-exe"></i>yürütme</span></div></div>
+      <div class="bars">
+        <div class="bar"><span class="lab">A</span><div class="track"><div class="seg int" style="width:32.42%"></div><div class="seg exe" style="left:32.42%;width:54.09%"></div></div><span class="tot">216.269</span></div>
+        <div class="bar"><span class="lab">B</span><div class="track"><div class="seg int" style="width:32.40%"></div><div class="seg exe" style="left:32.40%;width:55.09%"></div></div><span class="tot">218.721</span></div>
+        <div class="bar"><span class="lab">C</span><div class="track"><div class="seg int" style="width:32.44%"></div><div class="seg exe" style="left:32.44%;width:65.09%"></div></div><span class="tot">243.817</span></div>
       </div>
-
-      <p class="sub-static">Yürütme sütunundaki farklar
-         <span class="tag-m tag-cikarim">ÇIKARIM</span></p>
-      <ul class="diffs">
-        <li><b>B − A = +2.500</b> · EIP-2929 sabitiyle (2.600 − 100) örtüşür</li>
-        <li><b>C − B = +25.000</b> · EIP-161 / <code>G_newaccount</code> sabitiyle örtüşür</li>
-        <li><b>C − A = +27.500</b> · yukarıdaki ikisinin toplamı</li>
-      </ul>
-
-      <p class="limits"><b>Sınırlar.</b> Her satır <b>tek koşu</b>. Trace
-         alınmadı. Üç farkın üçü de sapmasız çıktı, ama üç örnekten "her zaman
-         tam çıkar" sonucu çıkmaz. EIP metinlerine karşı satır satır teyit
-         <b>hâlâ açık kalem</b>; yukarıdaki örtüşme ifadeleri bir nedensellik
-         iddiası değildir.</p>
-    </section>
-
-    <hr class="divider" aria-hidden="true" />
-
-    <!-- =============================================================== SSS == -->
-    <section class="static reveal">
-      <p class="eyebrow-s">Sık sorulanlar</p>
-      <h2 class="h-static">Sekiz soru</h2>
-
-      <div class="faq">
-        <div class="qa">
-          <h3>Gas'ı kim ödüyor? Bu da kuantuma karşı güvenli mi?</h3>
-          <p><b>Hayır.</b> İşlemi zincire gönderen ve gazı ödeyen taraf sıradan
-             bir ECDSA hesabıdır (EOA). Kuantum sonrası olan şey <b>yetkilendirme</b>:
-             cüzdanın parayı hareket ettirmesi SPHINCS-/C13 imzasına bağlıdır.
-             Taşıma katmanı değildir, öyleymiş gibi de sunulmamalıdır.</p>
-        </div>
-        <div class="qa">
-          <h3>Neden SPHINCS-/C13, neden FIPS 205 değil?</h3>
-          <p>C13, aynı aileden bir <b>araştırma varyantıdır</b> (WOTS+C/FORS+C,
-             h=22 d=2 a=19 k=7 w=8) ve FIPS 205'in kendisi değildir. Seçilme
-             sebebi ölçülen maliyet: doğrulayıcı <b>106.672 gas</b> (ölçüldü),
-             eski hedef SLH-DSA-SHA2-128-24 ise <b>143.057 gas</b>
-             (ölçülen aralığın <b>en düşüğü</b>, 143.057–146.192). İmza da daha
-             küçük: 3.688 bayt yerine 3.856 bayt.</p>
-          <p><b>Bedeli:</b> C13 yeni bir araştırma varyantıdır ve standart
-             setler kadar incelenmemiştir. Bu, bilinçli bir takas — güvenlik
-             olgunluğundan maliyet lehine verilen bir ödün.</p>
-        </div>
-        <div class="qa">
-          <h3>Mnemonic ekranda görünür mü, imza nerede üretilir?</h3>
-          <p>Mnemonic ekranda <b>gösterilmez</b>: alan <code>type="password"</code>
-             ve girilen kelimeler sayfaya yazılmaz; yalnızca türetilen açık
-             anahtar görünür. İmza <b>tarayıcının içinde</b>, WASM imzalayıcıda
-             üretilir.</p>
-          <p>Tarayıcı ortamının üretim kullanımı için uygunluğu
-             <b>değerlendirilmedi</b>.</p>
-        </div>
-        <div class="qa">
-          <h3>Anahtarımı kaybedersem ne olur?</h3>
-          <p><b>Kurtarma yolu yok.</b> Cüzdanın açık anahtarı yalnızca kuruluş
-             anında yazılır ve onu değiştirecek bir fonksiyon kontratta
-             bulunmuyor — kontratta yalnızca digest hesabı ve
-             <code>execute</code> var. Mnemonic kaybolursa cüzdandaki varlıklara
-             erişilemez.</p>
-        </div>
-        <div class="qa">
-          <h3>Mainnet'e hazır mı?</h3>
-          <p><b>Hayır.</b> Bu bir araştırma prototipidir ve yalnızca Sepolia test
-             ağında çalıştırılmıştır. Gas ölçümleri tek koşudur, denetimden
-             geçmemiştir ve bazı hata yolları hiç gözlenmemiştir.</p>
-        </div>
-        <div class="qa">
-          <h3>İmza neden bu kadar büyük? Gas maliyeti ne?</h3>
-          <p>Karma tabanlı imzalar eliptik eğri imzalarından çok daha büyüktür:
-             burada <b>3.688 bayt</b> (ECDSA'da 65 bayt). Bu boyut hem calldata
-             hem doğrulama maliyeti demek. Ölçülen doğrulayıcı maliyeti
-             <b>106.672 gas</b>; işlemin tamamı yukarıdaki tabloda
-             <b>216.269–243.817 gas</b> arasında ölçüldü.</p>
-        </div>
-        <div class="qa">
-          <h3>Doğrulama başarısız olursa ne olur?</h3>
-          <p>Doğrulayıcı geçersiz imzada <b>revert etmez</b>, <code>false</code>
-             döner; cüzdan da işlemi <code>PQWallet: invalid signature</code>
-             ile geri alır, hiçbir durum değişikliği kalıcı olmaz. Bu davranış
-             birim testiyle doğrulanmıştır:
-             <code>contracts/test/PQWallet.t.sol:88</code>,
-             <code>test_Execute_RevertsWhenVerifierRejects()</code> — her zaman
-             <code>false</code> dönen bir sahte doğrulayıcı kullanır.</p>
-        </div>
-        <div class="qa">
-          <h3>Aynı işlemi iki kez gönderebilir miyim?</h3>
-          <p>Hayır. Digest nonce'a bağlıdır, nonce her başarılı işlemde artar ve
-             artış <b>dış çağrıdan önce</b> yapılır — yani yeniden giriş yoluyla
-             da aynı imza tekrar kullanılamaz. Nonce davranışı
-             <code>contracts/test/PQWallet.t.sol:121</code> bölümünde
-             sınanmaktadır.</p>
-        </div>
+      <div class="axis"><span></span><div class="ticks"><span style="left:0">0</span><span style="left:20%">50k</span><span style="left:40%">100k</span><span style="left:60%">150k</span><span style="left:80%">200k</span><span style="left:100%">250k</span></div><span></span></div>
+      <div class="diffs3">
+        <div class="diff"><span class="label">B − A · yürütme</span><b>+2.500</b><span>EIP-2929 soğuk erişim sabitiyle (2.600 − 100) örtüşür</span></div>
+        <div class="diff"><span class="label">C − B · yürütme</span><b>+25.000</b><span>EIP-161 / G_newaccount sabitiyle örtüşür</span></div>
+        <div class="diff"><span class="label">C − A · yürütme</span><b>+27.500</b><span>İkisinin toplamı, sapmasız</span></div>
       </div>
-    </section>
-
-    <!-- ========================================================= ALT BİLGİ == -->
-    <footer class="foot">
-      <div class="foot-l">
-        <b>PQ-Safe</b>
-        <span>TEKNOFEST 2026</span>
-      </div>
-      <p class="foot-r">Araştırma prototipi, üretim cüzdanı değildir.</p>
-      <!-- GitHub bağlantısı: depo AÇIK ise aşağıdaki satırı yorumdan çıkar ve
-           adresi yaz. ÖZEL ise link eklenmez. Karar Akif'te. -->
-      <!-- <p class="foot-r"><a href="https://github.com/…">Kaynak kodu</a></p> -->
-    </footer>
+    </div>
+    <div class="table-scroll reveal"><table class="gas2">
+      <thead><tr><th>Satır</th><th>Alıcı</th><th>gasUsed <span class="tag-m t-olc">ÖLÇÜM</span></th><th>z</th><th>Intrinsic <span class="tag-m t-hes">HESAP</span></th><th>Yürütme <span class="tag-m t-hes">HESAP</span></th><th>İşlem</th></tr></thead>
+      <tbody>
+        <tr><td><b>A</b></td><td>sıcak + var olan</td><td class="num"><b>216.269</b></td><td class="num">206</td><td class="num">81.056</td><td class="num">135.213</td><td><a class="mono" href="https://sepolia.etherscan.io/tx/0x0fd4b9b3c992053c7a3c8b3133cfbfdcefacf0242e42b88750b921c718c3e71c" target="_blank" rel="noopener noreferrer">0x0fd4b9b3…</a></td></tr>
+        <tr><td><b>B</b></td><td>soğuk + var olan</td><td class="num"><b>218.721</b></td><td class="num">210</td><td class="num">81.008</td><td class="num">137.713</td><td><a class="mono" href="https://sepolia.etherscan.io/tx/0x6b8bbecd0bc7fefc36ed5120d09410af7aff970950599652510828c28cd312ff" target="_blank" rel="noopener noreferrer">0x6b8bbecd…</a></td></tr>
+        <tr><td><b>C</b></td><td>soğuk + <b>boş</b></td><td class="num"><b>243.817</b></td><td class="num">202</td><td class="num">81.104</td><td class="num">162.713</td><td><a class="mono" href="https://sepolia.etherscan.io/tx/0x222556c3e0f9d2f5ff8661a1affcd8aa03d2b4120a539c65ea98a64044b11475" target="_blank" rel="noopener noreferrer">0x222556c3…</a></td></tr>
+      </tbody></table></div>
+    <p class="limits reveal"><b>Sınırlar.</b> Her satır <b>tek koşu</b>; trace alınmadı. Üç farkın üçü de sapmasız çıktı, ama üç örnekten "her zaman tam çıkar" sonucu çıkmaz. Farkların EIP sabitleriyle örtüşmesi <span class="tag-m t-cik">ÇIKARIM</span> niteliğindedir; EIP metinlerine karşı satır satır teyit hâlâ açık kalem.</p>
+  </section>
   </div>
+  </div>
+
+  <main class="wrap">
+
+
+  <section class="sec" id="sss">
+    <div class="sec-top reveal"><div><span class="label">Sık sorulanlar</span><h2>Sınırlarıyla <em class="s">birlikte.</em></h2></div><p>Her cevap depodaki bir kod satırına, teste ya da ölçüme dayanır.</p></div>
+    <div class="faq2 reveal">
+      <div>
+        <details class="qa" open><summary><span class="q">1</span>Gas'ı kim ödüyor? Bu da kuantuma karşı güvenli mi?</summary><div class="a"><p><b>Hayır.</b> İşlemi zincire gönderen ve gazı ödeyen taraf sıradan bir ECDSA hesabıdır (EOA). Kuantum sonrası olan şey <b>yetkilendirme</b>: cüzdanın parayı hareket ettirmesi SPHINCS-/C13 imzasına bağlıdır. Taşıma katmanı değildir, öyleymiş gibi de sunulmamalıdır.</p></div></details>
+        <details class="qa"><summary><span class="q">2</span>Neden SPHINCS-/C13, neden FIPS 205 değil?</summary><div class="a"><p>C13, aynı aileden bir <b>araştırma varyantıdır</b> (WOTS+C/FORS+C, h=22 d=2 a=19 k=7 w=8) ve FIPS 205'in kendisi değildir. Seçilme sebebi ölçülen maliyet: doğrulayıcı <b>106.672 gas</b> (ölçüldü), eski hedef SLH-DSA-SHA2-128-24 ise <b>143.057 gas</b> (ölçülen aralığın <b>en düşüğü</b>, 143.057–146.192). İmza da daha küçük: 3.688 bayt yerine 3.856 bayt.</p><p><b>Bedeli:</b> C13 yeni bir araştırma varyantıdır ve standart setler kadar incelenmemiştir. Bu, bilinçli bir takas — güvenlik olgunluğundan maliyet lehine verilen bir ödün.</p></div></details>
+        <details class="qa"><summary><span class="q">3</span>Mnemonic ekranda görünür mü, imza nerede üretilir?</summary><div class="a"><p>Mnemonic ekranda <b>gösterilmez</b>: alan <code>type="password"</code> ve girilen kelimeler sayfaya yazılmaz; yalnızca türetilen açık anahtar görünür. İmza <b>tarayıcının içinde</b>, WASM imzalayıcıda üretilir.</p><p>Tarayıcı ortamının üretim kullanımı için uygunluğu <b>değerlendirilmedi</b>.</p></div></details>
+        <details class="qa"><summary><span class="q">4</span>Anahtarımı kaybedersem ne olur?</summary><div class="a"><p><b>Kurtarma yolu yok.</b> Cüzdanın açık anahtarı yalnızca kuruluş anında yazılır ve onu değiştirecek bir fonksiyon kontratta bulunmuyor — kontratta yalnızca digest hesabı ve <code>execute</code> var. Mnemonic kaybolursa cüzdandaki varlıklara erişilemez.</p></div></details>
+      </div>
+      <div>
+        <details class="qa"><summary><span class="q">5</span>Mainnet'e hazır mı?</summary><div class="a"><p><b>Hayır.</b> Bu bir araştırma prototipidir ve yalnızca Sepolia test ağında çalıştırılmıştır. Gas ölçümleri tek koşudur, denetimden geçmemiştir ve bazı hata yolları hiç gözlenmemiştir.</p></div></details>
+        <details class="qa"><summary><span class="q">6</span>İmza neden bu kadar büyük? Gas maliyeti ne?</summary><div class="a"><p>ECDSA imzası eliptik eğri üzerindeki iki sayıdır (65 bayt). Hash tabanlı bir imza ise tek bir sayı değil, yüzlerce kısa hash değerinden oluşan bir <b>kanıttır</b>: FORS ağaçlarından açılan yapraklar ve yolları, hiper-ağacın her katmanı için tek kullanımlık bir WOTS imzası ve kök yolları. Güvenlik yalnızca hash fonksiyonuna dayandığı için doğrulayıcının ihtiyaç duyduğu her şey imzanın içinde taşınır. Sonuç: <b>3.688 bayt</b>.</p><p>Bedeli gas: imza calldata olarak taşınır ve zincirde doğrulanır. İşlemin tamamı <b>216.269–243.817 gas</b> arasında ölçüldü.</p></div></details>
+        <details class="qa"><summary><span class="q">7</span>Doğrulama başarısız olursa ne olur?</summary><div class="a"><p>Doğrulayıcı geçersiz imzada <b>revert etmez</b>, <code>false</code> döner; cüzdan da işlemi <code>PQWallet: invalid signature</code> ile geri alır, hiçbir durum değişikliği kalıcı olmaz. Bu davranış birim testiyle doğrulanmıştır: <code>contracts/test/PQWallet.t.sol:88</code>, <code>test_Execute_RevertsWhenVerifierRejects()</code> — her zaman <code>false</code> dönen bir sahte doğrulayıcı kullanır.</p></div></details>
+        <details class="qa"><summary><span class="q">8</span>Aynı işlemi iki kez gönderebilir miyim?</summary><div class="a"><p>Hayır. Digest nonce'a bağlıdır, nonce her başarılı işlemde artar ve artış <b>dış çağrıdan önce</b> yapılır — yani yeniden giriş yoluyla da aynı imza tekrar kullanılamaz. Nonce davranışı <code>contracts/test/PQWallet.t.sol:121</code> bölümünde sınanmaktadır.</p></div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="final reveal">
+    <span class="label">Demo</span>
+    <h2>Bir işlemi <em>kendiniz</em> zincire gönderin.</h2>
+    <p>Anahtar üretmek ve zinciri okumak herkese açık. Gönderim, zincirdeki cüzdanın sahibinin anahtarını gerektirir; sunumda bunu canlı gösteriyoruz.</p>
+    <div class="h-cta"><a class="btn btn-accent" href="#panel">Demoyu aç <span class="arr">&#8593;</span></a><a class="btn" href="#sonuc">Ölçümleri gör</a></div>
+  </section>
+
+  </main>
+
+  <footer class="foot2">
+    <h2>PQ-Safe <em>imzası kuantum sonrası.</em></h2>
+    <div class="foot-row"><span>TEKNOFEST 2026 · Blokzincir</span><span>Araştırma prototipi, üretim cüzdanı değildir</span></div>
+    <!-- GitHub bağlantısı: depo AÇIK ise aşağıdaki satırı yorumdan çıkar ve
+         adresi yaz. ÖZEL ise link eklenmez. Karar Akif'te. -->
+    <!-- <div class="foot-row"><a href="https://github.com/…">Kaynak kodu ↗</a></div> -->
+  </footer>
 
   <script type="module" src="/src/main.js"></script>
   <script type="module" src="/src/nav.js"></script>
