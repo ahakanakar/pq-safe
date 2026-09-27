@@ -27,11 +27,21 @@
        Bu yazı tipleri SIL Open Font License 1.1 ile lisanslanmıştır.
        Lisans metni: https://openfontlicense.org/open-font-license-official-text/
 
-       Dosyalar Google Fonts üzerinden ALTKÜMELENMİŞ olarak alındı: glif seti
-       index.html + src/main.js içindeki her karakterden üretildi, üstüne tam
-       ASCII, tam Türk alfabesi ve kullanılan simgeler eklendi (150 karakter).
-       Türkçe kapsama doğrulandı — ı/İ U+0130-0131, ğ/Ğ U+011E-011F,
-       ş/Ş U+015E-015F, ç ö ü hepsi unicode-range içinde.
+       Dosyalar Google Fonts üzerinden ALTKÜMELENMİŞ olarak alındı. Glif seti
+       (134 karakter) şunların birleşimi:
+         · index.html ve frontend/src altındaki 17 .js/.mjs dosyasının TAMAMI
+           (string literallerin üst kümesi — literal ayrıştırmasının kaçırma
+            ihtimalini kapatmak için dosya içeriğinin tamamı tarandı)
+         · tam yazdırılabilir ASCII
+         · tam Türk alfabesi, büyük ve küçük
+         · … “ ” ‘ ’ – — → ← × · • ✓ ⚠ ° ±
+       Doğrulandı: kaynak dosyalarda geçip sette bulunmayan karakter YOK.
+       Türkçe kapsama — ı/İ U+0130-0131, ğ/Ğ U+011E-011F, ş/Ş U+015E-015F,
+       ç ö ü hepsi unicode-range içinde.
+
+       ⚠ Altküme sınırlı: bu setin DIŞINDA bir karakter sayfaya girerse
+       sessizce system-ui yedeğine düşer. Yeni metin eklenince set yeniden
+       üretilip fontlar yeniden indirilmeli.
        -------------------------------------------------------------------------- */
     @font-face {
       font-family: "Space Grotesk";
