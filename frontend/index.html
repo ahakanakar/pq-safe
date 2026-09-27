@@ -3,252 +3,238 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PQ-SAFE — C13 Signer Kanıt UI</title>
+  <title>PQ-Safe — C13 Signer Kanıt UI</title>
   <style>
     /* ==========================================================================
-       PQ-SAFE — koyu tema.
+       PQ-Safe — koyu lacivert, ikinci tur.
 
-       SÖZLEŞME: main.js DOM'a yalnızca getElementById ile dokunuyor
-       (querySelector / getElementsBy* / classList HİÇ kullanılmıyor) ve çıktıya
+       SÖZLEŞME: main.js DOM'a yalnızca getElementById ile dokunuyor ve çıktıya
        yalnızca altı sınıf adı basıyor: .field .ok .warn .err .finding .neutral
-       Bu altı kuralın her biri AYRI yazılmak zorunda — gruplanırsa
-       (".ok, .finding { }") devir notu Ek.2'deki kontrol kırmızı yanar.
+       Altı kuralın her biri AYRI yazılır — gruplanırsa ( ".ok, .finding { }" )
+       devir notu Ek.2'deki 30 seçici kontrolü kırmızı yanar.
 
-       Renkler göz kararı DEĞİL: her biri en açık yüzeye (--field #171d21)
-       karşı hesaplandı, hepsi WCAG AA (4.5:1) üstünde. Oranlar aşağıda.
+       Renkler hesaplandı, göz kararı değil: her biri en açık yüzeye
+       (--field #0d1230) karşı ölçüldü, hepsi WCAG AA (4.5:1) üstünde.
        ========================================================================== */
 
+    /* Yerel dosyalar. CDN YOK — zayıf ağda ve başka makinede aynı görünsün.
+       İki dosya: Space Grotesk değişken (300-700) + Space Mono 400. */
+    @font-face {
+      font-family: "Space Grotesk";
+      src: url("/fonts/SpaceGrotesk.woff2") format("woff2");
+      font-weight: 300 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Space Mono";
+      src: url("/fonts/SpaceMono.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
     :root {
-      --bg:        #090b0c;
-      --card:      #101417;
-      --field:     #171d21;
-      --line:      #232b30;
-      --line-soft: #1b2227;
-      --text:      #e8eef2;   /* 14.54:1 */
-      --muted:     #93a4ad;   /*  6.61:1 */
-      --cyan:      #3fe9ff;   /* 11.60:1 */
-      --blue:      #0051ff;
+      --bg:     #05081a;
+      --card:   #090d21;   /* zeminden çok az açık */
+      --field:  #0d1230;
+      --line:   #1a2145;
+      --line-2: #141a38;
+      --text:   #dbe4ff;   /* 15.17:1 */
+      --muted:  #8e9ac9;   /*  6.98:1 */
+      --accent: #7fb4ff;   /*  9.05:1  — tek vurgu rengi */
 
-      /* Anlam renkleri — YALNIZCA kanıt çıktısında kullanılır.
-         Kroma (buton, kenar, odak, hero) asla bu renkleri kullanmaz, yoksa
-         "yeşil" ekranda iki ayrı şey demeye başlar. */
-      --ok:        #45d97f;   /*  9.31:1 */
-      --err:       #ff7b72;   /*  6.75:1 */
-      --warn:      #b8912c;   /*  5.77:1  — dipnot, sakin */
-      --finding:   #ffb15c;   /*  9.48:1  — bulgu adayı, yüksek sesli */
-      --neutral:   #a8b3b9;   /*  7.95:1  — bilerek renksiz: hüküm iddia etmiyor */
+      /* Anlam renkleri — YALNIZCA kanıt çıktısında. Kroma (buton, kenar,
+         odak, hero) bunları asla kullanmaz; yoksa "yeşil" iki şey demeye
+         başlar. */
+      --ok:      #5ce39a;  /* 11.26:1 */
+      --err:     #ff8a80;  /*  8.02:1 */
+      --warn:    #b58c33;  /*  5.90:1  — dipnot, sakin */
+      --finding: #ffb45c;  /* 10.41:1  — bulgu adayı, yüksek sesli */
+      --neutral: #a9b2d8;  /*  8.76:1  — bilerek renksiz: hüküm iddia etmiyor */
+      /* .warn ↔ .finding ayrımı 1.76 */
 
-      /* .warn ↔ .finding ayrımı 1.64. İkisi bugün aynı renkti ve yalnızca
-         punto/ağırlıkla ayrılıyordu; koyu temada renk ayrımı da eklendi. */
-
-      --r:   14px;
-      --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      --grotesk: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+      --mono:    "Space Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      /* Dış font YOK — zayıf ağda ve başka makinede aynı görünsün diye
-         yalnızca sistem yığını. */
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-family: var(--grotesk);
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
     }
 
-    .wrap { max-width: 860px; margin: 0 auto; padding: 0 20px 72px; }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px 96px; }
 
     /* ---------------------------------------------------------------- hero -- */
 
-    .hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--line); }
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border-bottom: 1px solid var(--line-2);
+    }
 
-    /* Blok deseni. KISIT: pointer-events yok, düşük opaklık, metnin ARKASINDA.
-       Kartların içine asla girmez — kanıt metninin okunurluğu pazarlık dışı. */
-    .hero-grid {
-      position: absolute; inset: 0; z-index: 0;
+    /* Merkeze yakınsayan ışınlar + seyrek nokta tozu + soluk halkalar.
+       pointer-events yok, aria-hidden, metnin arkasında. */
+    .hero-bg {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
       pointer-events: none;
-      opacity: .16;
-      --u: 13px;
-      --c1: #cdd6db; --c2: #05070a; --c3: #182026;
-      --gp: 50% / calc(var(--u) * 16.9) calc(var(--u) * 12.8);
-      background:
-        conic-gradient(from 122deg at 50% 85.15%, var(--c2) 0 58deg, var(--c3) 0 116deg, #fff0 0 100%) var(--gp),
-        conic-gradient(from 122deg at 50% 72.5%, var(--c1) 0 116deg, #fff0 0 100%) var(--gp),
-        conic-gradient(from 58deg at 82.85% 50%, var(--c3) 0 64deg, #fff0 0 100%) var(--gp),
-        conic-gradient(from 58deg at 66.87% 50%, var(--c1) 0 64deg, var(--c2) 0 130deg, #fff0 0 100%) var(--gp),
-        conic-gradient(from 238deg at 17.15% 50%, var(--c2) 0 64deg, #fff0 0 100%) var(--gp),
-        conic-gradient(from 172deg at 33.13% 50%, var(--c3) 0 66deg, var(--c1) 0 130deg, #fff0 0 100%) var(--gp),
-        linear-gradient(98deg, var(--c3) 0 15%, #fff0 calc(15% + 1px) 100%) var(--gp),
-        linear-gradient(-98deg, var(--c2) 0 15%, #fff0 calc(15% + 1px) 100%) var(--gp),
-        conic-gradient(from -58deg at 50.25% 14.85%, var(--c3) 0 58deg, var(--c2) 0 116deg, #fff0 0 100%) var(--gp),
-        conic-gradient(from -58deg at 50% 28.125%, var(--c1) 0 116deg, #fff0 0 100%) var(--gp),
-        linear-gradient(90deg, var(--c2) 0 50%, var(--c3) 0 100%) var(--gp);
-      /* Desen metnin altında sönümlensin: okunurluk deseni yener. */
-      -webkit-mask-image: radial-gradient(120% 90% at 78% 8%, #000 0%, transparent 68%);
-      mask-image: radial-gradient(120% 90% at 78% 8%, #000 0%, transparent 68%);
+      stroke: var(--accent);
+      fill: var(--accent);
+    }
+    .hero-bg .rays  { animation: spin 240s linear infinite; transform-origin: 500px 500px; }
+    .hero-bg .rings { animation: breathe 14s ease-in-out infinite; transform-origin: 500px 500px; }
+    @keyframes spin    { to { transform: rotate(360deg); } }
+    @keyframes breathe { 50% { opacity: .45; transform: scale(1.035); } }
+
+    /* Merkezdeki soluk parıltı — tek radial, tek renk. */
+    .hero::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(closest-side at 50% 50%, rgba(127,180,255,.10), transparent 70%);
     }
 
-    /* Hero parıltısı — tek animasyon, reduced-motion'da kapanıyor. */
-    .hero-glow {
-      position: absolute; inset: -40% -10% auto -10%; height: 150%;
-      z-index: 0; pointer-events: none;
-      background:
-        radial-gradient(closest-side at 22% 38%, rgba(63,233,255,.16), transparent),
-        radial-gradient(closest-side at 62% 12%, rgba(0,81,255,.14), transparent);
-      animation: drift 22s ease-in-out infinite alternate;
-    }
-    @keyframes drift { to { transform: translate3d(3%, 2%, 0) scale(1.06); } }
+    .hero-mid { position: relative; z-index: 1; text-align: center; padding: 0 24px; }
 
-    .hero-inner { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 86px 20px 64px; }
-
-    .eyebrow {
-      margin: 0 0 14px; font-size: 11px; font-weight: 700;
-      letter-spacing: .22em; text-transform: uppercase; color: var(--cyan);
+    .tag {
+      margin: 0 0 26px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: .26em; text-transform: uppercase;
+      color: var(--accent);
     }
+
     .hero h1 {
-      margin: 0; font-size: clamp(40px, 7vw, 76px); line-height: 1.02;
-      letter-spacing: -.035em; font-weight: 700;
-      background: linear-gradient(180deg, #ffffff 18%, #8fa3ad 100%);
-      -webkit-background-clip: text; background-clip: text; color: transparent;
+      margin: 0;
+      font-family: var(--grotesk);
+      font-size: clamp(3.5rem, 12vw, 14rem);
+      font-weight: 700;
+      letter-spacing: -.055em;
+      line-height: .92;
+      color: var(--text);
     }
-    /* KISIT: hero'da SAYI YOK. Sayılar raporda, kaynağıyla birlikte duruyor. */
-    .lede { margin: 18px 0 0; font-size: clamp(15px, 1.7vw, 18px); color: var(--muted); max-width: 54ch; }
-    .lede b { color: var(--text); font-weight: 600; }
 
-    .hero .warn { margin-top: 26px; max-width: 62ch; }
-
-    /* ------------------------------------------------------------ ayırıcı -- */
-
-    /* Bölüm ayırıcısı — deseni ikinci kez, ince bir şerit olarak kullanır. */
-    .divider {
-      height: 26px; margin: 30px 0; border: 0;
-      pointer-events: none; opacity: .3;
-      background:
-        repeating-linear-gradient(115deg, var(--line) 0 1px, transparent 1px 13px),
-        repeating-linear-gradient(-115deg, var(--line) 0 1px, transparent 1px 13px);
-      -webkit-mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
-      mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
+    .lede {
+      margin: 30px auto 0; max-width: 46ch;
+      font-size: clamp(14px, 1.35vw, 17px);
+      color: var(--muted);
     }
+
+    /* Köşe etiketleri — hepsi Space Mono, küçük, geniş aralıklı. */
+    .corner {
+      position: absolute; z-index: 1;
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: .18em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .tl { top: 28px; left: 28px; }
+    .tr { top: 28px; right: 28px; }
+    .bl { bottom: 28px; left: 28px; }
+    .br { bottom: 28px; right: 28px; max-width: 46vw; text-align: right; letter-spacing: .12em; }
 
     /* -------------------------------------------------------------- kart --- */
 
+    .divider { height: 1px; margin: 44px 0; border: 0; background: var(--line-2); }
+
     section {
-      position: relative;
       background: var(--card);
       border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 28px;
-      margin-bottom: 20px;
-    }
-    section::before {
-      content: ""; position: absolute; inset: 0 0 auto; height: 1px;
-      border-radius: 20px 20px 0 0;
-      background: linear-gradient(90deg, transparent, rgba(63,233,255,.34), transparent);
-      pointer-events: none;
+      border-radius: 4px;
+      padding: 30px;
+      margin-bottom: 18px;
+      /* gölge YOK */
     }
 
-    .sec-head { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+    .sec-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 4px; }
     .sec-n {
-      flex: 0 0 auto; width: 34px; height: 34px; border-radius: 10px;
-      display: grid; place-items: center;
-      font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums;
-      color: var(--cyan); background: rgba(63,233,255,.07);
-      border: 1px solid rgba(63,233,255,.24);
+      font-family: var(--grotesk);
+      font-size: 13px; font-weight: 700;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
     }
-    section h2 { margin: 0; font-size: 19px; font-weight: 650; letter-spacing: -.01em; }
+    section h2 {
+      margin: 0; font-family: var(--grotesk);
+      font-size: 21px; font-weight: 700; letter-spacing: -.02em;
+    }
 
-    hr { border: 0; border-top: 1px solid var(--line-soft); margin: 22px 0; }
+    hr { border: 0; border-top: 1px solid var(--line-2); margin: 26px 0; }
 
-    label { display: block; margin-top: 18px; margin-bottom: 6px; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+    /* Küçük etiketler: Space Mono, BÜYÜK HARF, geniş aralık. */
+    label {
+      display: block; margin: 22px 0 7px;
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: .18em; text-transform: uppercase;
+      color: var(--muted);
+    }
 
     /* --------------------------------------------------------- form ögeleri */
 
     textarea, input {
-      width: 100%; padding: 11px 13px;
+      width: 100%; padding: 12px 14px;
       font-family: var(--mono); font-size: 13px;
       color: var(--text); background: var(--field);
-      border: 1px solid var(--line); border-radius: 10px;
-      transition: border-color .15s, box-shadow .15s;
+      border: 1px solid var(--line); border-radius: 3px;
+      transition: border-color .15s;
     }
-    textarea::placeholder, input::placeholder { color: #6b7b84; }
-    textarea:focus, input:focus {
-      outline: none; border-color: rgba(63,233,255,.55);
-      box-shadow: 0 0 0 3px rgba(63,233,255,.13);
-    }
-    /* main.js tx girdilerini de kilitliyor (:365, :414, :629). Kilitli girdi
-       açık görünürse kilitli butonun açık görünmesiyle aynı hata olur. */
+    textarea::placeholder, input::placeholder { color: #5d6796; }
+    textarea:focus, input:focus { outline: none; border-color: var(--accent); }
+    /* main.js tx girdilerini de kilitliyor (:365, :414, :629). */
     input:disabled, textarea:disabled {
-      opacity: .45; cursor: not-allowed;
-      background: #12171a; color: var(--muted); border-color: var(--line-soft);
+      opacity: .4; cursor: not-allowed;
+      background: #0a0e26; color: var(--muted); border-color: var(--line-2);
     }
 
-    code { font-family: var(--mono); font-size: .92em; color: var(--cyan); }
+    code { font-family: var(--mono); font-size: .9em; color: var(--accent); }
 
     /* ----------------------------------------------------------- butonlar -- */
 
     button {
       appearance: none; cursor: pointer;
-      margin: 14px 8px 0 0;
+      margin: 18px 10px 0 0;
       padding: 11px 20px;
-      font-family: inherit; font-size: 14px; font-weight: 600;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: .14em; text-transform: uppercase;
       color: var(--text);
-      background: #1a2126;
-      border: 1px solid #2c363d; border-radius: 12px;
-      transition: background .15s, border-color .15s, transform .12s;
+      background: transparent;
+      border: 1px solid var(--line); border-radius: 3px;
+      transition: border-color .15s, color .15s;
     }
-    button:hover:not(:disabled) { background: #212a30; border-color: #3c4952; }
-    button:active:not(:disabled) { transform: translateY(1px); }
-    button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+    button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+    button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
 
-    /* KISIT: kilitli buton açık GİBİ görünmemeli. Parıltı yok, opaklık düşük,
-       imleç not-allowed — ve hover tepkisi de yok. */
+    /* Kilitli buton açık GİBİ görünmemeli: soluk, not-allowed, hover yok. */
     button:disabled {
-      cursor: not-allowed; opacity: .38;
-      color: var(--muted); background: #141a1e;
-      border-color: var(--line-soft); box-shadow: none; transform: none;
+      cursor: not-allowed; opacity: .32;
+      color: var(--muted); border-color: var(--line-2); background: transparent;
     }
 
-    /* BİRİNCİL EYLEM — sayfada tek tane: zincire gönderim. Parıltı bir kez
-       kullanılınca bir şey demek; dokuz butona dağıtılırsa hiçbir şey demez. */
+    /* BİRİNCİL EYLEM — düz ve dolu: açık zemin, koyu metin. Gradyan/parıltı YOK. */
     #btn-send {
-      position: relative; isolation: isolate;
-      padding: 13px 26px; font-size: 15px; color: #fff;
-      border: none; border-radius: 16px;
-      background: radial-gradient(circle 80px at 80% -10%, #ffffff, #181b1b);
-      box-shadow: 0 0 22px rgba(63,233,255,.16), -8px 10px 30px rgba(0,81,255,.16);
-    }
-    /* İç yüzey — 2px'lik halkayı dışarıda bırakır. İç içe span YOK: main.js
-       buton metnine dokunmuyor ama sözde-öge yine de kırılmaz yol. */
-    #btn-send::before {
-      content: ""; position: absolute; inset: 2px; z-index: -1;
-      border-radius: 14px;
-      background: radial-gradient(circle 80px at 80% -50%, #777777, #0f1111);
-    }
-    /* Sol-alt cyan blob. */
-    #btn-send::after {
-      content: ""; position: absolute; inset: 2px; z-index: -1;
-      border-radius: 14px;
-      background: radial-gradient(circle 60px at 0% 100%, #3fe9ff, #0000ff80, transparent);
+      background: var(--text);
+      color: var(--bg);           /* 15.67:1 */
+      border-color: var(--text);
     }
     #btn-send:hover:not(:disabled) {
-      box-shadow: 0 0 30px rgba(63,233,255,.28), -10px 12px 34px rgba(0,81,255,.24);
+      background: #ffffff; color: var(--bg); border-color: #ffffff;
     }
-    /* Kilitliyken parıltının HER İZİ silinir — kutu gölgesi de, iki sözde-öge de. */
     #btn-send:disabled {
-      background: #141a1e; color: var(--muted);
-      box-shadow: none; opacity: .38; cursor: not-allowed;
+      background: #232a4d; color: #7d88b5; border-color: #232a4d; opacity: .5;
     }
-    #btn-send:disabled::before, #btn-send:disabled::after { display: none; }
 
     /* ------------------------------------------------- ALTI SINIF (main.js) --
-       Her biri AYRI kural. Gruplanmaz — kontrol `\.sınıf\s*\{` arıyor. */
+       Her biri AYRI kural. Gruplanmaz. */
 
     .field {
       word-break: break-all;
       background: var(--field); border: 1px solid var(--line);
-      padding: 11px 13px; border-radius: 10px;
+      padding: 12px 14px; border-radius: 3px;
       font-family: var(--mono); font-size: 13px; color: var(--text);
       margin-top: 4px;
     }
@@ -257,13 +243,12 @@
     .err { color: var(--err); }
     /* Negatif kanıtın iki ara sonucu. Ayrı sınıflar, çünkü ikisi de ne .ok
        (yeşil, "kanıt geçerli") ne .err (kırmızı, "işlem başarısız") demek:
-       .finding — kontrat cevap verdi ama BEKLENEN mesajı vermedi. Bulgu adayı,
-                  bakılması gerekir; .warn'un 12px'lik dipnot görünümü sahnede
-                  bunu gözden kaçırtır.
+       .finding — kontrat cevap verdi ama BEKLENEN mesajı vermedi. Bulgu adayı;
+                  .warn'un 12px'lik dipnot görünümü sahnede bunu gözden kaçırtır.
        .neutral — kontrata ulaşılamadı. Kanıt ALINAMADI; olumlu da olumsuz da
                   değil. Renk bilerek gri: ekranda hiçbir hüküm iddia etmiyor.
-       Koyu temada ikisine renk ayrımı da eklendi (ayrım oranı 1.64), ama
-       punto/ağırlık ayrımı korundu — tek başına renge yaslanmıyor. */
+       Renk ayrımı 1.76, ama punto/ağırlık ayrımı da korundu — tek başına
+       renge yaslanmıyor. */
     .finding { color: var(--finding); font-weight: bold; }
     .neutral { color: var(--neutral); font-weight: bold; }
 
@@ -271,66 +256,148 @@
 
     /* statusLine() (main.js:40) DURUM satırını çıktının İLK çocuğu olarak basar:
        <p class="…"><strong>DURUM: ETİKET</strong></p>
-       Dokuz ayrı etiket var ama yalnızca dört CSS tutamağı taşıyorlar
-       (sınıfsız / .ok / .err / .warn) — CSS metin içeriğine göre seçim
-       yapamadığı için dokuzunu ayrı renklendirmek main.js'e dokunmayı
-       gerektirir. Burada CSS'in tavanı veriliyor: dört ayrı renk + yapısal
-       olarak ayrışan bir çip. Eşleme devir notunda. */
+       Dokuz ayrı etiket var, dört CSS tutamağı taşıyorlar (sınıfsız / .ok /
+       .err / .warn). CSS metin içeriğine göre seçim yapamaz, dokuzunu ayırmak
+       main.js'e dokunmayı gerektirir — açılmıyor. Dört renk grubu aynen kalıyor. */
     #send-out > p:first-child > strong {
-      display: inline-block; margin: 2px 0 6px;
-      padding: 6px 14px; border-radius: 999px;
-      font-size: 11px; font-weight: 700;
-      letter-spacing: .1em; text-transform: uppercase;
+      display: inline-block; margin: 2px 0 8px;
+      padding: 7px 14px; border-radius: 2px;
+      font-family: var(--mono); font-size: 10px; font-weight: 400;
+      letter-spacing: .2em; text-transform: uppercase;
       color: inherit;
-      background: rgba(255,255,255,.04);
+      background: rgba(127,180,255,.05);
       border: 1px solid var(--line);
     }
     /* Sınıfsız hâl = "iş sürüyor" (KONTROL · MetaMask ONAYI BEKLENİYOR ·
-       ZİNCİRDE BEKLENİYOR). :not([class]) ile seçilebiliyor, böylece gövde
-       metninden ayrılıp kendi rengini alıyor — anlam renklerinden hiçbirini
-       çalmadan. */
+       ZİNCİRDE BEKLENİYOR): gövde metninden ayrılıp vurgu rengini alıyor. */
     #send-out > p:first-child:not([class]) > strong {
-      color: var(--cyan); border-color: rgba(63,233,255,.3);
-      background: rgba(63,233,255,.07);
+      color: var(--accent); border-color: rgba(127,180,255,.34);
     }
 
     /* ---------------------------------------------------------- çıktı alanı */
 
-    #keygen-out, #sign-out, #connection-out, #wallet-out, #tx-out, #send-out, #chain-warn { margin-top: 12px; }
-    #keygen-out p, #sign-out p, #connection-out p, #wallet-out p, #tx-out p, #send-out p, #chain-warn p { margin: 8px 0; }
-    a { color: var(--cyan); }
+    #keygen-out, #sign-out, #connection-out, #wallet-out, #tx-out, #send-out, #chain-warn { margin-top: 14px; }
+    #keygen-out p, #sign-out p, #connection-out p, #wallet-out p, #tx-out p, #send-out p, #chain-warn p { margin: 9px 0; }
+    a { color: var(--accent); }
 
     /* ------------------------------------------------------- erişilebilirlik */
 
     @media (prefers-reduced-motion: reduce) {
-      .hero-glow { animation: none; }
       *, *::before, *::after { transition: none !important; animation: none !important; }
     }
 
-    @media (max-width: 640px) {
-      .hero-inner { padding: 56px 20px 44px; }
-      section { padding: 20px; border-radius: 16px; }
+    @media (max-width: 680px) {
+      .corner { font-size: 9px; }
+      .br { max-width: 54vw; }
+      section { padding: 22px; }
       button { width: 100%; margin-right: 0; }
     }
   </style>
 </head>
 <body>
   <header class="hero">
-    <div class="hero-grid" aria-hidden="true"></div>
-    <div class="hero-glow" aria-hidden="true"></div>
-    <div class="hero-inner">
-      <p class="eyebrow">Kuantum-güvenli cüzdan</p>
-      <h1>PQ-SAFE</h1>
-      <p class="lede"><b>SPHINCS-/C13</b> · Sepolia · her işlemde zincir üstü doğrulama</p>
-      <p class="warn">Bu sayfa Sprint 1 kanıtı içindir (frontend/src/crypto/signer.js WASM sarmalayıcısını gösterir), üretim cüzdanı değildir.</p>
+    <svg class="hero-bg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+      <g class="rays">
+        <line x1="650.2" y1="519.6" x2="1488.5" y2="629.2" stroke-width="0.91" opacity="0.173"/>
+        <line x1="654.7" y1="560.3" x2="1452.2" y2="871.1" stroke-width="0.83" opacity="0.158"/>
+        <line x1="626.5" y1="589.1" x2="1275.6" y2="1045.9" stroke-width="0.52" opacity="0.082"/>
+        <line x1="610.9" y1="627.5" x2="1061.8" y2="1146.0" stroke-width="0.76" opacity="0.174"/>
+        <line x1="571.7" y1="639.6" x2="907.4" y2="1293.8" stroke-width="0.60" opacity="0.083"/>
+        <line x1="536.7" y1="655.0" x2="711.4" y2="1392.8" stroke-width="0.57" opacity="0.135"/>
+        <line x1="498.3" y1="680.2" x2="490.7" y2="1515.1" stroke-width="0.73" opacity="0.172"/>
+        <line x1="458.8" y1="660.7" x2="234.1" y2="1537.9" stroke-width="0.64" opacity="0.070"/>
+        <line x1="415.6" y1="657.2" x2="-5.4" y2="1441.8" stroke-width="0.62" opacity="0.137"/>
+        <line x1="389.8" y1="622.1" x2="-66.9" y2="1128.2" stroke-width="0.79" opacity="0.104"/>
+        <line x1="364.2" y1="591.9" x2="-225.7" y2="991.2" stroke-width="0.78" opacity="0.103"/>
+        <line x1="336.1" y1="560.4" x2="-364.5" y2="818.8" stroke-width="0.86" opacity="0.082"/>
+        <line x1="322.6" y1="519.9" x2="-405.9" y2="601.6" stroke-width="0.70" opacity="0.098"/>
+        <line x1="346.5" y1="479.9" x2="-498.5" y2="369.5" stroke-width="0.55" opacity="0.149"/>
+        <line x1="342.0" y1="438.4" x2="-489.7" y2="114.2" stroke-width="0.67" opacity="0.099"/>
+        <line x1="371.5" y1="409.6" x2="-253.1" y2="-30.1" stroke-width="0.73" opacity="0.073"/>
+        <line x1="376.2" y1="357.7" x2="-104.6" y2="-195.2" stroke-width="0.53" opacity="0.149"/>
+        <line x1="428.7" y1="361.1" x2="93.0" y2="-293.1" stroke-width="0.96" opacity="0.062"/>
+        <line x1="458.4" y1="324.3" x2="267.4" y2="-482.2" stroke-width="0.97" opacity="0.177"/>
+        <line x1="501.6" y1="328.2" x2="508.9" y2="-465.4" stroke-width="1.00" opacity="0.051"/>
+        <line x1="540.1" y1="343.6" x2="750.6" y2="-477.9" stroke-width="0.67" opacity="0.072"/>
+        <line x1="574.2" y1="361.8" x2="949.8" y2="-338.3" stroke-width="0.60" opacity="0.085"/>
+        <line x1="615.4" y1="372.1" x2="1173.8" y2="-246.7" stroke-width="0.70" opacity="0.170"/>
+        <line x1="642.7" y1="403.4" x2="1264.6" y2="-17.5" stroke-width="0.85" opacity="0.139"/>
+        <line x1="678.0" y1="434.3" x2="1453.1" y2="148.5" stroke-width="0.82" opacity="0.085"/>
+        <line x1="680.8" y1="479.7" x2="1339.0" y2="405.9" stroke-width="0.99" opacity="0.157"/>
+      </g>
+      <g class="rings">
+        <circle cx="500" cy="500" r="150" fill="none" stroke-width="0.9" opacity="0.160"/>
+        <circle cx="500" cy="500" r="262" fill="none" stroke-width="0.55" opacity="0.115"/>
+        <circle cx="500" cy="500" r="386" fill="none" stroke-width="0.55" opacity="0.070"/>
+      </g>
+      <g class="dust">
+        <circle cx="349.4" cy="961.5" r="0.70" opacity="0.340"/>
+        <circle cx="179.8" cy="559.5" r="0.89" opacity="0.346"/>
+        <circle cx="76.8" cy="369.5" r="1.43" opacity="0.132"/>
+        <circle cx="413.2" cy="845.6" r="1.05" opacity="0.104"/>
+        <circle cx="729.9" cy="302.0" r="1.57" opacity="0.127"/>
+        <circle cx="426.6" cy="60.9" r="1.75" opacity="0.247"/>
+        <circle cx="853.1" cy="889.9" r="1.67" opacity="0.123"/>
+        <circle cx="-2.1" cy="171.0" r="1.25" opacity="0.327"/>
+        <circle cx="619.5" cy="1007.2" r="0.88" opacity="0.283"/>
+        <circle cx="887.5" cy="833.6" r="1.31" opacity="0.124"/>
+        <circle cx="385.6" cy="-50.2" r="1.36" opacity="0.248"/>
+        <circle cx="525.6" cy="741.8" r="0.80" opacity="0.207"/>
+        <circle cx="302.1" cy="754.9" r="1.06" opacity="0.331"/>
+        <circle cx="-120.7" cy="233.8" r="1.62" opacity="0.265"/>
+        <circle cx="395.8" cy="157.0" r="1.20" opacity="0.255"/>
+        <circle cx="593.4" cy="-228.0" r="1.66" opacity="0.146"/>
+        <circle cx="851.2" cy="182.3" r="1.30" opacity="0.342"/>
+        <circle cx="810.2" cy="321.7" r="1.21" opacity="0.349"/>
+        <circle cx="754.5" cy="249.6" r="1.11" opacity="0.114"/>
+        <circle cx="-189.6" cy="626.8" r="1.70" opacity="0.205"/>
+        <circle cx="1013.3" cy="380.2" r="1.11" opacity="0.234"/>
+        <circle cx="1237.0" cy="731.6" r="1.48" opacity="0.145"/>
+        <circle cx="535.9" cy="871.6" r="1.37" opacity="0.126"/>
+        <circle cx="996.7" cy="-61.9" r="1.60" opacity="0.152"/>
+        <circle cx="938.5" cy="283.7" r="1.00" opacity="0.138"/>
+        <circle cx="333.3" cy="920.7" r="1.79" opacity="0.209"/>
+        <circle cx="954.6" cy="764.0" r="1.38" opacity="0.170"/>
+        <circle cx="811.8" cy="235.0" r="0.74" opacity="0.328"/>
+        <circle cx="895.5" cy="901.2" r="1.15" opacity="0.334"/>
+        <circle cx="236.6" cy="441.1" r="1.59" opacity="0.144"/>
+        <circle cx="877.5" cy="1095.7" r="1.27" opacity="0.198"/>
+        <circle cx="1068.4" cy="429.6" r="1.26" opacity="0.196"/>
+        <circle cx="1083.5" cy="381.7" r="1.50" opacity="0.227"/>
+        <circle cx="536.2" cy="121.7" r="1.12" opacity="0.203"/>
+        <circle cx="873.2" cy="999.5" r="1.13" opacity="0.112"/>
+        <circle cx="-213.2" cy="534.0" r="1.66" opacity="0.184"/>
+        <circle cx="340.3" cy="809.3" r="1.63" opacity="0.131"/>
+        <circle cx="321.8" cy="754.8" r="0.79" opacity="0.231"/>
+        <circle cx="532.0" cy="848.9" r="1.05" opacity="0.151"/>
+        <circle cx="505.9" cy="837.5" r="1.74" opacity="0.177"/>
+        <circle cx="-189.0" cy="572.0" r="1.80" opacity="0.324"/>
+        <circle cx="768.3" cy="735.6" r="1.53" opacity="0.346"/>
+        <circle cx="1169.4" cy="693.4" r="1.07" opacity="0.136"/>
+        <circle cx="1053.3" cy="913.5" r="0.72" opacity="0.116"/>
+        <circle cx="1035.2" cy="151.6" r="0.87" opacity="0.124"/>
+        <circle cx="920.9" cy="697.0" r="0.92" opacity="0.125"/>
+      </g>
+    </svg>
+
+    <div class="hero-mid">
+      <p class="tag">Kuantum sonrası imza · SPHINCS-/C13</p>
+      <h1>PQ-Safe</h1>
+      <p class="lede">Kuantum sonrası imzayla yetkilendirilen akıllı kontrat cüzdanı.
+        Her işlem Sepolia'da zincir üstünde doğrulanır.</p>
     </div>
+
+    <span class="corner tl">Kaydır ↓</span>
+    <span class="corner tr">Sepolia</span>
+    <span class="corner bl">TEKNOFEST 2026</span>
+    <span class="corner br">Araştırma prototipi · üretim cüzdanı değildir</span>
   </header>
 
   <div class="wrap">
     <hr class="divider" aria-hidden="true" />
 
     <section>
-      <div class="sec-head"><span class="sec-n" aria-hidden="true">1</span><h2>Anahtar Üret</h2></div>
+      <div class="sec-head"><span class="sec-n" aria-hidden="true">01</span><h2>Anahtar Üret</h2></div>
       <button id="btn-keygen">Yeni anahtar çifti üret</button>
 
       <hr />
@@ -343,26 +410,22 @@
     </section>
 
     <section>
-      <div class="sec-head"><span class="sec-n" aria-hidden="true">2</span><h2>İmzala</h2></div>
+      <div class="sec-head"><span class="sec-n" aria-hidden="true">02</span><h2>İmzala</h2></div>
       <label for="digest">Digest (32 bayt, hex, 0x ile)</label>
       <input id="digest" value="0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef" />
       <button id="btn-sign">İmzala</button>
       <div id="sign-out"></div>
     </section>
 
-    <hr class="divider" aria-hidden="true" />
-
     <section>
-      <div class="sec-head"><span class="sec-n" aria-hidden="true">3</span><h2>Sepolia Bağlantısı</h2></div>
+      <div class="sec-head"><span class="sec-n" aria-hidden="true">03</span><h2>Sepolia Bağlantısı</h2></div>
       <p class="warn">Salt-okunur bağlantı testi — kontrata dokunmaz, sadece RPC'nin çalıştığını kanıtlar.</p>
       <button id="btn-check-connection">Bağlantıyı test et</button>
       <div id="connection-out"></div>
     </section>
 
-    <hr class="divider" aria-hidden="true" />
-
     <section>
-      <div class="sec-head"><span class="sec-n" aria-hidden="true">4</span><h2>İşlem Oluştur, İmzala ve Gönder</h2></div>
+      <div class="sec-head"><span class="sec-n" aria-hidden="true">04</span><h2>İşlem Oluştur, İmzala ve Gönder</h2></div>
       <p class="warn">Cüzdan adresi ve nonce artık girdi değil — adres yapılandırmadan, nonce zincirden geliyor.</p>
 
       <label>PQWallet adresi (yapılandırmadan)</label>
