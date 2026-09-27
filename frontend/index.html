@@ -19,81 +19,115 @@
 
     /* --------------------------------------------------------------------------
        FONTLAR — yerel dosyalar, CDN YOK (zayıf ağda ve başka makinede aynı
-       görünsün diye). İki dosya: Space Grotesk değişken (300-700) + Space Mono 400.
+       görünsün diye). Dört dosya:
+         Schibsted Grotesk  değişken 400-800  · başlık, gövde, buton
+         Instrument Serif   normal + italik   · vurgu kelimeleri, numaralar
+         JetBrains Mono     değişken 400-600  · etiket, adres, hash, konsol
 
-       Copyright 2020 The Space Grotesk Project Authors (https://github.com/floriankarsten/space-grotesk)
-       Copyright 2016 The Space Mono Project Authors (https://github.com/googlefonts/spacemono)
+       Copyright 2023 The Schibsted-Grotesk Project Authors (https://github.com/schibsted/schibsted-grotesk)
+       Copyright 2022 The Instrument Serif Project Authors (https://github.com/Instrument/instrument-serif)
+       Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono)
 
-       Bu yazı tipleri SIL Open Font License 1.1 ile lisanslanmıştır.
+       Üçü de SIL Open Font License 1.1 ile lisanslanmıştır.
        Lisans metni: https://openfontlicense.org/open-font-license-official-text/
 
        Dosyalar Google Fonts üzerinden ALTKÜMELENMİŞ olarak alındı. Glif seti
-       (134 karakter) şunların birleşimi:
-         · index.html ve frontend/src altındaki 17 .js/.mjs dosyasının TAMAMI
-           (string literallerin üst kümesi — literal ayrıştırmasının kaçırma
-            ihtimalini kapatmak için dosya içeriğinin tamamı tarandı)
+       (137 karakter) şunların birleşimi:
+         · index.html, tasarım prototipi ve frontend/src altındaki 17 .js/.mjs
+           dosyasının TAMAMI (string literallerin üst kümesi)
          · tam yazdırılabilir ASCII
          · tam Türk alfabesi, büyük ve küçük
-         · … “ ” ‘ ’ – — → ← × · • ✓ ⚠ ° ±
+         · … “ ” ‘ ’ – — → ← ↑ ↓ ↗ × · • ✓ ⚠ ° ± ~ −
        Doğrulandı: kaynak dosyalarda geçip sette bulunmayan karakter YOK.
        Türkçe kapsama — ı/İ U+0130-0131, ğ/Ğ U+011E-011F, ş/Ş U+015E-015F,
        ç ö ü hepsi unicode-range içinde.
 
        ⚠ Altküme sınırlı: bu setin DIŞINDA bir karakter sayfaya girerse
-       sessizce system-ui yedeğine düşer. Yeni metin eklenince set yeniden
+       sessizce sistem yedeğine düşer. Yeni metin eklenince set yeniden
        üretilip fontlar yeniden indirilmeli.
        -------------------------------------------------------------------------- */
     @font-face {
-      font-family: "Space Grotesk";
-      src: url("/fonts/SpaceGrotesk.woff2") format("woff2");
-      font-weight: 300 700;
-      font-style: normal;
-      font-display: swap;
+      font-family: "Schibsted Grotesk";
+      src: url("/fonts/SchibstedGrotesk.woff2") format("woff2");
+      font-weight: 400 800; font-style: normal; font-display: swap;
     }
     @font-face {
-      font-family: "Space Mono";
-      src: url("/fonts/SpaceMono.woff2") format("woff2");
-      font-weight: 400;
-      font-style: normal;
-      font-display: swap;
+      font-family: "Instrument Serif";
+      src: url("/fonts/InstrumentSerif.woff2") format("woff2");
+      font-weight: 400; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: "Instrument Serif";
+      src: url("/fonts/InstrumentSerif-Italic.woff2") format("woff2");
+      font-weight: 400; font-style: italic; font-display: swap;
+    }
+    @font-face {
+      font-family: "JetBrains Mono";
+      src: url("/fonts/JetBrainsMono.woff2") format("woff2");
+      font-weight: 400 600; font-style: normal; font-display: swap;
     }
 
     :root {
-      --bg:     #05081a;
-      --card:   #090d21;   /* zeminden çok az açık */
-      --field:  #0d1230;
-      --line:   #1a2145;
-      --line-2: #141a38;
-      --text:   #dbe4ff;   /* 15.17:1 */
-      --muted:  #8e9ac9;   /*  6.98:1 */
-      --accent: #7fb4ff;   /*  9.05:1  — tek vurgu rengi */
+      color-scheme: dark;
 
-      /* Anlam renkleri — YALNIZCA kanıt çıktısında. Kroma (buton, kenar,
-         odak, hero) bunları asla kullanmaz; yoksa "yeşil" iki şey demeye
-         başlar. */
-      --ok:      #5ce39a;  /* 11.26:1 */
-      --err:     #ff8a80;  /*  8.02:1 */
-      --warn:    #b58c33;  /*  5.90:1  — dipnot, sakin */
-      --finding: #ffb45c;  /* 10.41:1  — bulgu adayı, yüksek sesli */
-      --neutral: #a9b2d8;  /*  8.76:1  — bilerek renksiz: hüküm iddia etmiyor */
-      /* .warn ↔ .finding ayrımı 1.76 */
+      /* --- tasarım sistemi (prototip v3 token'ları, birebir) --- */
+      --ground:#1b100b; --surface:#24160f; --raised:#2d1c13; --inset:#150c08;
+      --line:rgba(243,233,220,.09); --line-2:rgba(243,233,220,.17);
+      --text:#f3e9dc; --muted:#bba892; --faint:#877460;
+      --accent:#ff5a1f; --accent-2:#ff7a45; --accent-ink:#1b100b;
+      --accent-soft:rgba(255,90,31,.12);
+      --lilac:#c9b8ff; --butter:#f1dc72;
+      --bone:#efe3d3; --taupe:#b49d85; --clay:#8a6f58;
+      --cream:#f4ece0; --cream-2:#ebe0d0; --ink:#24150d; --ink-muted:#6f5a48;
+      --ink-line:rgba(36,21,13,.12);
 
-      --grotesk: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
-      --mono:    "Space Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      /* Anlam renkleri — YALNIZCA main.js'in kanıt çıktısında. Kroma
+         (buton, kenar, odak, hero) bunları asla kullanmaz. */
+      --ok:#86d9a6; --err:#ff6f91; --warn:#f1dc72;
+      --finding:#ffb45c;   /* bulgu adayı — .warn'dan ayrı kalmalı */
+      --neutral:#bba892;   /* bilerek renksiz: hüküm iddia etmiyor */
+
+      --sans:"Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+      --serif:"Instrument Serif", "Iowan Old Style", Georgia, serif;
+      --mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+      --gutter:clamp(16px,4vw,56px);
+      --r-card:22px; --r-in:12px;
+
+      /* --- geçiş takma adları ---
+         A2/A3'te değişecek eski bölümler (hero, süreç, sonuçlar, SSS) hâlâ
+         bu adlara bakıyor. Yeni palete bağlandılar ki her aşama tek başına
+         çalışır kalsın. A3 bitince bu blok kalkacak. */
+      --bg: var(--ground);
+      --card: var(--surface);
+      --field: var(--inset);
+      --grotesk: var(--sans);
     }
 
     * { box-sizing: border-box; }
 
+    html, body { overflow-x: clip; }
+    html { scroll-behavior: auto; scroll-padding-top: 84px; }
+
     body {
       margin: 0;
-      font-family: var(--grotesk);
-      background: var(--bg);
+      font: 400 16px/1.6 var(--sans);
+      background: var(--ground);
       color: var(--text);
-      line-height: 1.6;
       -webkit-font-smoothing: antialiased;
     }
 
-    .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px 96px; }
+    /* Grain — sabit katman, tıklamayı engellemez. */
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none;
+      z-index: 50; opacity: .06; mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    }
+
+    em.s { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -.005em; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 8px; }
+
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px 0; }
 
     /* ---------------------------------------------------------------- hero -- */
 
@@ -151,7 +185,7 @@
       color: var(--muted);
     }
 
-    /* Köşe etiketleri — hepsi Space Mono, küçük, geniş aralıklı. */
+    /* Köşe etiketleri — mono, küçük, geniş aralıklı. */
     .corner {
       position: absolute; z-index: 1;
       font-family: var(--mono); font-size: 10px;
@@ -190,7 +224,7 @@
 
     hr { border: 0; border-top: 1px solid var(--line-2); margin: 26px 0; }
 
-    /* Küçük etiketler: Space Mono, BÜYÜK HARF, geniş aralık. */
+    /* Küçük etiketler: mono, BÜYÜK HARF, geniş aralık. */
     label {
       display: block; margin: 22px 0 7px;
       font-family: var(--mono); font-size: 10px;
@@ -217,92 +251,310 @@
 
     code { font-family: var(--mono); font-size: .9em; color: var(--accent); }
 
-    /* ----------------------------------------------------------- butonlar -- */
+    /* ----------------------------------------------------------- butonlar --
+       HAP şekil (999px). Hiyerarşi:
+         .btn-primary       bone dolgu, koyu metin  (içe aktar · bağlantı · imzala)
+         #btn-send/.btn-accent  accent turuncu dolgu, beyaz metin, turuncu gölge
+         .btn-danger        çerçeveli, err renginde metin (bozuk imza)
+         gerisi             çerçeveli
+       :disabled HER butonda aynı: opaklık .4, gölge yok, hover yok,
+       not-allowed. Kilit tek kaynaktan gelir (main.js syncSendButtons). */
 
-    button {
-      appearance: none; cursor: pointer;
-      margin: 18px 10px 0 0;
-      padding: 11px 20px;
-      font-family: var(--mono); font-size: 11px;
-      letter-spacing: .14em; text-transform: uppercase;
-      color: var(--text);
-      background: transparent;
-      border: 1px solid var(--line); border-radius: 3px;
-      transition: border-color .15s, color .15s;
+    button, .btn {
+      font: 600 14px var(--sans); letter-spacing: -.005em;
+      padding: 13px 22px; border-radius: 999px;
+      border: 1px solid var(--line-2); background: transparent; color: var(--text);
+      cursor: pointer; display: inline-flex; align-items: center; gap: 10px;
+      transition: transform .15s ease, background .15s, border-color .15s, color .15s;
     }
-    button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
-    button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
+    button:hover:not(:disabled), .btn:hover {
+      border-color: var(--text); text-decoration: none; transform: translateY(-1px);
+    }
+    .btn-primary { background: var(--bone); color: var(--accent-ink); border-color: var(--bone); }
+    .btn-primary:hover:not(:disabled) { background: #fff; color: var(--accent-ink); }
 
-    /* Kilitli buton açık GİBİ görünmemeli: soluk, not-allowed, hover yok. */
-    button:disabled {
-      cursor: not-allowed; opacity: .32;
-      color: var(--muted); border-color: var(--line-2); background: transparent;
+    #btn-send, .btn-accent {
+      background: var(--accent); border-color: var(--accent); color: #fff;
+      box-shadow: 0 10px 30px -10px rgba(255,90,31,.6);
     }
+    #btn-send:hover:not(:disabled), .btn-accent:hover { background: var(--accent-2); color: #fff; }
 
-    /* BİRİNCİL EYLEM — düz ve dolu: açık zemin, koyu metin. Gradyan/parıltı YOK. */
-    #btn-send {
-      background: var(--text);
-      color: var(--bg);           /* 15.67:1 */
-      border-color: var(--text);
+    .btn-danger { color: var(--err); border-color: rgba(255,111,145,.4); }
+
+    button:disabled, #btn-send:disabled {
+      opacity: .4; cursor: not-allowed; background: transparent;
+      color: var(--muted); border-color: var(--line-2);
+      box-shadow: none; transform: none;
     }
-    #btn-send:hover:not(:disabled) {
-      background: #ffffff; color: var(--bg); border-color: #ffffff;
+    .arr { font-family: var(--mono); }
+
+    /* ================================================== DEMO PANELİ (v3) ==
+       Prototipin kart/ray/konsol yapısı. main.js yalnız getElementById
+       kullandığı için bu sarmalayıcılar serbestçe eklenebiliyor. */
+
+    .panel { display: grid; grid-template-columns: 230px minmax(0,1fr); gap: 40px; align-items: start; }
+    .rail { position: sticky; top: 100px; display: grid; gap: 6px; }
+    .rail a { display: flex; gap: 12px; align-items: baseline; padding: 12px 16px; border-radius: 14px; color: var(--muted); font-size: 15px; text-decoration: none; }
+    .rail a span { font: 400 italic 20px var(--serif); color: var(--faint); min-width: 22px; }
+    .rail a:hover { background: var(--surface); color: var(--text); }
+    .rail a.active { background: var(--surface); color: var(--text); }
+    @media (max-width: 900px) { .panel { grid-template-columns: 1fr; } .rail { display: none; } }
+
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); margin-bottom: 16px; overflow: hidden; transition: transform .25s, border-color .25s; }
+    .card-h { display: flex; align-items: center; gap: 16px; padding: 22px 28px; }
+    .card-h .n { font: 400 italic 30px/1 var(--serif); color: var(--accent-2); }
+    .card-h h3 { font: 700 22px var(--sans); letter-spacing: -.025em; margin: 0; }
+    .card-h .where { margin-left: auto; font: 500 10.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 6px 11px; border-radius: 999px; background: var(--raised); color: var(--muted); }
+    .card-b { padding: 4px 28px 28px; display: grid; gap: 18px; }
+    .card-b > p.note { margin: 0; color: var(--muted); font-size: 15px; max-width: 64ch; }
+
+    /* Form etiketleri: mono BÜYÜK HARF. Kapsam .fieldset / .tile ile SINIRLI —
+       main.js çıktı kutularının içine de <label> yazıyor, oraya sızmamalı. */
+    .fieldset { display: grid; gap: 8px; }
+    .fieldset label, .tile label {
+      font: 500 11px/1.4 var(--mono); letter-spacing: .12em;
+      text-transform: uppercase; color: var(--muted);
+      display: block; margin: 0;
     }
-    #btn-send:disabled {
-      background: #232a4d; color: #7d88b5; border-color: #232a4d; opacity: .5;
+    .card-b input {
+      width: 100%; font: 400 14px var(--mono); color: var(--text);
+      background: var(--inset); border: 1px solid var(--line-2);
+      padding: 14px 16px; border-radius: var(--r-in);
     }
+    .card-b input::placeholder { color: var(--faint); }
+    .card-b input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+    .card-b input:disabled { opacity: .4; cursor: not-allowed; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    .tiles { display: grid; grid-template-columns: minmax(0,2fr) minmax(0,.7fr) minmax(0,1fr); gap: 10px; }
+    .tile { padding: 16px 18px; display: grid; gap: 8px; min-width: 0; border-radius: 16px; background: var(--inset); border: 1px solid var(--line); }
+    .tile .field { font: 400 14px var(--mono); color: var(--text); overflow-wrap: anywhere; background: none; border: 0; padding: 0; margin: 0; }
+    /* Büyük rakam YALNIZ nonce'a. Bakiye kutusuna main.js uzun bir bileşik
+       metin yazıyor ("… wei = 0,0504 ETH"); 30px'te beş satıra taşıp kutuyu
+       patlatıyordu. Ölçülerek görüldü, main.js'e dokunulmadığı için çözüm
+       tipografide: bakiye okunur ama taşmayan bir boyutta. */
+    .tile .field.big { font: 700 30px/1 var(--sans); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+    #tx-balance-display { font: 600 15px/1.45 var(--mono); letter-spacing: -.01em; }
+    #tx-wallet-display { font-size: 12.5px; }
+    @media (max-width: 640px) { .tiles { grid-template-columns: 1fr; } }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .actions .sp { flex: 1; }
+    .actions button { margin: 0; }
+    .hint { font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+
+    /* Konsol — main.js çıktısının kabı. */
+    .console { background: var(--inset); border: 1px solid var(--line); border-radius: 16px; font: 400 13px/1.7 var(--mono); color: var(--muted); }
+    .console-h { padding: 10px 16px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; align-items: center; }
+    .console-h i { width: 8px; height: 8px; border-radius: 50%; background: var(--line-2); }
+    .console-b { padding: 16px; margin: 0; }
+    .console-b:empty::before { content: "Henüz çıktı yok"; color: var(--faint); }
+
+    /* Çıktı kutusunun İÇİ — main.js buraya label/p/strong/a yazıyor.
+       Sade kurallar: form etiketleri gibi büyük harf mono OLMAZ. */
+    .console-b label { display: block; font: 500 12px var(--mono); color: var(--faint); letter-spacing: 0; text-transform: none; margin: 10px 0 2px; }
+    .console-b p { margin: 6px 0; }
+    .console-b strong { font-weight: 600; }
+    .console-b a { color: var(--accent-2); text-decoration: underline; text-underline-offset: 3px; }
+    .console-b .field { display: block; background: none; border: 0; padding: 0; margin: 0 0 4px; font: 400 13px var(--mono); color: var(--text); overflow-wrap: anywhere; }
+
+    details.advanced { padding: 0; }
+    details.advanced summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 16px; padding: 22px 28px; color: var(--muted); }
+    details.advanced summary::-webkit-details-marker { display: none; }
+    details.advanced summary::after { content: "+"; margin-left: auto; font: 400 22px var(--sans); color: var(--faint); }
+    details.advanced[open] summary::after { content: "−"; }
+    details.advanced summary:hover { color: var(--text); }
 
     /* ------------------------------------------------- ALTI SINIF (main.js) --
-       Her biri AYRI kural. Gruplanmaz. */
+       Her biri AYRI kural. Gruplanmaz — 30 secici kontrolu CSS kuralini ariyor.
+       Bunlar main.js ciktisinda DUZ RENKLI METINDIR; hap gorunumu yalniz
+       statusLine'in DURUM satirina verilir (asagida). */
 
     .field {
-      word-break: break-all;
-      background: var(--field); border: 1px solid var(--line);
-      padding: 12px 14px; border-radius: 3px;
-      font-family: var(--mono); font-size: 13px; color: var(--text);
-      margin-top: 4px;
+      display: block; background: var(--inset); border: 1px solid var(--line);
+      padding: 11px 13px; border-radius: var(--r-in);
+      font: 400 13px var(--mono); color: var(--text);
+      overflow-wrap: anywhere; margin-top: 4px;
     }
-    .ok { color: var(--ok); font-weight: bold; }
-    .warn { color: var(--warn); font-size: 12px; }
+    .ok { color: var(--ok); font-weight: 600; }
+    .warn { color: var(--warn); font-size: 12.5px; }
     .err { color: var(--err); }
-    /* Negatif kanıtın iki ara sonucu. Ayrı sınıflar, çünkü ikisi de ne .ok
-       (yeşil, "kanıt geçerli") ne .err (kırmızı, "işlem başarısız") demek:
-       .finding — kontrat cevap verdi ama BEKLENEN mesajı vermedi. Bulgu adayı;
-                  .warn'un 12px'lik dipnot görünümü sahnede bunu gözden kaçırtır.
-       .neutral — kontrata ulaşılamadı. Kanıt ALINAMADI; olumlu da olumsuz da
-                  değil. Renk bilerek gri: ekranda hiçbir hüküm iddia etmiyor.
-       Renk ayrımı 1.76, ama punto/ağırlık ayrımı da korundu — tek başına
-       renge yaslanmıyor. */
-    .finding { color: var(--finding); font-weight: bold; }
-    .neutral { color: var(--neutral); font-weight: bold; }
+    /* Negatif kanitin iki ara sonucu. Ayri siniflar, cunku ikisi de ne .ok
+       (yesil, kanit gecerli) ne .err (kirmizi, islem basarisiz) demek:
+       .finding — kontrat cevap verdi ama BEKLENEN mesaji vermedi. Bulgu adayi.
+       .neutral — kontrata ulasilamadi. Kanit ALINAMADI; hukum yok, renk notr. */
+    .finding { color: var(--finding); font-weight: 600; }
+    .neutral { color: var(--neutral); font-weight: 600; }
 
-    /* --------------------------------------------------------- DURUM çipi -- */
-
-    /* statusLine() (main.js:40) DURUM satırını çıktının İLK çocuğu olarak basar:
-       <p class="…"><strong>DURUM: ETİKET</strong></p>
-       Dokuz ayrı etiket var, dört CSS tutamağı taşıyorlar (sınıfsız / .ok /
-       .err / .warn). CSS metin içeriğine göre seçim yapamaz, dokuzunu ayırmak
-       main.js'e dokunmayı gerektirir — açılmıyor. Dört renk grubu aynen kalıyor. */
+    /* --------------------------------------------------------- DURUM hapi --
+       statusLine() (main.js:40) DURUM satirini ciktinin ILK cocugu olarak basar.
+       Dokuz etiket var ama yalniz DORT CSS tutamagi tasiyorlar; CSS metne gore
+       secim yapamadigi icin dokuzunu ayirmak main.js acmayi gerektirir.
+       Dort tutamak, dort renk:
+         sinifsiz → lila  · is suruyor (KONTROL, MetaMask ONAYI BEKLENIYOR,
+                            ZINCIRDE BEKLENIYOR)
+         .ok      → yesil · ONAYLANDI
+         .err     → pembe-kirmizi · REVERT / ON-UCUS BASARISIZ /
+                            SONUC ALINAMADI / GONDERILEMEDI
+         .warn    → sari  · REDDEDILDI (MetaMask)
+       err bilerek pembeye kacik: accent turuncuyla karismasin. */
+    #send-out > p:first-child { margin: 0 0 10px; }
     #send-out > p:first-child > strong {
-      display: inline-block; margin: 2px 0 8px;
-      padding: 7px 14px; border-radius: 2px;
-      font-family: var(--mono); font-size: 10px; font-weight: 400;
-      letter-spacing: .2em; text-transform: uppercase;
-      color: inherit;
-      background: rgba(127,180,255,.05);
-      border: 1px solid var(--line);
+      display: inline-flex; align-items: center; gap: 8px;
+      font: 600 11px var(--mono); letter-spacing: .12em;
+      padding: 6px 12px; border-radius: 999px;
+      color: inherit; background: rgba(243,233,220,.06);
     }
-    /* Sınıfsız hâl = "iş sürüyor" (KONTROL · MetaMask ONAYI BEKLENİYOR ·
-       ZİNCİRDE BEKLENİYOR): gövde metninden ayrılıp vurgu rengini alıyor. */
-    #send-out > p:first-child:not([class]) > strong {
-      color: var(--accent); border-color: rgba(127,180,255,.34);
+    #send-out > p:first-child > strong::before {
+      content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor;
     }
+    #send-out > p:first-child:not([class]) > strong { color: var(--lilac); background: rgba(201,184,255,.12); }
+    #send-out > p.ok:first-child > strong   { color: var(--ok);   background: rgba(134,217,166,.12); }
+    #send-out > p.err:first-child > strong  { color: var(--err);  background: rgba(255,111,145,.12); }
+    #send-out > p.warn:first-child > strong { color: var(--warn); background: rgba(241,220,114,.12); }
 
     /* ---------------------------------------------------------- çıktı alanı */
 
     #keygen-out, #sign-out, #connection-out, #wallet-out, #tx-out, #send-out, #chain-warn { margin-top: 14px; }
     #keygen-out p, #sign-out p, #connection-out p, #wallet-out p, #tx-out p, #send-out p, #chain-warn p { margin: 9px 0; }
     a { color: var(--accent); }
+
+    /* --------------------------------------------------- statik açıklamalar */
+
+    /* Statik açıklama notu. Kehribar DEĞİL — kehribar (.warn) yalnız main.js'in
+       yazdığı gerçek uyarılarda kalır. Bu sınıf sayfanın kendi anlatımı için. */
+    .note { margin: 14px 0 0; font-size: 13px; color: var(--muted); max-width: 62ch; }
+
+    /* ------------------------------------------------- panel iki kolon ----- */
+
+    .step-row { display: grid; grid-template-columns: 1fr; gap: 0 32px; margin-bottom: 18px; }
+    .step-row > section { margin-bottom: 0; }
+    .step-note { padding: 4px 0 20px; }
+    .step-note p { margin: 0; font-size: 13px; line-height: 1.7; color: var(--muted); }
+
+    @media (min-width: 1100px) {
+      .step-row { grid-template-columns: minmax(0, 1fr) 300px; align-items: start; }
+      .step-note { padding: 30px 0 0; border-left: 1px solid var(--line-2); padding-left: 24px; }
+    }
+
+    /* ------------------------------------------------------------ details -- */
+
+    .advanced { padding: 0; }
+    .advanced summary {
+      display: flex; align-items: baseline; gap: 16px;
+      padding: 24px 30px; cursor: pointer; list-style: none;
+      border-radius: 4px;
+    }
+    .advanced summary::-webkit-details-marker { display: none; }
+    .advanced summary::after {
+      content: "+"; margin-left: auto;
+      font-family: var(--mono); font-size: 16px; color: var(--muted);
+    }
+    .advanced details[open] summary::after { content: "–"; }
+    .advanced summary:hover { background: rgba(127,180,255,.04); }
+    .advanced summary:focus-visible { outline: 1px solid var(--accent); outline-offset: -2px; }
+    .sum-title {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: .16em; text-transform: uppercase; color: var(--muted);
+    }
+    .details-body { padding: 0 30px 26px; }
+
+    /* ------------------------------------------------------ statik bölümler */
+
+    .static { padding: 40px 34px; }
+    .eyebrow-s {
+      margin: 0 0 12px; font-family: var(--mono); font-size: 10px;
+      letter-spacing: .24em; text-transform: uppercase; color: var(--accent);
+    }
+    .h-static { margin: 0 0 8px; font-size: clamp(24px, 3vw, 34px); font-weight: 700; letter-spacing: -.03em; }
+    .lead-static { margin: 0 0 26px; color: var(--muted); max-width: 62ch; font-size: 15px; }
+    .sub-static { margin: 30px 0 10px; font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+
+    /* dört adım */
+    .steps { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 22px; }
+    @media (min-width: 900px) { .steps { grid-template-columns: 1fr 1fr; gap: 28px 34px; } }
+    .steps li { position: relative; padding-left: 52px; }
+    .step-n {
+      position: absolute; left: 0; top: 1px;
+      font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+      color: var(--accent);
+    }
+    .steps h3 { margin: 0 0 6px; font-size: 16px; font-weight: 700; letter-spacing: -.01em; }
+    .steps p { margin: 0; font-size: 14px; color: var(--muted); }
+
+    /* gas tablosu */
+    .table-scroll { overflow-x: auto; margin: 10px -4px 0; padding: 0 4px; }
+    table.gas { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 13px; }
+    table.gas th, table.gas td { padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--line-2); }
+    table.gas th {
+      font-family: var(--mono); font-size: 10px; font-weight: 400;
+      letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+      vertical-align: bottom; white-space: nowrap;
+    }
+    table.gas td { color: var(--text); }
+    table.gas td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    table.gas tbody tr:last-child td { border-bottom: 0; }
+
+    /* ÖLÇÜM / HESAP / ÇIKARIM etiketleri — sütunun epistemik durumu */
+    .tag-m {
+      display: block; margin-top: 5px;
+      font-size: 9px; letter-spacing: .12em;
+      padding: 2px 6px; border-radius: 2px; width: max-content;
+    }
+    .tag-olcum   { color: var(--ok);      background: rgba(92,227,154,.10);  border: 1px solid rgba(92,227,154,.26); }
+    .tag-hesap   { color: var(--muted);   background: rgba(142,154,201,.08); border: 1px solid var(--line); }
+    .tag-cikarim { color: var(--finding); background: rgba(255,180,92,.09);  border: 1px solid rgba(255,180,92,.26);
+                   display: inline-block; margin: 0 0 0 8px; vertical-align: middle; }
+
+    .diffs { margin: 0; padding-left: 20px; display: grid; gap: 8px; font-size: 14px; color: var(--muted); }
+    .diffs b { color: var(--text); font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+    .limits {
+      margin: 28px 0 0; padding: 16px 18px;
+      font-size: 13px; color: var(--muted); line-height: 1.7;
+      background: var(--field); border: 1px solid var(--line); border-radius: 3px;
+    }
+    .limits b { color: var(--text); }
+
+    /* SSS */
+    .faq { display: grid; gap: 26px; margin-top: 26px; }
+    @media (min-width: 900px) { .faq { grid-template-columns: 1fr 1fr; gap: 30px 40px; } }
+    .qa h3 { margin: 0 0 8px; font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+    .qa p { margin: 0 0 8px; font-size: 14px; color: var(--muted); }
+    .qa p:last-child { margin-bottom: 0; }
+    .qa b { color: var(--text); }
+
+    /* alt bilgi */
+    .foot {
+      display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: baseline;
+      margin: 44px 0 0; padding: 26px 0 44px;
+      border-top: 1px solid var(--line-2);
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+    }
+    .foot-l { display: flex; gap: 18px; align-items: baseline; }
+    .foot-l b { color: var(--text); letter-spacing: .06em; }
+    .foot-r { margin: 0 0 0 auto; text-transform: none; letter-spacing: .02em; }
+
+    /* ------------------------------------------- kaydırınca beliren bölümler */
+
+    /* Yalnız destekleyen tarayıcıda ve yalnız hareket tercihi varken tanımlanır.
+       Desteklemeyen tarayıcıda hiçbir kural uygulanmaz → içerik DOĞRUDAN görünür.
+       Yeni JS yok; kaydırma ele geçirilmiyor, yalnız görünürlük animasyonu. */
+    @supports (animation-timeline: view()) {
+      @media (prefers-reduced-motion: no-preference) {
+        .reveal {
+          animation: reveal-in linear both;
+          animation-timeline: view();
+          animation-range: entry 2% cover 18%;
+        }
+      }
+    }
+    @keyframes reveal-in {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: none; }
+    }
 
     /* ------------------------------------------------------- erişilebilirlik */
 
@@ -417,74 +669,294 @@
     <span class="corner br">Araştırma prototipi · üretim cüzdanı değildir</span>
   </header>
 
+  <!-- ===================================================== NASIL ÇALIŞIR == -->
   <div class="wrap">
     <hr class="divider" aria-hidden="true" />
 
-    <section>
-      <div class="sec-head"><span class="sec-n" aria-hidden="true">01</span><h2>Anahtar Üret</h2></div>
-      <button id="btn-keygen">Yeni anahtar çifti üret</button>
+    <section class="static reveal">
+      <p class="eyebrow-s">Nasıl çalışır</p>
+      <h2 class="h-static">Dört adım</h2>
 
-      <hr />
-      <label for="import-mnemonic">Mevcut mnemonic'i içe aktar (zincirdeki cüzdanın owner anahtarı)</label>
-      <input id="import-mnemonic" type="password" autocomplete="off" placeholder="12 kelime — ekrana yazdırılmaz" />
-      <button id="btn-import-mnemonic">İçe aktar</button>
-      <p class="warn">Bu alan <code>type="password"</code>. Girilen mnemonic ekranda ve çıktıda GÖSTERİLMEZ — yalnızca türetilen açık anahtar gösterilir ve zincirdeki <code>ownerPublicKey</code> ile otomatik karşılaştırılır. Ekran kaydı sırasında güvenlidir.</p>
-
-      <div id="keygen-out"></div>
+      <ol class="steps">
+        <li>
+          <span class="step-n" aria-hidden="true">01</span>
+          <h3>Anahtar tarayıcıda türetilir</h3>
+          <p>12 kelimelik BIP-39 tohumundan BIP-44 yoluyla SPHINCS-/C13 anahtar
+             çifti üretilir. Üretim Rust/WASM imzalayıcıda, tarayıcının içinde
+             yapılır. Ölçülen boyutlar: açık anahtar 64 bayt, imza 3.688 bayt.</p>
+        </li>
+        <li>
+          <span class="step-n" aria-hidden="true">02</span>
+          <h3>Digest hesaplanır ve imzalanır</h3>
+          <p>İşlemin digest'i dondurulmuş bir formülden gelir: alan ayırıcı,
+             nonce, alıcı, değer ve verinin özeti birlikte özetlenir. İmza bu
+             digest üzerine atılır; alanlardan biri değişirse digest de değişir.</p>
+        </li>
+        <li>
+          <span class="step-n" aria-hidden="true">03</span>
+          <h3>Doğrulama zincir üstünde yapılır</h3>
+          <p><code>PQWallet.execute</code> digest'i kendi hesaplar ve doğrulayıcıya
+             sorar. Doğrulayıcı geçersiz imzada revert etmez, <code>false</code>
+             döner; cüzdan o zaman işlemi geri alır. İtiraz penceresi ya da
+             teminat yok — doğrulama her işlemde, doğrudan zincirde.</p>
+        </li>
+        <li>
+          <span class="step-n" aria-hidden="true">04</span>
+          <h3>Nonce artar, tekrar oynatma engellenir</h3>
+          <p>Nonce, dış çağrıdan <em>önce</em> artırılır. Böylece aynı imza ikinci
+             kez kullanılamaz; yeniden giriş (reentrancy) ile de kullanılamaz.
+             SPHINCS- durumsuzdur — yaprak sayacı yoktur, tek sayaç nonce'tur.</p>
+        </li>
+      </ol>
     </section>
 
-    <section>
-      <div class="sec-head"><span class="sec-n" aria-hidden="true">02</span><h2>İmzala</h2></div>
-      <label for="digest">Digest (32 bayt, hex, 0x ile)</label>
-      <input id="digest" value="0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef" />
-      <button id="btn-sign">İmzala</button>
-      <div id="sign-out"></div>
+    <hr class="divider" aria-hidden="true" />
+
+    <!-- ============================================================ PANEL ==
+         Kart/ray/konsol yapısı prototipten. ÖRNEK DURUM KOPYALANMADI:
+         adres, nonce, bakiye ve alıcı boş başlar, main.js doldurur. -->
+    <section class="sec" id="panel">
+      <p class="eyebrow-s reveal">Demo · Sepolia</p>
+
+      <div class="panel">
+        <nav class="rail" aria-label="Panel adımları">
+          <a href="#s1"><span>1</span>Anahtar</a>
+          <a href="#s3"><span>2</span>Bağlantı</a>
+          <a href="#s4"><span>3</span>İşlem</a>
+          <a href="#s2"><span>·</span>Ham imza testi</a>
+        </nav>
+        <div>
+
+          <article class="card" id="s1">
+            <div class="card-h"><span class="n">1</span><h3>Anahtar</h3><span class="where">Tarayıcı</span></div>
+            <div class="card-b">
+              <p class="note">Zincirdeki cüzdanın sahibi olduğunuzu kanıtlamak için mevcut mnemonic'i içe aktarın. Kelimeler ekranda gösterilmez; yalnızca türetilen açık anahtar görünür.</p>
+              <div class="fieldset">
+                <label for="import-mnemonic">Mnemonic · 12 kelime</label>
+                <input id="import-mnemonic" type="password" autocomplete="off" placeholder="ekrana yazdırılmaz" />
+              </div>
+              <div class="actions">
+                <button id="btn-import-mnemonic" class="btn-primary">İçe aktar</button>
+                <button id="btn-keygen">Yeni çift üret (deneme)</button>
+              </div>
+              <div class="console"><div class="console-h"><i></i><i></i><i></i></div><div class="console-b" id="keygen-out"></div></div>
+            </div>
+          </article>
+
+          <article class="card" id="s3">
+            <div class="card-h"><span class="n">2</span><h3>Sepolia bağlantısı</h3><span class="where">Salt okunur</span></div>
+            <div class="card-b">
+              <p class="note">Ağ kimliğini ve son bloğu okur. İşlem göndermez, gaz harcamaz.</p>
+              <div class="actions"><button id="btn-check-connection" class="btn-primary">Bağlantıyı test et</button></div>
+              <div class="console"><div class="console-h"><i></i><i></i><i></i></div><div class="console-b" id="connection-out"></div></div>
+            </div>
+          </article>
+
+          <article class="card" id="s4">
+            <div class="card-h"><span class="n">3</span><h3>İşlem oluştur, imzala, gönder</h3></div>
+            <div class="card-b">
+              <div class="tiles">
+                <div class="tile"><label>PQWallet adresi</label><div class="field" id="tx-wallet-display">—</div></div>
+                <div class="tile"><label>Nonce</label><div class="field big" id="tx-nonce-display">—</div></div>
+                <div class="tile"><label>Bakiye</label><div class="field big" id="tx-balance-display">—</div></div>
+              </div>
+              <div class="actions">
+                <button id="btn-refresh-chain">Zincirden yenile</button>
+                <span class="hint">adres yapılandırmadan · nonce zincirden</span>
+              </div>
+              <!-- Zincir okuma hatası GÖNDERİM SONRASI buraya yazılır, send-out'a değil:
+                   orada o anda tx hash'i, Etherscan linki ve ölçülen gas duruyor. -->
+              <div id="chain-warn"></div>
+
+              <div class="fieldset"><label for="tx-to">Alıcı adresi</label><input id="tx-to" value="" /></div>
+              <div class="grid-2">
+                <div class="fieldset"><label for="tx-value">Değer · wei</label><input id="tx-value" value="100000000000000" /></div>
+                <div class="fieldset"><label for="tx-data">Veri · hex</label><input id="tx-data" value="0x" /></div>
+              </div>
+
+              <div class="actions">
+                <button id="btn-build-sign" class="btn-primary">Digest hesapla ve imzala</button>
+                <button id="btn-connect-wallet">Cüzdanı bağla</button>
+                <button id="btn-send" disabled>Zincire gönder <span class="arr">&#8594;</span></button>
+                <span class="sp"></span>
+                <button id="btn-negative-proof" class="btn-danger" disabled>Bozuk imzayla dene</button>
+              </div>
+
+              <!-- Bağlantı durumu kendi alanında: bağlantı state'i ile imza state'i
+                   birbirinden habersiz değişiyor, aynı div'i paylaşmaları rastgele bir
+                   ezme sırası yaratır ve kullanıcı "neden gönderemiyorum"un cevabını
+                   kaybeder. -->
+              <div class="console"><div class="console-h"><i></i><i></i><i></i></div><div class="console-b" id="wallet-out"></div></div>
+              <div class="console"><div class="console-h"><i></i><i></i><i></i></div><div class="console-b" id="tx-out"></div></div>
+              <div class="console"><div class="console-h"><i></i><i></i><i></i></div><div class="console-b" id="send-out"></div></div>
+            </div>
+          </article>
+
+          <details class="card advanced" id="s2">
+            <summary>Gelişmiş · ham imza testi</summary>
+            <div class="card-b">
+              <div class="fieldset">
+                <label for="digest">Digest · 32 bayt hex</label>
+                <input id="digest" value="0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef" />
+              </div>
+              <div class="actions"><button id="btn-sign">İmzala</button></div>
+              <div class="console"><div class="console-h"><i></i><i></i><i></i></div><div class="console-b" id="sign-out"></div></div>
+            </div>
+          </details>
+
+        </div>
+      </div>
     </section>
 
-    <section>
-      <div class="sec-head"><span class="sec-n" aria-hidden="true">03</span><h2>Sepolia Bağlantısı</h2></div>
-      <p class="warn">Salt-okunur bağlantı testi — kontrata dokunmaz, sadece RPC'nin çalıştığını kanıtlar.</p>
-      <button id="btn-check-connection">Bağlantıyı test et</button>
-      <div id="connection-out"></div>
+    <hr class="divider" aria-hidden="true" />
+
+    <!-- ================================================ ÖLÇÜLEN SONUÇLAR == -->
+    <section class="static reveal">
+      <p class="eyebrow-s">Ölçülen sonuçlar</p>
+      <h2 class="h-static">Sepolia'da <code>execute()</code> gas defteri</h2>
+      <p class="lead-static">Üç işlem, üç farklı alıcı koşulu. Her satır gerçek
+         bir Sepolia işlemidir; hiçbiri tahmin değildir.</p>
+
+      <div class="table-scroll">
+        <table class="gas">
+          <thead>
+            <tr>
+              <th>satır</th><th>alıcı durumu</th>
+              <th><code>gasUsed</code><span class="tag-m tag-olcum">ÖLÇÜM</span></th>
+              <th><code>z</code></th>
+              <th>intrinsic<span class="tag-m tag-hesap">HESAP</span></th>
+              <th>yürütme<span class="tag-m tag-hesap">HESAP</span></th>
+              <th>işlem</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>A</b></td><td>sıcak + var olan</td>
+              <td class="num"><b>216.269</b></td><td class="num">206</td>
+              <td class="num">81.056</td><td class="num"><b>135.213</b></td>
+              <td><a href="https://sepolia.etherscan.io/tx/0x0fd4b9b3c992053c7a3c8b3133cfbfdcefacf0242e42b88750b921c718c3e71c" rel="noopener noreferrer" target="_blank"><code>0x0fd4b9b3…</code></a></td>
+            </tr>
+            <tr>
+              <td><b>B</b></td><td>soğuk + var olan</td>
+              <td class="num"><b>218.721</b></td><td class="num">210</td>
+              <td class="num">81.008</td><td class="num"><b>137.713</b></td>
+              <td><a href="https://sepolia.etherscan.io/tx/0x6b8bbecd0bc7fefc36ed5120d09410af7aff970950599652510828c28cd312ff" rel="noopener noreferrer" target="_blank"><code>0x6b8bbecd…</code></a></td>
+            </tr>
+            <tr>
+              <td><b>C</b></td><td>soğuk + <b>boş</b></td>
+              <td class="num"><b>243.817</b></td><td class="num">202</td>
+              <td class="num">81.104</td><td class="num"><b>162.713</b></td>
+              <td><a href="https://sepolia.etherscan.io/tx/0x222556c3e0f9d2f5ff8661a1affcd8aa03d2b4120a539c65ea98a64044b11475" rel="noopener noreferrer" target="_blank"><code>0x222556c3…</code></a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="sub-static">Yürütme sütunundaki farklar
+         <span class="tag-m tag-cikarim">ÇIKARIM</span></p>
+      <ul class="diffs">
+        <li><b>B − A = +2.500</b> · EIP-2929 sabitiyle (2.600 − 100) örtüşür</li>
+        <li><b>C − B = +25.000</b> · EIP-161 / <code>G_newaccount</code> sabitiyle örtüşür</li>
+        <li><b>C − A = +27.500</b> · yukarıdaki ikisinin toplamı</li>
+      </ul>
+
+      <p class="limits"><b>Sınırlar.</b> Her satır <b>tek koşu</b>. Trace
+         alınmadı. Üç farkın üçü de sapmasız çıktı, ama üç örnekten "her zaman
+         tam çıkar" sonucu çıkmaz. EIP metinlerine karşı satır satır teyit
+         <b>hâlâ açık kalem</b>; yukarıdaki örtüşme ifadeleri bir nedensellik
+         iddiası değildir.</p>
     </section>
 
-    <section>
-      <div class="sec-head"><span class="sec-n" aria-hidden="true">04</span><h2>İşlem Oluştur, İmzala ve Gönder</h2></div>
-      <p class="warn">Cüzdan adresi ve nonce artık girdi değil — adres yapılandırmadan, nonce zincirden geliyor.</p>
+    <hr class="divider" aria-hidden="true" />
 
-      <label>PQWallet adresi (yapılandırmadan)</label>
-      <div class="field" id="tx-wallet-display">—</div>
+    <!-- =============================================================== SSS == -->
+    <section class="static reveal">
+      <p class="eyebrow-s">Sık sorulanlar</p>
+      <h2 class="h-static">Sekiz soru</h2>
 
-      <label>Zincirdeki nonce</label>
-      <div class="field" id="tx-nonce-display">—</div>
-
-      <label>Cüzdan bakiyesi</label>
-      <div class="field" id="tx-balance-display">—</div>
-
-      <button id="btn-refresh-chain">Zincirden yenile</button>
-      <!-- Zincir okuma hatası GÖNDERİM SONRASI buraya yazılır, send-out'a değil:
-           orada o anda tx hash'i, Etherscan linki ve ölçülen gas duruyor. -->
-      <div id="chain-warn"></div>
-
-      <label for="tx-to">to (alıcı adresi)</label>
-      <input id="tx-to" value="" />
-      <label for="tx-value">value (wei)</label>
-      <input id="tx-value" value="100000000000000" />
-      <label for="tx-data">data (hex, boşsa 0x)</label>
-      <input id="tx-data" value="0x" />
-
-      <button id="btn-build-sign">Digest hesapla ve imzala</button>
-      <button id="btn-connect-wallet">Cüzdanı bağla</button>
-      <button id="btn-send" disabled>Zincire gönder</button>
-      <button id="btn-negative-proof" disabled>Bozuk imzayla dene (negatif kanıt)</button>
-      <!-- Bağlantı durumu kendi alanında: bağlantı state'i ile imza state'i
-           birbirinden habersiz değişiyor, aynı div'i paylaşmaları rastgele bir
-           ezme sırası yaratır ve kullanıcı "neden gönderemiyorum"un cevabını
-           kaybeder. -->
-      <div id="wallet-out"></div>
-      <div id="tx-out"></div>
-      <div id="send-out"></div>
+      <div class="faq">
+        <div class="qa">
+          <h3>Gas'ı kim ödüyor? Bu da kuantuma karşı güvenli mi?</h3>
+          <p><b>Hayır.</b> İşlemi zincire gönderen ve gazı ödeyen taraf sıradan
+             bir ECDSA hesabıdır (EOA). Kuantum sonrası olan şey <b>yetkilendirme</b>:
+             cüzdanın parayı hareket ettirmesi SPHINCS-/C13 imzasına bağlıdır.
+             Taşıma katmanı değildir, öyleymiş gibi de sunulmamalıdır.</p>
+        </div>
+        <div class="qa">
+          <h3>Neden SPHINCS-/C13, neden FIPS 205 değil?</h3>
+          <p>C13, aynı aileden bir <b>araştırma varyantıdır</b> (WOTS+C/FORS+C,
+             h=22 d=2 a=19 k=7 w=8) ve FIPS 205'in kendisi değildir. Seçilme
+             sebebi ölçülen maliyet: doğrulayıcı <b>106.672 gas</b> (ölçüldü),
+             eski hedef SLH-DSA-SHA2-128-24 ise <b>143.057 gas</b>
+             (ölçülen aralığın <b>en düşüğü</b>, 143.057–146.192). İmza da daha
+             küçük: 3.688 bayt yerine 3.856 bayt.</p>
+          <p><b>Bedeli:</b> C13 yeni bir araştırma varyantıdır ve standart
+             setler kadar incelenmemiştir. Bu, bilinçli bir takas — güvenlik
+             olgunluğundan maliyet lehine verilen bir ödün.</p>
+        </div>
+        <div class="qa">
+          <h3>Mnemonic ekranda görünür mü, imza nerede üretilir?</h3>
+          <p>Mnemonic ekranda <b>gösterilmez</b>: alan <code>type="password"</code>
+             ve girilen kelimeler sayfaya yazılmaz; yalnızca türetilen açık
+             anahtar görünür. İmza <b>tarayıcının içinde</b>, WASM imzalayıcıda
+             üretilir.</p>
+          <p>Tarayıcı ortamının üretim kullanımı için uygunluğu
+             <b>değerlendirilmedi</b>.</p>
+        </div>
+        <div class="qa">
+          <h3>Anahtarımı kaybedersem ne olur?</h3>
+          <p><b>Kurtarma yolu yok.</b> Cüzdanın açık anahtarı yalnızca kuruluş
+             anında yazılır ve onu değiştirecek bir fonksiyon kontratta
+             bulunmuyor — kontratta yalnızca digest hesabı ve
+             <code>execute</code> var. Mnemonic kaybolursa cüzdandaki varlıklara
+             erişilemez.</p>
+        </div>
+        <div class="qa">
+          <h3>Mainnet'e hazır mı?</h3>
+          <p><b>Hayır.</b> Bu bir araştırma prototipidir ve yalnızca Sepolia test
+             ağında çalıştırılmıştır. Gas ölçümleri tek koşudur, denetimden
+             geçmemiştir ve bazı hata yolları hiç gözlenmemiştir.</p>
+        </div>
+        <div class="qa">
+          <h3>İmza neden bu kadar büyük? Gas maliyeti ne?</h3>
+          <p>Karma tabanlı imzalar eliptik eğri imzalarından çok daha büyüktür:
+             burada <b>3.688 bayt</b> (ECDSA'da 65 bayt). Bu boyut hem calldata
+             hem doğrulama maliyeti demek. Ölçülen doğrulayıcı maliyeti
+             <b>106.672 gas</b>; işlemin tamamı yukarıdaki tabloda
+             <b>216.269–243.817 gas</b> arasında ölçüldü.</p>
+        </div>
+        <div class="qa">
+          <h3>Doğrulama başarısız olursa ne olur?</h3>
+          <p>Doğrulayıcı geçersiz imzada <b>revert etmez</b>, <code>false</code>
+             döner; cüzdan da işlemi <code>PQWallet: invalid signature</code>
+             ile geri alır, hiçbir durum değişikliği kalıcı olmaz. Bu davranış
+             birim testiyle doğrulanmıştır:
+             <code>contracts/test/PQWallet.t.sol:88</code>,
+             <code>test_Execute_RevertsWhenVerifierRejects()</code> — her zaman
+             <code>false</code> dönen bir sahte doğrulayıcı kullanır.</p>
+        </div>
+        <div class="qa">
+          <h3>Aynı işlemi iki kez gönderebilir miyim?</h3>
+          <p>Hayır. Digest nonce'a bağlıdır, nonce her başarılı işlemde artar ve
+             artış <b>dış çağrıdan önce</b> yapılır — yani yeniden giriş yoluyla
+             da aynı imza tekrar kullanılamaz. Nonce davranışı
+             <code>contracts/test/PQWallet.t.sol:121</code> bölümünde
+             sınanmaktadır.</p>
+        </div>
+      </div>
     </section>
+
+    <!-- ========================================================= ALT BİLGİ == -->
+    <footer class="foot">
+      <div class="foot-l">
+        <b>PQ-Safe</b>
+        <span>TEKNOFEST 2026</span>
+      </div>
+      <p class="foot-r">Araştırma prototipi, üretim cüzdanı değildir.</p>
+      <!-- GitHub bağlantısı: depo AÇIK ise aşağıdaki satırı yorumdan çıkar ve
+           adresi yaz. ÖZEL ise link eklenmez. Karar Akif'te. -->
+      <!-- <p class="foot-r"><a href="https://github.com/…">Kaynak kodu</a></p> -->
+    </footer>
   </div>
 
   <script type="module" src="/src/main.js"></script>
