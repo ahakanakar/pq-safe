@@ -73,7 +73,7 @@
       /* --- tasarım sistemi (prototip v3 token'ları, birebir) --- */
       --ground:#1b100b; --surface:#24160f; --raised:#2d1c13; --inset:#150c08;
       --line:rgba(243,233,220,.09); --line-2:rgba(243,233,220,.17);
-      --text:#f3e9dc; --muted:#bba892; --faint:#877460;
+      --text:#f3e9dc; --muted:#bba892; --faint:#9a8770;
       --accent:#ff5a1f; --accent-2:#ff7a45; --accent-ink:#1b100b;
       --accent-soft:rgba(255,90,31,.12);
       --lilac:#c9b8ff; --butter:#f1dc72;
@@ -128,74 +128,6 @@
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 8px; }
 
     .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px 0; }
-
-    /* ---------------------------------------------------------------- hero -- */
-
-    .hero {
-      position: relative;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      overflow: hidden;
-      border-bottom: 1px solid var(--line-2);
-    }
-
-    /* Merkeze yakınsayan ışınlar + seyrek nokta tozu + soluk halkalar.
-       pointer-events yok, aria-hidden, metnin arkasında. */
-    .hero-bg {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
-      stroke: var(--accent);
-      fill: var(--accent);
-    }
-    .hero-bg .rays  { animation: spin 240s linear infinite; transform-origin: 500px 500px; }
-    .hero-bg .rings { animation: breathe 14s ease-in-out infinite; transform-origin: 500px 500px; }
-    @keyframes spin    { to { transform: rotate(360deg); } }
-    @keyframes breathe { 50% { opacity: .45; transform: scale(1.035); } }
-
-    /* Merkezdeki soluk parıltı — tek radial, tek renk. */
-    .hero::after {
-      content: ""; position: absolute; inset: 0; pointer-events: none;
-      background: radial-gradient(closest-side at 50% 50%, rgba(127,180,255,.10), transparent 70%);
-    }
-
-    .hero-mid { position: relative; z-index: 1; text-align: center; padding: 0 24px; }
-
-    .tag {
-      margin: 0 0 26px;
-      font-family: var(--mono); font-size: 11px;
-      letter-spacing: .26em; text-transform: uppercase;
-      color: var(--accent);
-    }
-
-    .hero h1 {
-      margin: 0;
-      font-family: var(--grotesk);
-      font-size: clamp(3.5rem, 12vw, 14rem);
-      font-weight: 700;
-      letter-spacing: -.055em;
-      line-height: .92;
-      color: var(--text);
-    }
-
-    .lede {
-      margin: 30px auto 0; max-width: 46ch;
-      font-size: clamp(14px, 1.35vw, 17px);
-      color: var(--muted);
-    }
-
-    /* Köşe etiketleri — mono, küçük, geniş aralıklı. */
-    .corner {
-      position: absolute; z-index: 1;
-      font-family: var(--mono); font-size: 10px;
-      letter-spacing: .18em; text-transform: uppercase;
-      color: var(--muted);
-    }
-    .tl { top: 28px; left: 28px; }
-    .tr { top: 28px; right: 28px; }
-    .bl { bottom: 28px; left: 28px; }
-    .br { bottom: 28px; right: 28px; max-width: 46vw; text-align: right; letter-spacing: .12em; }
 
     /* -------------------------------------------------------------- kart --- */
 
@@ -273,11 +205,15 @@
     .btn-primary { background: var(--bone); color: var(--accent-ink); border-color: var(--bone); }
     .btn-primary:hover:not(:disabled) { background: #fff; color: var(--accent-ink); }
 
+    /* Metin KOYU, beyaz degil: beyaz/turuncu 3,12 ile AA'yi gecmiyordu.
+       accent-ink #1b100b ile ayni turuncu uzerinde 5,98 olculdu. */
     #btn-send, .btn-accent {
-      background: var(--accent); border-color: var(--accent); color: #fff;
+      background: var(--accent); border-color: var(--accent); color: var(--accent-ink);
       box-shadow: 0 10px 30px -10px rgba(255,90,31,.6);
     }
-    #btn-send:hover:not(:disabled), .btn-accent:hover { background: var(--accent-2); color: #fff; }
+    #btn-send:hover:not(:disabled), .btn-accent:hover {
+      background: var(--accent-2); color: var(--accent-ink);
+    }
 
     .btn-danger { color: var(--err); border-color: rgba(255,111,145,.4); }
 
@@ -287,6 +223,150 @@
       box-shadow: none; transform: none;
     }
     .arr { font-family: var(--mono); }
+
+    /* ===================================================== NAV + HERO (v3) ==
+       Prototipten taşındı. nav.js yalnız .top / .links / .rail / .progress ve
+       .menu-btn ile konuşur; main.js'in id'lerine dokunmaz. */
+
+    .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; padding: 12px var(--gutter); }
+    .top-in {
+      max-width: 1280px; margin: 0 auto; position: relative; flex-wrap: nowrap;
+      display: flex; align-items: center; gap: 24px;
+      padding: 10px 12px 10px 22px; border-radius: 999px;
+      background: rgba(27,16,11,.72);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--line);
+    }
+    .brand { font: 800 18px var(--sans); letter-spacing: -.03em; color: var(--text); display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+
+    .links { display: flex; gap: 4px; margin-left: auto; padding: 4px; border-radius: 999px; background: rgba(243,233,220,.04); }
+    .links a { position: relative; padding: 8px 14px; border-radius: 999px; color: var(--muted); font: 500 14px var(--sans); white-space: nowrap; text-decoration: none; transition: color .2s, background .2s; }
+    .links a:hover { color: var(--text); background: rgba(243,233,220,.06); }
+    .links a.active { color: var(--accent-ink); background: var(--bone); }
+    .links a .ix { font: 400 italic 13px var(--serif); opacity: .6; margin-right: 6px; }
+
+    .pill-net { display: inline-flex; align-items: center; gap: 8px; font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--text); background: var(--raised); border-radius: 999px; padding: 8px 14px; }
+    .pill-net i { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
+    .nav-cta { padding: 10px 18px; font-size: 13.5px; text-decoration: none; }
+
+    .progress { position: absolute; left: 22px; right: 22px; bottom: -1px; height: 2px; border-radius: 2px; overflow: hidden; }
+    .progress i { display: block; height: 100%; width: 100%; background: var(--accent); transform-origin: left; transform: scaleX(var(--p, 0)); }
+
+    .menu-btn { display: none; margin-left: auto; padding: 10px 16px; font-size: 13.5px; }
+    @media (max-width: 1180px) { .links a .ix { display: none; } .links a { padding: 8px 11px; } }
+    @media (max-width: 980px) {
+      .pill-net { display: none; }
+      .menu-btn { display: inline-flex; }
+      .links {
+        position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+        flex-direction: column; gap: 2px; padding: 8px; border-radius: 22px;
+        background: #1b100b; border: 1px solid var(--line-2);
+        box-shadow: 0 20px 40px -10px rgba(0,0,0,.6); display: none;
+      }
+      .top.open .links { display: flex; }
+      .links a { padding: 14px 16px; font-size: 16px; }
+      .links a .ix { display: inline; }
+      .nav-cta { display: none; }
+    }
+
+    /* ---- hero ---- */
+    .hero {
+      position: relative; max-width: 1280px; margin: 0 auto;
+      padding: clamp(40px,7vw,90px) var(--gutter) clamp(60px,8vw,110px);
+      display: grid; grid-template-columns: minmax(0,1.05fr) minmax(0,1fr);
+      gap: 40px; align-items: center; min-height: min(820px, 88vh);
+      border-bottom: 0; overflow: visible;
+    }
+    .ribbon { position: absolute; inset: -6% -10% -4% -10%; width: 120%; height: 110%; z-index: 0; pointer-events: none; }
+    .ribbon path { fill: none; stroke: var(--accent); stroke-linecap: round; stroke-linejoin: round; }
+
+    .h-copy { position: relative; z-index: 2; }
+    .h-copy .label { color: var(--accent-2); }
+    .h-copy h1 { margin: 22px 0 0; font: 800 clamp(60px,8.4vw,128px)/.86 var(--sans); letter-spacing: -.06em; white-space: nowrap; }
+    .h-copy h1 em { display: block; font: 400 italic clamp(40px,5.2vw,78px)/1 var(--serif); letter-spacing: -.01em; color: var(--bone); margin-top: 14px; white-space: normal; }
+    .h-copy p { max-width: 44ch; color: var(--muted); font-size: clamp(16px,1.4vw,18.5px); margin: 26px 0 0; }
+    .h-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+    .label { font: 500 11px/1.4 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+
+    /* 3D zincir */
+    .scene { position: relative; z-index: 1; height: clamp(360px,44vw,560px); perspective: 1600px; display: grid; place-items: center; }
+    .chain { position: relative; width: 1px; height: 1px; transform-style: preserve-3d; transform: rotateX(-26deg) rotateY(-38deg); }
+    .cube { --s: clamp(96px,11vw,156px); position: absolute; left: 0; top: 0; width: var(--s); height: var(--s); margin: calc(var(--s)/-2) 0 0 calc(var(--s)/-2); transform-style: preserve-3d; animation: bob 8s ease-in-out infinite; }
+    .cube.a { --x: calc(var(--s)*-1.25); --y: calc(var(--s)*.55); animation-delay: 0s; }
+    .cube.b { --x: 0px; --y: 0px; animation-delay: -2.6s; }
+    .cube.c { --x: calc(var(--s)*1.25); --y: calc(var(--s)*-.55); animation-delay: -5.2s; }
+    @keyframes bob { 0%,100% { transform: translate3d(var(--x),var(--y),0); } 50% { transform: translate3d(var(--x), calc(var(--y) - 14px), 0); } }
+    .face { position: absolute; inset: 0; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; backface-visibility: hidden; font: 500 10px/1.3 var(--mono); letter-spacing: .06em; overflow: hidden; }
+    .fr { transform: translateZ(calc(var(--s)/2)); background: linear-gradient(160deg,#f6ecdf,#e3d3bf); color: #3a2518; }
+    .rt { transform: rotateY(90deg) translateZ(calc(var(--s)/2)); background: linear-gradient(160deg,#b8a089,#977e67); color: #2a1a10; }
+    .tp { transform: rotateX(90deg) translateZ(calc(var(--s)/2)); background: linear-gradient(135deg,#fff7ec,#efe2d0); color: #3a2518; }
+    .bk, .lf, .bt { background: #5b4535; }
+    .bk { transform: rotateY(180deg) translateZ(calc(var(--s)/2)); }
+    .lf { transform: rotateY(-90deg) translateZ(calc(var(--s)/2)); }
+    .bt { transform: rotateX(-90deg) translateZ(calc(var(--s)/2)); }
+    .cube.b .fr { background: linear-gradient(160deg,#ff7a45,#f04a12); color: #2a0f04; }
+    .cube.b .rt { background: linear-gradient(160deg,#c9401a,#9e300f); color: #2a0f04; }
+    .cube.b .tp { background: linear-gradient(135deg,#ff9a6b,#ff6a2d); color: #2a0f04; }
+    .cube.c .fr { background: linear-gradient(160deg,#d9ccff,#b7a2ff); color: #1f1440; }
+    .cube.c .rt { background: linear-gradient(160deg,#9c86e6,#7b64c9); color: #140c30; }
+    .cube.c .tp { background: linear-gradient(135deg,#ece5ff,#cdbfff); color: #1f1440; }
+    .face b { font: 800 clamp(18px,2.1vw,28px)/1 var(--sans); letter-spacing: -.03em; }
+    .face .k { opacity: .7; }
+    .shadow { position: absolute; left: 50%; bottom: 6%; width: 70%; height: 40px; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(0,0,0,.55), transparent); filter: blur(6px); }
+    .scene-cap { position: absolute; bottom: 0; right: 0; text-align: right; }
+    .scene-cap .label { display: block; white-space: nowrap; }
+    @media (max-width: 900px) { .hero { grid-template-columns: 1fr; } .scene { height: 340px; } }
+    @media (max-width: 600px) { .h-copy h1 { font-size: clamp(52px,16vw,80px); } .h-copy h1 em { font-size: clamp(32px,9vw,44px); } }
+
+    /* ---- hizli baslangic seridi ---- */
+    .quick { max-width: 1280px; margin: -30px auto 0; padding: 0 var(--gutter); position: relative; z-index: 3; }
+    .quick-in { display: grid; grid-template-columns: minmax(0,1.1fr) repeat(3, minmax(0,1fr)); gap: 10px; }
+    .qs { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px 22px; display: grid; gap: 6px; align-content: start; text-decoration: none; color: var(--text); transition: transform .2s, border-color .2s; }
+    .qs:hover { transform: translateY(-3px); border-color: var(--line-2); text-decoration: none; }
+    .qs .n { font: 400 italic 30px/1 var(--serif); color: var(--accent-2); }
+    .qs b { font: 600 16px var(--sans); letter-spacing: -.01em; }
+    .qs span { font-size: 13.5px; color: var(--muted); }
+    .qs.lead { background: var(--accent); border-color: var(--accent); color: #2a0f04; }
+    .qs.lead b { font: 800 22px/1.1 var(--sans); letter-spacing: -.03em; }
+    .qs.lead span { color: #3d1606; }
+    .who { display: inline-flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+    .who i { font: 600 10px var(--mono); letter-spacing: .08em; font-style: normal; padding: 4px 8px; border-radius: 999px; background: var(--raised); color: var(--muted); }
+    .who i.own { background: rgba(241,220,114,.14); color: var(--butter); }
+    @media (max-width: 980px) { .quick-in { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px) { .quick-in { grid-template-columns: 1fr; } }
+
+    /* ---- dar ekran duzeltmeleri (390px'de olculdu) ----
+       max-width: 44ch (~380px) + 2x16px gutter = 412px > 390 idi; metin
+       viewport'u asip overflow-x:clip tarafindan KESILIYORDU. ch yerine
+       min() ile viewport'a bagladim. Ust bar da nowrap yuzunden tasiyordu. */
+    .h-copy p { max-width: min(44ch, 100%); }
+    .h-copy h1 { max-width: 100%; }
+    .h-copy h1 em { overflow-wrap: anywhere; }
+    .hero, .h-copy, .scene, .quick-in, .qs { min-width: 0; }
+    .scene { max-width: 100%; }
+
+    @media (max-width: 720px) {
+      /* nowrap, h1'in genisligini max-content'e kilitliyordu; dar ekranda
+         blok viewport'u asip kesiliyordu. Dar ekranda sarmaya aciliyor. */
+      .h-copy h1 { white-space: normal; overflow-wrap: anywhere; }
+      .h-copy > * { max-width: 100%; }
+      .h-copy p { max-width: 100%; }
+      .top { padding: 10px 12px; }
+      .top-in { gap: 10px; padding: 8px 8px 8px 14px; }
+      .brand { font-size: 16px; white-space: nowrap; }
+      .menu-btn { padding: 9px 13px; font-size: 13px; }
+      .progress { left: 14px; right: 14px; }
+      .hero { padding-top: 28px; }
+      .chain { transform: rotateX(-24deg) rotateY(-34deg) scale(.72); }
+      .scene { height: 280px; }
+      .scene-cap { position: static; text-align: left; margin-top: 10px; }
+      .scene-cap .label { white-space: normal; }
+    }
+    @media (max-width: 420px) {
+      .chain { transform: rotateX(-22deg) rotateY(-32deg) scale(.56); }
+      .scene { height: 230px; }
+    }
 
     /* ================================================== DEMO PANELİ (v3) ==
        Prototipin kart/ray/konsol yapısı. main.js yalnız getElementById
@@ -571,105 +651,61 @@
   </style>
 </head>
 <body>
-  <header class="hero">
-    <svg class="hero-bg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
-      <g class="rays">
-        <line x1="650.2" y1="519.6" x2="1488.5" y2="629.2" stroke-width="0.91" opacity="0.173"/>
-        <line x1="654.7" y1="560.3" x2="1452.2" y2="871.1" stroke-width="0.83" opacity="0.158"/>
-        <line x1="626.5" y1="589.1" x2="1275.6" y2="1045.9" stroke-width="0.52" opacity="0.082"/>
-        <line x1="610.9" y1="627.5" x2="1061.8" y2="1146.0" stroke-width="0.76" opacity="0.174"/>
-        <line x1="571.7" y1="639.6" x2="907.4" y2="1293.8" stroke-width="0.60" opacity="0.083"/>
-        <line x1="536.7" y1="655.0" x2="711.4" y2="1392.8" stroke-width="0.57" opacity="0.135"/>
-        <line x1="498.3" y1="680.2" x2="490.7" y2="1515.1" stroke-width="0.73" opacity="0.172"/>
-        <line x1="458.8" y1="660.7" x2="234.1" y2="1537.9" stroke-width="0.64" opacity="0.070"/>
-        <line x1="415.6" y1="657.2" x2="-5.4" y2="1441.8" stroke-width="0.62" opacity="0.137"/>
-        <line x1="389.8" y1="622.1" x2="-66.9" y2="1128.2" stroke-width="0.79" opacity="0.104"/>
-        <line x1="364.2" y1="591.9" x2="-225.7" y2="991.2" stroke-width="0.78" opacity="0.103"/>
-        <line x1="336.1" y1="560.4" x2="-364.5" y2="818.8" stroke-width="0.86" opacity="0.082"/>
-        <line x1="322.6" y1="519.9" x2="-405.9" y2="601.6" stroke-width="0.70" opacity="0.098"/>
-        <line x1="346.5" y1="479.9" x2="-498.5" y2="369.5" stroke-width="0.55" opacity="0.149"/>
-        <line x1="342.0" y1="438.4" x2="-489.7" y2="114.2" stroke-width="0.67" opacity="0.099"/>
-        <line x1="371.5" y1="409.6" x2="-253.1" y2="-30.1" stroke-width="0.73" opacity="0.073"/>
-        <line x1="376.2" y1="357.7" x2="-104.6" y2="-195.2" stroke-width="0.53" opacity="0.149"/>
-        <line x1="428.7" y1="361.1" x2="93.0" y2="-293.1" stroke-width="0.96" opacity="0.062"/>
-        <line x1="458.4" y1="324.3" x2="267.4" y2="-482.2" stroke-width="0.97" opacity="0.177"/>
-        <line x1="501.6" y1="328.2" x2="508.9" y2="-465.4" stroke-width="1.00" opacity="0.051"/>
-        <line x1="540.1" y1="343.6" x2="750.6" y2="-477.9" stroke-width="0.67" opacity="0.072"/>
-        <line x1="574.2" y1="361.8" x2="949.8" y2="-338.3" stroke-width="0.60" opacity="0.085"/>
-        <line x1="615.4" y1="372.1" x2="1173.8" y2="-246.7" stroke-width="0.70" opacity="0.170"/>
-        <line x1="642.7" y1="403.4" x2="1264.6" y2="-17.5" stroke-width="0.85" opacity="0.139"/>
-        <line x1="678.0" y1="434.3" x2="1453.1" y2="148.5" stroke-width="0.82" opacity="0.085"/>
-        <line x1="680.8" y1="479.7" x2="1339.0" y2="405.9" stroke-width="0.99" opacity="0.157"/>
-      </g>
-      <g class="rings">
-        <circle cx="500" cy="500" r="150" fill="none" stroke-width="0.9" opacity="0.160"/>
-        <circle cx="500" cy="500" r="262" fill="none" stroke-width="0.55" opacity="0.115"/>
-        <circle cx="500" cy="500" r="386" fill="none" stroke-width="0.55" opacity="0.070"/>
-      </g>
-      <g class="dust">
-        <circle cx="349.4" cy="961.5" r="0.70" opacity="0.340"/>
-        <circle cx="179.8" cy="559.5" r="0.89" opacity="0.346"/>
-        <circle cx="76.8" cy="369.5" r="1.43" opacity="0.132"/>
-        <circle cx="413.2" cy="845.6" r="1.05" opacity="0.104"/>
-        <circle cx="729.9" cy="302.0" r="1.57" opacity="0.127"/>
-        <circle cx="426.6" cy="60.9" r="1.75" opacity="0.247"/>
-        <circle cx="853.1" cy="889.9" r="1.67" opacity="0.123"/>
-        <circle cx="-2.1" cy="171.0" r="1.25" opacity="0.327"/>
-        <circle cx="619.5" cy="1007.2" r="0.88" opacity="0.283"/>
-        <circle cx="887.5" cy="833.6" r="1.31" opacity="0.124"/>
-        <circle cx="385.6" cy="-50.2" r="1.36" opacity="0.248"/>
-        <circle cx="525.6" cy="741.8" r="0.80" opacity="0.207"/>
-        <circle cx="302.1" cy="754.9" r="1.06" opacity="0.331"/>
-        <circle cx="-120.7" cy="233.8" r="1.62" opacity="0.265"/>
-        <circle cx="395.8" cy="157.0" r="1.20" opacity="0.255"/>
-        <circle cx="593.4" cy="-228.0" r="1.66" opacity="0.146"/>
-        <circle cx="851.2" cy="182.3" r="1.30" opacity="0.342"/>
-        <circle cx="810.2" cy="321.7" r="1.21" opacity="0.349"/>
-        <circle cx="754.5" cy="249.6" r="1.11" opacity="0.114"/>
-        <circle cx="-189.6" cy="626.8" r="1.70" opacity="0.205"/>
-        <circle cx="1013.3" cy="380.2" r="1.11" opacity="0.234"/>
-        <circle cx="1237.0" cy="731.6" r="1.48" opacity="0.145"/>
-        <circle cx="535.9" cy="871.6" r="1.37" opacity="0.126"/>
-        <circle cx="996.7" cy="-61.9" r="1.60" opacity="0.152"/>
-        <circle cx="938.5" cy="283.7" r="1.00" opacity="0.138"/>
-        <circle cx="333.3" cy="920.7" r="1.79" opacity="0.209"/>
-        <circle cx="954.6" cy="764.0" r="1.38" opacity="0.170"/>
-        <circle cx="811.8" cy="235.0" r="0.74" opacity="0.328"/>
-        <circle cx="895.5" cy="901.2" r="1.15" opacity="0.334"/>
-        <circle cx="236.6" cy="441.1" r="1.59" opacity="0.144"/>
-        <circle cx="877.5" cy="1095.7" r="1.27" opacity="0.198"/>
-        <circle cx="1068.4" cy="429.6" r="1.26" opacity="0.196"/>
-        <circle cx="1083.5" cy="381.7" r="1.50" opacity="0.227"/>
-        <circle cx="536.2" cy="121.7" r="1.12" opacity="0.203"/>
-        <circle cx="873.2" cy="999.5" r="1.13" opacity="0.112"/>
-        <circle cx="-213.2" cy="534.0" r="1.66" opacity="0.184"/>
-        <circle cx="340.3" cy="809.3" r="1.63" opacity="0.131"/>
-        <circle cx="321.8" cy="754.8" r="0.79" opacity="0.231"/>
-        <circle cx="532.0" cy="848.9" r="1.05" opacity="0.151"/>
-        <circle cx="505.9" cy="837.5" r="1.74" opacity="0.177"/>
-        <circle cx="-189.0" cy="572.0" r="1.80" opacity="0.324"/>
-        <circle cx="768.3" cy="735.6" r="1.53" opacity="0.346"/>
-        <circle cx="1169.4" cy="693.4" r="1.07" opacity="0.136"/>
-        <circle cx="1053.3" cy="913.5" r="0.72" opacity="0.116"/>
-        <circle cx="1035.2" cy="151.6" r="0.87" opacity="0.124"/>
-        <circle cx="920.9" cy="697.0" r="0.92" opacity="0.125"/>
-      </g>
-    </svg>
+  <div class="top">
+    <nav class="top-in" aria-label="Bölümler">
+      <a class="brand" href="#top"><span class="dot"></span>PQ-Safe</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav-links">Menü</button>
+      <div class="links" id="nav-links">
+        <a href="#tehdit"><span class="ix">1</span>Tehdit</a>
+        <a href="#urun"><span class="ix">2</span>Ürün</a>
+        <a href="#surec"><span class="ix">3</span>Süreç</a>
+        <a href="#panel"><span class="ix">4</span>Demo</a>
+        <a href="#sonuc"><span class="ix">5</span>Sonuçlar</a>
+        <a href="#sss"><span class="ix">6</span>SSS</a>
+      </div>
+      <span class="pill-net"><i></i>Sepolia</span>
+      <a class="btn btn-accent nav-cta" href="#panel">Demoyu aç</a>
+      <span class="progress" aria-hidden="true"><i></i></span>
+    </nav>
+  </div>
 
-    <div class="hero-mid">
-      <p class="tag">Kuantum sonrası imza · SPHINCS-/C13</p>
-      <h1>PQ-Safe</h1>
-      <p class="lede">Kuantum sonrası imzayla yetkilendirilen akıllı kontrat cüzdanı.
-        Her işlem Sepolia'da zincir üstünde doğrulanır.</p>
+  <header class="hero" id="top">
+    <svg class="ribbon" viewBox="0 0 1200 800" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M 600 880 C 640 760, 600 640, 700 580 S 880 660, 980 540 S 1080 260, 1260 260" stroke-width="64" opacity=".9" pathLength="1"/>
+    </svg>
+    <div class="h-copy">
+      <span class="label">TEKNOFEST 2026 · Blokzincir</span>
+      <h1>PQ-Safe<em>kuantum sonrası imzalı cüzdan</em></h1>
+      <p>Kuantum bilgisayarlar bugünkü cüzdan imzalarını (ECDSA) kırabilecek. PQ-Safe, parayı hareket ettirme yetkisini kuantuma dayanıklı bir hash tabanlı imzaya bağlayan bir Ethereum akıllı kontrat cüzdanı. Sepolia'da çalışıyor.</p>
+      <div class="h-cta">
+        <a class="btn btn-accent" href="#panel">Demoyu başlat <span class="arr">&#8595;</span></a>
+        <a class="btn" href="#tehdit">Tehdit nedir?</a>
+      </div>
     </div>
 
-    <span class="corner tl">Kaydır ↓</span>
-    <span class="corner tr">Sepolia</span>
-    <span class="corner bl">TEKNOFEST 2026</span>
-    <span class="corner br">Araştırma prototipi · üretim cüzdanı değildir</span>
+    <!-- Küplerdeki her sayı gerçek bir Sepolia işleminden. A'nın blok numarası
+         Etherscan'den, B ve C'nin nonce'ları Task 7 tablosundan doğrulandı
+         (sprint4-gas-table-and-second-tx.md:1546-1548). -->
+    <div class="scene" aria-label="Sepolia'daki üç ölçülen işlem, blok olarak">
+      <div class="chain">
+        <div class="cube a"><div class="face fr"><span class="k">İŞLEM · A</span><b>216.269</b><span>gas · sıcak alıcı</span></div><div class="face rt"><span>0x0fd4b9b3…</span><span class="k">blok 11767186</span></div><div class="face tp"><span class="k">SPHINCS-/C13</span><span>3.688 B imza</span></div><div class="face bk"></div><div class="face lf"></div><div class="face bt"></div></div>
+        <div class="cube b"><div class="face fr"><span class="k">İŞLEM · B</span><b>218.721</b><span>gas · soğuk alıcı</span></div><div class="face rt"><span>0x6b8bbecd…</span><span class="k">nonce 5</span></div><div class="face tp"><span class="k">SPHINCS-/C13</span><span>3.688 B imza</span></div><div class="face bk"></div><div class="face lf"></div><div class="face bt"></div></div>
+        <div class="cube c"><div class="face fr"><span class="k">İŞLEM · C</span><b>243.817</b><span>gas · boş alıcı</span></div><div class="face rt"><span>0x222556c3…</span><span class="k">nonce 6</span></div><div class="face tp"><span class="k">SPHINCS-/C13</span><span>3.688 B imza</span></div><div class="face bk"></div><div class="face lf"></div><div class="face bt"></div></div>
+      </div>
+      <div class="shadow"></div>
+      <div class="scene-cap"><span class="label">Sepolia'da gönderilmiş</span><span class="label">üç gerçek işlem</span></div>
+    </div>
   </header>
 
-  <!-- ===================================================== NASIL ÇALIŞIR == -->
+  <section class="quick" aria-label="Hızlı başlangıç">
+    <div class="quick-in">
+      <div class="qs lead"><b>2 dakikada dene</b><span>MetaMask'i Sepolia ağına alın; gerisi bu sayfada.</span></div>
+      <a class="qs" href="#s1"><span class="n">1</span><b>Anahtar üret</b><span>SPHINCS-/C13 anahtar çifti tarayıcıda türetilir.</span><span class="who"><i>herkes</i></span></a>
+      <a class="qs" href="#s3"><span class="n">2</span><b>Zinciri oku</b><span>Bağlantıyı ve cüzdanın nonce'unu Sepolia'dan okuyun.</span><span class="who"><i>herkes</i></span></a>
+      <a class="qs" href="#s4"><span class="n">3</span><b>İmzala ve gönder</b><span>İşlemi imzalayıp MetaMask ile zincire gönderin.</span><span class="who"><i class="own">cüzdan sahibi</i></span></a>
+    </div>
+  </section>
+
   <div class="wrap">
     <hr class="divider" aria-hidden="true" />
 
@@ -960,5 +996,6 @@
   </div>
 
   <script type="module" src="/src/main.js"></script>
+  <script type="module" src="/src/nav.js"></script>
 </body>
 </html>
