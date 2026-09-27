@@ -1674,3 +1674,88 @@ tahminler üzerinde değil ölçümler üzerinde ve intrinsic arındırılmış 
 > **Sınırı:** bu, A/B/C'nin **birer** koşusuna dayanıyor (yukarıdaki SINIRLAR
 > listesi aynen geçerli). Üç fark da tam çıktı, ama üç örnekten "her zaman tam
 > çıkar" **sonucu çıkarılamaz**.
+
+---
+
+## TARİHLİ EK — 27 Eylül 2026, `216.221` ile `216.269` ÇELİŞMİYOR
+
+**Yukarısı silinmedi, düzeltilmedi.** Bu ek yeni bir soruya cevap veriyor.
+
+### Soru nereden çıktı
+
+Hakan'ın `83cce0d` commit'i README gas tablosunu güncellerken "kendine iade"
+satırına **`216.221`** yazdı. Bu dosyanın `:1547` tablosundaki **A satırı** ise
+**`216.269`**. **48 gas fark.** İki sayıdan biri yanlışsa rapor da yanlış olur,
+çünkü `docs/handoff/2026-09-27-devir.md` § 4'ün "artık sıfır" hesabı
+216.269'a dayanıyor.
+
+### 1. ÖLÇÜM — iki AYRI tx, ikisi de başarılı
+
+Etherscan'den bağımsız olarak okundu (27 Eylül 2026), depo kayıtlarıyla birebir:
+
+| belgedeki sayı | tx | blok | `gasUsed` | durum |
+|---|---|---|---|---|
+| README, "kendine iade" | `0x320e03d98cec857bbae8ecb49bcb0736c960287d76a19f2fad39b471b09e50da` | **11696552** | **216.221** | Success |
+| bu dosya `:1547`, A satırı | `0x0fd4b9b3c992053c7a3c8b3133cfbfdcefacf0242e42b88750b921c718c3e71c` | **11767186** | **216.269** | Success |
+
+**ÇIKARIM: tutarsızlık YOK.** Farklı bloklarda, farklı iki işlem. İkisi de
+doğru; aynı şeyin iki ölçümü değiller.
+
+### 2. ÇIKARIM — 48 gas'ın tamamı calldata sıfır baytı
+
+Her iki sayı da **aynı referansa** karşı bir defterle kapatılmıştı: Hakan'ın
+ilk tx'i (`233.429`, `z` = 201). İki defter de SSTORE'u **aynı 17.100** ile
+kapatıyor:
+
+```
+docs/session-handoff-2026-09-13.md:86
+  233.429 − 216.221 = 17.208 = SSTORE 17.100 + calldata 108   (+ verify 0, sıcak/soğuk 0)
+
+docs/handoff/2026-09-27-devir.md § 4
+  233.429 − 216.269 = 17.160 = SSTORE 17.100 + calldata  60
+                      ------                            ---
+  fark                    48                             48
+```
+
+SSTORE terimi iki defterde de özdeş olduğundan **48'in tamamı calldata
+teriminde**. Sıfır bayt başına fark 16 − 4 = 12 gas:
+
+```
+ 60 = (206 − 201) × 12   →  z(216.269) = 206     ÖLÇÜM — bu dosyada :1547'de yazılı
+108 = (z   − 201) × 12   →  z(216.221) = 210     ÇIKARIM — bu ekte türetildi
+ 48 = (210 − 206) × 12   =  4 bayt × (16 − 4)
+```
+
+`216.269 − 48 = 216.221`, **kalansız**.
+
+### 3. SINIR — `z` = 210 zincirden OKUNAMADI
+
+`z(216.221) = 210` bir **ÇIKARIM**, ölçüm değil. Ham calldata'yı okumak için
+denenen ve başarısız olan yollar (27 Eylül 2026):
+
+| uç | sonuç |
+|---|---|
+| `ethereum-sepolia-rpc.publicnode.com` | `eth_getTransactionReceipt` → `null` |
+| `sepolia.drpc.org` · `1rpc.io/sepolia` | "chain is not available on free plan" |
+| `rpc.sepolia.org` · `omniatech` | ayrıştırılabilir cevap yok |
+| Etherscan web sayfası | `gasUsed` veriyor, 3.908 baytlık ham calldata'yı **vermiyor** |
+
+> **Kontrol yapıldı, uç sorunu olduğu doğrulandı:** aynı uca bilinen-iyi üç
+> hash de soruldu (B `0x6b8bbecd…`, C `0x222556c3…`, Hakan `0xd62b812e…`) ve
+> **üçü de `null`** döndü. Yani hash'ler geçerli, geçmiş makbuzları sunmayan
+> uçtur. Hash'lerin yanlış olması ihtimali böylece elendi.
+
+**Bu çıkarım iki defterin de doğru ve kalansız olduğu varsayımına dayanıyor.**
+Birinde telafi eden gizli bir hata varsa çıkarım onu miras alır.
+**ÖLÇÜM'e çevirmenin yolu:** arşiv RPC'si ya da Etherscan API anahtarıyla iki
+tx'in ham calldata'sını çekip sıfır baytları doğrudan saymak. API anahtarı
+aranmadı — bu ek kapsamında ÇIKARIM olarak bırakıldı (Akif kararı).
+
+### 4. Rapor için hüküm
+
+- **Task 7 tablosu `216.269`'u kullanır** (A satırı, bu dosya `:1547`).
+- **README'nin `216.221`'i doğrudur ve düzeltilmeyecek.** `README.md` Hakan'ın
+  dosyası; ayrıca `tx-hashes.md:52` bu ayrımı zaten "defter kuralı" diye
+  notlamıştı.
+- Jüri "iki yerde iki farklı sayı" derse cevap: **iki ayrı işlem**, fark
+  4 sıfır baytlık calldata, 48 gas, kalansız kapanıyor.
