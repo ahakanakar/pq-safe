@@ -11,6 +11,7 @@ Ethereum üzerinde kuantum-güvenli akıllı kontrat cüzdanı (SPHINCS- imzalı
    - Hakan: frontend/, contracts/src/PQWallet.sol, contracts/src/Migration.sol, contracts/test/ (kendi testleri), contracts/script/, README.md
      (frontend/ 25 Eylül 2026'da Akif'ten Hakan'a geçti — Akif–Hakan kararı;
       devir notu: docs/handoff/2026-09-25-frontend-devir-hakana.md)
+      27 Eylül 2026: frontend/ Akif'e geri döndü; Hakan'a yazılı bildirildi.
    - Ortak: CLAUDE.md, contracts/src/interfaces/IPQVerifier.sol, docs/DECISIONS.md, docs/INTERFACE.md
    Bir oturumda karşı tarafın dosyasına dokunma. Emin değilsen SOR.
 
