@@ -2,98 +2,403 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PQ-SAFE — C13 Signer Kanıt UI</title>
   <style>
-    body { font-family: -apple-system, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; color: #1a1a1a; }
-    h1 { font-size: 20px; }
-    section { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-    button { padding: 8px 14px; cursor: pointer; }
-    label { display: block; margin-top: 10px; font-size: 13px; color: #555; }
-    textarea, input { width: 100%; box-sizing: border-box; font-family: monospace; font-size: 12px; padding: 6px; }
-    .field { word-break: break-all; background: #f6f6f6; padding: 8px; border-radius: 4px; font-family: monospace; font-size: 12px; margin-top: 4px; }
-    .ok { color: #0a7d2c; font-weight: bold; }
-    .warn { color: #9a5b00; font-size: 12px; }
-    .err { color: #b00020; }
+    /* ==========================================================================
+       PQ-SAFE — koyu tema.
+
+       SÖZLEŞME: main.js DOM'a yalnızca getElementById ile dokunuyor
+       (querySelector / getElementsBy* / classList HİÇ kullanılmıyor) ve çıktıya
+       yalnızca altı sınıf adı basıyor: .field .ok .warn .err .finding .neutral
+       Bu altı kuralın her biri AYRI yazılmak zorunda — gruplanırsa
+       (".ok, .finding { }") devir notu Ek.2'deki kontrol kırmızı yanar.
+
+       Renkler göz kararı DEĞİL: her biri en açık yüzeye (--field #171d21)
+       karşı hesaplandı, hepsi WCAG AA (4.5:1) üstünde. Oranlar aşağıda.
+       ========================================================================== */
+
+    :root {
+      --bg:        #090b0c;
+      --card:      #101417;
+      --field:     #171d21;
+      --line:      #232b30;
+      --line-soft: #1b2227;
+      --text:      #e8eef2;   /* 14.54:1 */
+      --muted:     #93a4ad;   /*  6.61:1 */
+      --cyan:      #3fe9ff;   /* 11.60:1 */
+      --blue:      #0051ff;
+
+      /* Anlam renkleri — YALNIZCA kanıt çıktısında kullanılır.
+         Kroma (buton, kenar, odak, hero) asla bu renkleri kullanmaz, yoksa
+         "yeşil" ekranda iki ayrı şey demeye başlar. */
+      --ok:        #45d97f;   /*  9.31:1 */
+      --err:       #ff7b72;   /*  6.75:1 */
+      --warn:      #b8912c;   /*  5.77:1  — dipnot, sakin */
+      --finding:   #ffb15c;   /*  9.48:1  — bulgu adayı, yüksek sesli */
+      --neutral:   #a8b3b9;   /*  7.95:1  — bilerek renksiz: hüküm iddia etmiyor */
+
+      /* .warn ↔ .finding ayrımı 1.64. İkisi bugün aynı renkti ve yalnızca
+         punto/ağırlıkla ayrılıyordu; koyu temada renk ayrımı da eklendi. */
+
+      --r:   14px;
+      --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      /* Dış font YOK — zayıf ağda ve başka makinede aynı görünsün diye
+         yalnızca sistem yığını. */
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap { max-width: 860px; margin: 0 auto; padding: 0 20px 72px; }
+
+    /* ---------------------------------------------------------------- hero -- */
+
+    .hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--line); }
+
+    /* Blok deseni. KISIT: pointer-events yok, düşük opaklık, metnin ARKASINDA.
+       Kartların içine asla girmez — kanıt metninin okunurluğu pazarlık dışı. */
+    .hero-grid {
+      position: absolute; inset: 0; z-index: 0;
+      pointer-events: none;
+      opacity: .16;
+      --u: 13px;
+      --c1: #cdd6db; --c2: #05070a; --c3: #182026;
+      --gp: 50% / calc(var(--u) * 16.9) calc(var(--u) * 12.8);
+      background:
+        conic-gradient(from 122deg at 50% 85.15%, var(--c2) 0 58deg, var(--c3) 0 116deg, #fff0 0 100%) var(--gp),
+        conic-gradient(from 122deg at 50% 72.5%, var(--c1) 0 116deg, #fff0 0 100%) var(--gp),
+        conic-gradient(from 58deg at 82.85% 50%, var(--c3) 0 64deg, #fff0 0 100%) var(--gp),
+        conic-gradient(from 58deg at 66.87% 50%, var(--c1) 0 64deg, var(--c2) 0 130deg, #fff0 0 100%) var(--gp),
+        conic-gradient(from 238deg at 17.15% 50%, var(--c2) 0 64deg, #fff0 0 100%) var(--gp),
+        conic-gradient(from 172deg at 33.13% 50%, var(--c3) 0 66deg, var(--c1) 0 130deg, #fff0 0 100%) var(--gp),
+        linear-gradient(98deg, var(--c3) 0 15%, #fff0 calc(15% + 1px) 100%) var(--gp),
+        linear-gradient(-98deg, var(--c2) 0 15%, #fff0 calc(15% + 1px) 100%) var(--gp),
+        conic-gradient(from -58deg at 50.25% 14.85%, var(--c3) 0 58deg, var(--c2) 0 116deg, #fff0 0 100%) var(--gp),
+        conic-gradient(from -58deg at 50% 28.125%, var(--c1) 0 116deg, #fff0 0 100%) var(--gp),
+        linear-gradient(90deg, var(--c2) 0 50%, var(--c3) 0 100%) var(--gp);
+      /* Desen metnin altında sönümlensin: okunurluk deseni yener. */
+      -webkit-mask-image: radial-gradient(120% 90% at 78% 8%, #000 0%, transparent 68%);
+      mask-image: radial-gradient(120% 90% at 78% 8%, #000 0%, transparent 68%);
+    }
+
+    /* Hero parıltısı — tek animasyon, reduced-motion'da kapanıyor. */
+    .hero-glow {
+      position: absolute; inset: -40% -10% auto -10%; height: 150%;
+      z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(closest-side at 22% 38%, rgba(63,233,255,.16), transparent),
+        radial-gradient(closest-side at 62% 12%, rgba(0,81,255,.14), transparent);
+      animation: drift 22s ease-in-out infinite alternate;
+    }
+    @keyframes drift { to { transform: translate3d(3%, 2%, 0) scale(1.06); } }
+
+    .hero-inner { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 86px 20px 64px; }
+
+    .eyebrow {
+      margin: 0 0 14px; font-size: 11px; font-weight: 700;
+      letter-spacing: .22em; text-transform: uppercase; color: var(--cyan);
+    }
+    .hero h1 {
+      margin: 0; font-size: clamp(40px, 7vw, 76px); line-height: 1.02;
+      letter-spacing: -.035em; font-weight: 700;
+      background: linear-gradient(180deg, #ffffff 18%, #8fa3ad 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    /* KISIT: hero'da SAYI YOK. Sayılar raporda, kaynağıyla birlikte duruyor. */
+    .lede { margin: 18px 0 0; font-size: clamp(15px, 1.7vw, 18px); color: var(--muted); max-width: 54ch; }
+    .lede b { color: var(--text); font-weight: 600; }
+
+    .hero .warn { margin-top: 26px; max-width: 62ch; }
+
+    /* ------------------------------------------------------------ ayırıcı -- */
+
+    /* Bölüm ayırıcısı — deseni ikinci kez, ince bir şerit olarak kullanır. */
+    .divider {
+      height: 26px; margin: 30px 0; border: 0;
+      pointer-events: none; opacity: .3;
+      background:
+        repeating-linear-gradient(115deg, var(--line) 0 1px, transparent 1px 13px),
+        repeating-linear-gradient(-115deg, var(--line) 0 1px, transparent 1px 13px);
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
+      mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
+    }
+
+    /* -------------------------------------------------------------- kart --- */
+
+    section {
+      position: relative;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    section::before {
+      content: ""; position: absolute; inset: 0 0 auto; height: 1px;
+      border-radius: 20px 20px 0 0;
+      background: linear-gradient(90deg, transparent, rgba(63,233,255,.34), transparent);
+      pointer-events: none;
+    }
+
+    .sec-head { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+    .sec-n {
+      flex: 0 0 auto; width: 34px; height: 34px; border-radius: 10px;
+      display: grid; place-items: center;
+      font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums;
+      color: var(--cyan); background: rgba(63,233,255,.07);
+      border: 1px solid rgba(63,233,255,.24);
+    }
+    section h2 { margin: 0; font-size: 19px; font-weight: 650; letter-spacing: -.01em; }
+
+    hr { border: 0; border-top: 1px solid var(--line-soft); margin: 22px 0; }
+
+    label { display: block; margin-top: 18px; margin-bottom: 6px; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+
+    /* --------------------------------------------------------- form ögeleri */
+
+    textarea, input {
+      width: 100%; padding: 11px 13px;
+      font-family: var(--mono); font-size: 13px;
+      color: var(--text); background: var(--field);
+      border: 1px solid var(--line); border-radius: 10px;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    textarea::placeholder, input::placeholder { color: #6b7b84; }
+    textarea:focus, input:focus {
+      outline: none; border-color: rgba(63,233,255,.55);
+      box-shadow: 0 0 0 3px rgba(63,233,255,.13);
+    }
+    /* main.js tx girdilerini de kilitliyor (:365, :414, :629). Kilitli girdi
+       açık görünürse kilitli butonun açık görünmesiyle aynı hata olur. */
+    input:disabled, textarea:disabled {
+      opacity: .45; cursor: not-allowed;
+      background: #12171a; color: var(--muted); border-color: var(--line-soft);
+    }
+
+    code { font-family: var(--mono); font-size: .92em; color: var(--cyan); }
+
+    /* ----------------------------------------------------------- butonlar -- */
+
+    button {
+      appearance: none; cursor: pointer;
+      margin: 14px 8px 0 0;
+      padding: 11px 20px;
+      font-family: inherit; font-size: 14px; font-weight: 600;
+      color: var(--text);
+      background: #1a2126;
+      border: 1px solid #2c363d; border-radius: 12px;
+      transition: background .15s, border-color .15s, transform .12s;
+    }
+    button:hover:not(:disabled) { background: #212a30; border-color: #3c4952; }
+    button:active:not(:disabled) { transform: translateY(1px); }
+    button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+    /* KISIT: kilitli buton açık GİBİ görünmemeli. Parıltı yok, opaklık düşük,
+       imleç not-allowed — ve hover tepkisi de yok. */
+    button:disabled {
+      cursor: not-allowed; opacity: .38;
+      color: var(--muted); background: #141a1e;
+      border-color: var(--line-soft); box-shadow: none; transform: none;
+    }
+
+    /* BİRİNCİL EYLEM — sayfada tek tane: zincire gönderim. Parıltı bir kez
+       kullanılınca bir şey demek; dokuz butona dağıtılırsa hiçbir şey demez. */
+    #btn-send {
+      position: relative; isolation: isolate;
+      padding: 13px 26px; font-size: 15px; color: #fff;
+      border: none; border-radius: 16px;
+      background: radial-gradient(circle 80px at 80% -10%, #ffffff, #181b1b);
+      box-shadow: 0 0 22px rgba(63,233,255,.16), -8px 10px 30px rgba(0,81,255,.16);
+    }
+    /* İç yüzey — 2px'lik halkayı dışarıda bırakır. İç içe span YOK: main.js
+       buton metnine dokunmuyor ama sözde-öge yine de kırılmaz yol. */
+    #btn-send::before {
+      content: ""; position: absolute; inset: 2px; z-index: -1;
+      border-radius: 14px;
+      background: radial-gradient(circle 80px at 80% -50%, #777777, #0f1111);
+    }
+    /* Sol-alt cyan blob. */
+    #btn-send::after {
+      content: ""; position: absolute; inset: 2px; z-index: -1;
+      border-radius: 14px;
+      background: radial-gradient(circle 60px at 0% 100%, #3fe9ff, #0000ff80, transparent);
+    }
+    #btn-send:hover:not(:disabled) {
+      box-shadow: 0 0 30px rgba(63,233,255,.28), -10px 12px 34px rgba(0,81,255,.24);
+    }
+    /* Kilitliyken parıltının HER İZİ silinir — kutu gölgesi de, iki sözde-öge de. */
+    #btn-send:disabled {
+      background: #141a1e; color: var(--muted);
+      box-shadow: none; opacity: .38; cursor: not-allowed;
+    }
+    #btn-send:disabled::before, #btn-send:disabled::after { display: none; }
+
+    /* ------------------------------------------------- ALTI SINIF (main.js) --
+       Her biri AYRI kural. Gruplanmaz — kontrol `\.sınıf\s*\{` arıyor. */
+
+    .field {
+      word-break: break-all;
+      background: var(--field); border: 1px solid var(--line);
+      padding: 11px 13px; border-radius: 10px;
+      font-family: var(--mono); font-size: 13px; color: var(--text);
+      margin-top: 4px;
+    }
+    .ok { color: var(--ok); font-weight: bold; }
+    .warn { color: var(--warn); font-size: 12px; }
+    .err { color: var(--err); }
     /* Negatif kanıtın iki ara sonucu. Ayrı sınıflar, çünkü ikisi de ne .ok
        (yeşil, "kanıt geçerli") ne .err (kırmızı, "işlem başarısız") demek:
        .finding — kontrat cevap verdi ama BEKLENEN mesajı vermedi. Bulgu adayı,
                   bakılması gerekir; .warn'un 12px'lik dipnot görünümü sahnede
                   bunu gözden kaçırtır.
        .neutral — kontrata ulaşılamadı. Kanıt ALINAMADI; olumlu da olumsuz da
-                  değil. Renk bilerek gri: ekranda hiçbir hüküm iddia etmiyor. */
-    .finding { color: #9a5b00; font-weight: bold; }
-    .neutral { color: #555; font-weight: bold; }
+                  değil. Renk bilerek gri: ekranda hiçbir hüküm iddia etmiyor.
+       Koyu temada ikisine renk ayrımı da eklendi (ayrım oranı 1.64), ama
+       punto/ağırlık ayrımı korundu — tek başına renge yaslanmıyor. */
+    .finding { color: var(--finding); font-weight: bold; }
+    .neutral { color: var(--neutral); font-weight: bold; }
+
+    /* --------------------------------------------------------- DURUM çipi -- */
+
+    /* statusLine() (main.js:40) DURUM satırını çıktının İLK çocuğu olarak basar:
+       <p class="…"><strong>DURUM: ETİKET</strong></p>
+       Dokuz ayrı etiket var ama yalnızca dört CSS tutamağı taşıyorlar
+       (sınıfsız / .ok / .err / .warn) — CSS metin içeriğine göre seçim
+       yapamadığı için dokuzunu ayrı renklendirmek main.js'e dokunmayı
+       gerektirir. Burada CSS'in tavanı veriliyor: dört ayrı renk + yapısal
+       olarak ayrışan bir çip. Eşleme devir notunda. */
+    #send-out > p:first-child > strong {
+      display: inline-block; margin: 2px 0 6px;
+      padding: 6px 14px; border-radius: 999px;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: inherit;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line);
+    }
+    /* Sınıfsız hâl = "iş sürüyor" (KONTROL · MetaMask ONAYI BEKLENİYOR ·
+       ZİNCİRDE BEKLENİYOR). :not([class]) ile seçilebiliyor, böylece gövde
+       metninden ayrılıp kendi rengini alıyor — anlam renklerinden hiçbirini
+       çalmadan. */
+    #send-out > p:first-child:not([class]) > strong {
+      color: var(--cyan); border-color: rgba(63,233,255,.3);
+      background: rgba(63,233,255,.07);
+    }
+
+    /* ---------------------------------------------------------- çıktı alanı */
+
+    #keygen-out, #sign-out, #connection-out, #wallet-out, #tx-out, #send-out, #chain-warn { margin-top: 12px; }
+    #keygen-out p, #sign-out p, #connection-out p, #wallet-out p, #tx-out p, #send-out p, #chain-warn p { margin: 8px 0; }
+    a { color: var(--cyan); }
+
+    /* ------------------------------------------------------- erişilebilirlik */
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-glow { animation: none; }
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+    }
+
+    @media (max-width: 640px) {
+      .hero-inner { padding: 56px 20px 44px; }
+      section { padding: 20px; border-radius: 16px; }
+      button { width: 100%; margin-right: 0; }
+    }
   </style>
 </head>
 <body>
-  <h1>PQ-SAFE — C13 WASM Signer Kanıt UI</h1>
-  <p class="warn">Bu sayfa Sprint 1 kanıtı içindir (frontend/src/crypto/signer.js WASM sarmalayıcısını gösterir), üretim cüzdanı değildir.</p>
+  <header class="hero">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <p class="eyebrow">Kuantum-güvenli cüzdan</p>
+      <h1>PQ-SAFE</h1>
+      <p class="lede"><b>SPHINCS-/C13</b> · Sepolia · her işlemde zincir üstü doğrulama</p>
+      <p class="warn">Bu sayfa Sprint 1 kanıtı içindir (frontend/src/crypto/signer.js WASM sarmalayıcısını gösterir), üretim cüzdanı değildir.</p>
+    </div>
+  </header>
 
-  <section>
-    <h2>1. Anahtar Üret</h2>
-    <button id="btn-keygen">Yeni anahtar çifti üret</button>
+  <div class="wrap">
+    <hr class="divider" aria-hidden="true" />
 
-    <hr />
-    <label for="import-mnemonic">Mevcut mnemonic'i içe aktar (zincirdeki cüzdanın owner anahtarı)</label>
-    <input id="import-mnemonic" type="password" autocomplete="off" placeholder="12 kelime — ekrana yazdırılmaz" />
-    <button id="btn-import-mnemonic">İçe aktar</button>
-    <p class="warn">Bu alan <code>type="password"</code>. Girilen mnemonic ekranda ve çıktıda GÖSTERİLMEZ — yalnızca türetilen açık anahtar gösterilir ve zincirdeki <code>ownerPublicKey</code> ile otomatik karşılaştırılır. Ekran kaydı sırasında güvenlidir.</p>
+    <section>
+      <div class="sec-head"><span class="sec-n" aria-hidden="true">1</span><h2>Anahtar Üret</h2></div>
+      <button id="btn-keygen">Yeni anahtar çifti üret</button>
 
-    <div id="keygen-out"></div>
-  </section>
+      <hr />
+      <label for="import-mnemonic">Mevcut mnemonic'i içe aktar (zincirdeki cüzdanın owner anahtarı)</label>
+      <input id="import-mnemonic" type="password" autocomplete="off" placeholder="12 kelime — ekrana yazdırılmaz" />
+      <button id="btn-import-mnemonic">İçe aktar</button>
+      <p class="warn">Bu alan <code>type="password"</code>. Girilen mnemonic ekranda ve çıktıda GÖSTERİLMEZ — yalnızca türetilen açık anahtar gösterilir ve zincirdeki <code>ownerPublicKey</code> ile otomatik karşılaştırılır. Ekran kaydı sırasında güvenlidir.</p>
 
-  <section>
-    <h2>2. İmzala</h2>
-    <label for="digest">Digest (32 bayt, hex, 0x ile)</label>
-    <input id="digest" value="0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef" />
-    <button id="btn-sign" style="margin-top:10px;">İmzala</button>
-    <div id="sign-out"></div>
-  </section>
+      <div id="keygen-out"></div>
+    </section>
 
-  <section>
-    <h2>3. Sepolia Bağlantısı</h2>
-    <p class="warn">Salt-okunur bağlantı testi — kontrata dokunmaz, sadece RPC'nin çalıştığını kanıtlar.</p>
-    <button id="btn-check-connection">Bağlantıyı test et</button>
-    <div id="connection-out"></div>
-  </section>
+    <section>
+      <div class="sec-head"><span class="sec-n" aria-hidden="true">2</span><h2>İmzala</h2></div>
+      <label for="digest">Digest (32 bayt, hex, 0x ile)</label>
+      <input id="digest" value="0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef" />
+      <button id="btn-sign">İmzala</button>
+      <div id="sign-out"></div>
+    </section>
 
-  <section>
-    <h2>4. İşlem Oluştur, İmzala ve Gönder</h2>
-    <p class="warn">Cüzdan adresi ve nonce artık girdi değil — adres yapılandırmadan, nonce zincirden geliyor.</p>
+    <hr class="divider" aria-hidden="true" />
 
-    <label>PQWallet adresi (yapılandırmadan)</label>
-    <div class="field" id="tx-wallet-display">—</div>
+    <section>
+      <div class="sec-head"><span class="sec-n" aria-hidden="true">3</span><h2>Sepolia Bağlantısı</h2></div>
+      <p class="warn">Salt-okunur bağlantı testi — kontrata dokunmaz, sadece RPC'nin çalıştığını kanıtlar.</p>
+      <button id="btn-check-connection">Bağlantıyı test et</button>
+      <div id="connection-out"></div>
+    </section>
 
-    <label>Zincirdeki nonce</label>
-    <div class="field" id="tx-nonce-display">—</div>
+    <hr class="divider" aria-hidden="true" />
 
-    <label>Cüzdan bakiyesi</label>
-    <div class="field" id="tx-balance-display">—</div>
+    <section>
+      <div class="sec-head"><span class="sec-n" aria-hidden="true">4</span><h2>İşlem Oluştur, İmzala ve Gönder</h2></div>
+      <p class="warn">Cüzdan adresi ve nonce artık girdi değil — adres yapılandırmadan, nonce zincirden geliyor.</p>
 
-    <button id="btn-refresh-chain">Zincirden yenile</button>
-    <!-- Zincir okuma hatası GÖNDERİM SONRASI buraya yazılır, send-out'a değil:
-         orada o anda tx hash'i, Etherscan linki ve ölçülen gas duruyor. -->
-    <div id="chain-warn"></div>
+      <label>PQWallet adresi (yapılandırmadan)</label>
+      <div class="field" id="tx-wallet-display">—</div>
 
-    <label for="tx-to">to (alıcı adresi)</label>
-    <input id="tx-to" value="" />
-    <label for="tx-value">value (wei)</label>
-    <input id="tx-value" value="100000000000000" />
-    <label for="tx-data">data (hex, boşsa 0x)</label>
-    <input id="tx-data" value="0x" />
+      <label>Zincirdeki nonce</label>
+      <div class="field" id="tx-nonce-display">—</div>
 
-    <button id="btn-build-sign" style="margin-top:10px;">Digest hesapla ve imzala</button>
-    <button id="btn-connect-wallet">Cüzdanı bağla</button>
-    <button id="btn-send" disabled>Zincire gönder</button>
-    <button id="btn-negative-proof" disabled>Bozuk imzayla dene (negatif kanıt)</button>
-    <!-- Bağlantı durumu kendi alanında: bağlantı state'i ile imza state'i
-         birbirinden habersiz değişiyor, aynı div'i paylaşmaları rastgele bir
-         ezme sırası yaratır ve kullanıcı "neden gönderemiyorum"un cevabını
-         kaybeder. -->
-    <div id="wallet-out"></div>
-    <div id="tx-out"></div>
-    <div id="send-out"></div>
-  </section>
+      <label>Cüzdan bakiyesi</label>
+      <div class="field" id="tx-balance-display">—</div>
+
+      <button id="btn-refresh-chain">Zincirden yenile</button>
+      <!-- Zincir okuma hatası GÖNDERİM SONRASI buraya yazılır, send-out'a değil:
+           orada o anda tx hash'i, Etherscan linki ve ölçülen gas duruyor. -->
+      <div id="chain-warn"></div>
+
+      <label for="tx-to">to (alıcı adresi)</label>
+      <input id="tx-to" value="" />
+      <label for="tx-value">value (wei)</label>
+      <input id="tx-value" value="100000000000000" />
+      <label for="tx-data">data (hex, boşsa 0x)</label>
+      <input id="tx-data" value="0x" />
+
+      <button id="btn-build-sign">Digest hesapla ve imzala</button>
+      <button id="btn-connect-wallet">Cüzdanı bağla</button>
+      <button id="btn-send" disabled>Zincire gönder</button>
+      <button id="btn-negative-proof" disabled>Bozuk imzayla dene (negatif kanıt)</button>
+      <!-- Bağlantı durumu kendi alanında: bağlantı state'i ile imza state'i
+           birbirinden habersiz değişiyor, aynı div'i paylaşmaları rastgele bir
+           ezme sırası yaratır ve kullanıcı "neden gönderemiyorum"un cevabını
+           kaybeder. -->
+      <div id="wallet-out"></div>
+      <div id="tx-out"></div>
+      <div id="send-out"></div>
+    </section>
+  </div>
 
   <script type="module" src="/src/main.js"></script>
 </body>
