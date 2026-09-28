@@ -16,6 +16,8 @@
 // main.js keygen çıktısındaki yorum).
 
 export const AUTO_HIDE_MS = 30_000;
+// "Kopyalandı" etiketinin eski hâline dönme süresi.
+export const COPY_LABEL_MS = 2_000;
 
 const defaultTimers = {
   setTimeout: (fn, ms) => setTimeout(fn, ms),
@@ -26,16 +28,26 @@ const defaultTimers = {
 // `button` — Göster/Gizle. Metnini bu modül yazar.
 // `list`   — kelimelerin kabı. İçine YALNIZ bu modül yazar.
 // `doc`    — `createElement` için; testte taklit edilir.
+// `copy`   — panoya yazan fonksiyon; testte taklit edilir. Panoya giden değer
+//            HER ZAMAN `show()`'a verilen ifadedir — `main.js` oraya yalnız
+//            `trialMnemonic` veriyor, yani içe aktarılan owner mnemonic'i
+//            panoya hiçbir yoldan düşemez.
 export function createMnemonicReveal({
   box,
   button,
   list,
   doc,
   warningText,
+  copyLabel = 'Kopyala',
+  copiedLabel = 'Kopyalandı',
+  copyFailedLabel = 'Kopyalanamadı',
+  copy = (metin) => navigator.clipboard.writeText(metin),
   autoHideMs = AUTO_HIDE_MS,
+  copyLabelMs = COPY_LABEL_MS,
   timers = defaultTimers,
 }) {
   let timer = null;
+  let copyTimer = null;
   let visible = false;
 
   function clearWords() {
@@ -48,6 +60,12 @@ export function createMnemonicReveal({
     if (timer !== null) {
       timers.clearTimeout(timer);
       timer = null;
+    }
+    // Etiket zamanlayıcısı da düşer: kelimeler silindikten sonra ateşleyip
+    // artık var olmayan bir butona yazmaya çalışmasın.
+    if (copyTimer !== null) {
+      timers.clearTimeout(copyTimer);
+      copyTimer = null;
     }
   }
 
@@ -80,6 +98,35 @@ export function createMnemonicReveal({
       item.textContent = `${i + 1} ${word}`;
       nodes.push(item);
     });
+
+    // Kopyala butonu ızgaranın İÇİNDE üretilir: böylece dört silme durumunun
+    // hepsinde kelimelerle birlikte, aynı tek satırla DOM'dan kalkar.
+    // Panoya giden metin `words.join(' ')` — küçük harf, tek boşluk. İçe
+    // aktarma alanı BIP-39'u katı okuyor (çift boşluk/büyük harf reddedilir),
+    // bu yüzden kopyalanan değer doğrudan yapıştırılabilir olmalı.
+    const copyBtn = doc.createElement('button');
+    copyBtn.className = 'copy';
+    copyBtn.type = 'button';
+    copyBtn.textContent = copyLabel;
+    copyBtn.addEventListener('click', () => {
+      if (copyTimer !== null) {
+        timers.clearTimeout(copyTimer);
+        copyTimer = null;
+      }
+      // Sonuç ne olursa olsun ifade HİÇBİR YERE yazılmaz — ne konsola, ne
+      // hata mesajına. Kullanıcı yalnız etiketten sonucu görür.
+      Promise.resolve()
+        .then(() => copy(words.join(' ')))
+        .then(() => { copyBtn.textContent = copiedLabel; })
+        .catch(() => { copyBtn.textContent = copyFailedLabel; })
+        .then(() => {
+          copyTimer = timers.setTimeout(() => {
+            copyBtn.textContent = copyLabel;
+            copyTimer = null;
+          }, copyLabelMs);
+        });
+    });
+    nodes.push(copyBtn);
 
     list.replaceChildren(...nodes);
     visible = true;

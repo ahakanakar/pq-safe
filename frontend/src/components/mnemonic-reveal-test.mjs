@@ -8,7 +8,7 @@
 // (butonun hangi değişkeni okuduğu, içe aktarmanın yüzeyi kapattığı)
 // kanıtlamaz. O yalnız tarayıcıda görülür — elle kontrol listesine bakın.
 
-import { createMnemonicReveal, AUTO_HIDE_MS } from './mnemonicReveal.js';
+import { createMnemonicReveal, AUTO_HIDE_MS, COPY_LABEL_MS } from './mnemonicReveal.js';
 
 // Gerçek bir anahtar DEĞİL: BIP-39 listesinin ilk kelimeleri, yalnız sayma ve
 // sızıntı taraması için.
@@ -35,8 +35,16 @@ function makeEl(tag = 'div') {
     tag,
     className: '',
     textContent: '',
+    type: '',
     hidden: false,
     children: [],
+    _dinleyiciler: {},
+    addEventListener(tur, fn) {
+      (this._dinleyiciler[tur] ||= []).push(fn);
+    },
+    tikla() {
+      (this._dinleyiciler.click || []).forEach((fn) => fn());
+    },
     replaceChildren(...nodes) {
       this.children = nodes;
     },
@@ -59,6 +67,16 @@ function makeTimers() {
     },
     pendingCount: () => pending.size,
     lastDelay: () => [...pending.values()].map((t) => t.ms).pop(),
+    // YALNIZ en son kurulan zamanlayıcıyı ateşler. fireAll() burada
+    // kullanılamaz: 30 sn'lik otomatik gizleme de bekliyor ve o ateşlenince
+    // kelimeler silinir — etiketin geri döndüğünü göremeyiz.
+    fireLast() {
+      const ids = [...pending.keys()];
+      const id = ids[ids.length - 1];
+      const job = pending.get(id);
+      pending.delete(id);
+      job.fn();
+    },
     fireAll() {
       const jobs = [...pending.values()];
       pending.clear();
@@ -67,26 +85,34 @@ function makeTimers() {
   };
 }
 
-function setup() {
+function setup({ panoPatlasin = false } = {}) {
   const box = makeEl('div');
   const button = makeEl('button');
   const list = makeEl('div');
   const timers = makeTimers();
+  const pano = { yazilan: null, cagri: 0 };
   const reveal = createMnemonicReveal({
     box,
     button,
     list,
     doc,
     warningText: 'Deneme anahtarı: bu kelimeleri gerçek varlık için kullanmayın.',
+    copy: (metin) => {
+      pano.cagri++;
+      if (panoPatlasin) return Promise.reject(new Error('pano yok'));
+      pano.yazilan = metin;
+      return Promise.resolve();
+    },
     timers,
   });
-  return { box, button, list, timers, reveal };
+  return { box, button, list, timers, reveal, pano };
 }
 
 // DOM'daki kelime sayısı: yalnız kelime düğümleri sayılır, uyarı satırı değil.
 const wordCount = (list) => list.children.filter((n) => n.className === 'w').length;
 // Sızıntı taraması: kaptaki TÜM metin. Kelime burada geçiyorsa DOM'dadır.
 const domText = (list) => list.children.map((n) => n.textContent).join(' ');
+const copyBtn = (list) => list.children.find((n) => n.className === 'copy') || null;
 const leakedWords = (list) => WORDS.filter((w) => domText(list).includes(w)).length;
 
 console.log('=== mnemonicReveal — göster/gizle ve dört silme durumu ===\n');
@@ -110,6 +136,8 @@ console.log('\n--- Durum 1: Göster ---');
   check('1. kelime numaralı', list.children[1].textContent, '1 abandon');
   check('12. kelime numaralı', list.children[12].textContent, '12 accident');
   check('buton "Gizle" oldu', button.textContent, 'Gizle');
+  check('kopyala butonu var', copyBtn(list) !== null, true);
+  check('kopyala butonu ızgaranın içinde (son düğüm)', list.children[list.children.length - 1].className, 'copy');
   check('zamanlayıcı kuruldu', timers.pendingCount(), 1);
   check('gecikme 30.000 ms', timers.lastDelay(), AUTO_HIDE_MS);
   check('isVisible true', reveal.isVisible(), true);
@@ -123,6 +151,7 @@ console.log('\n--- Silme 1: "Gizle" ---');
   check('0 kelime', wordCount(list), 0);
   check('hiçbir kelime metinde yok', leakedWords(list), 0);
   check('buton "Göster" oldu', button.textContent, 'Göster');
+  check('kopyala butonu da silindi', copyBtn(list), null);
   check('zamanlayıcı düştü', timers.pendingCount(), 0);
   check('isVisible false', reveal.isVisible(), false);
   // Gizlemeden sonra ateşleyen bir geri çağırma kalmamalı: kalsaydı kullanıcı
@@ -162,6 +191,7 @@ console.log('\n--- Silme 4: owner anahtarı içe aktarıldı ---');
   check('0 kelime', wordCount(list), 0);
   check('hiçbir kelime metinde yok', leakedWords(list), 0);
   check('Göster butonu görünmüyor (kap hidden)', box.hidden, true);
+  check('kopyala butonu da yok', copyBtn(list), null);
   check('zamanlayıcı düştü', timers.pendingCount(), 0);
   // Yüzey kapalıyken toggle çağrılsa bile kelime yazılmamalı: main.js
   // butonu gizliyor, ama koruma tek bir görünürlük bayrağına bırakılmıyor —
@@ -188,6 +218,49 @@ console.log('\n--- Boş/eksik mnemonic ---');
   reveal.show('   ');
   check('boşluk → 0 kelime', wordCount(list), 0);
   check('boşluk → isVisible false', reveal.isVisible(), false);
+}
+
+console.log('\n--- Kopyala ---');
+{
+  const { list, timers, reveal, pano } = setup();
+  reveal.show(MNEMONIC);
+  copyBtn(list).tikla();
+  await new Promise((r) => setTimeout(r, 0));
+  check('panoya bir kez yazıldı', pano.cagri, 1);
+  check('panoya giden değer tam ifade', pano.yazilan, MNEMONIC);
+  check('panoya giden değer tek boşluklu', /\s\s/.test(pano.yazilan || ''), false);
+  check('panoya giden değer küçük harf', pano.yazilan, (pano.yazilan || '').toLowerCase());
+  check('etiket "Kopyalandı" oldu', copyBtn(list).textContent, 'Kopyalandı');
+  check('etiket için zamanlayıcı kuruldu', timers.lastDelay(), COPY_LABEL_MS);
+  check('otomatik gizleme hâlâ bekliyor', timers.pendingCount(), 2);
+  timers.fireLast();
+  check('etiket eski hâline döndü', copyBtn(list).textContent, 'Kopyala');
+  check('kelimeler duruyor (etiket zamanlayıcısı gizlemedi)', wordCount(list), 12);
+}
+
+console.log('\n--- Kopyalama başarısız olursa ---');
+{
+  const { list, reveal, pano } = setup({ panoPatlasin: true });
+  reveal.show(MNEMONIC);
+  copyBtn(list).tikla();
+  await new Promise((r) => setTimeout(r, 0));
+  check('pano çağrıldı', pano.cagri, 1);
+  check('panoya hiçbir şey yazılmadı', pano.yazilan, null);
+  check('etiket "Kopyalanamadı" oldu', copyBtn(list).textContent, 'Kopyalanamadı');
+  check('kelimeler ekranda kaldı', wordCount(list), 12);
+}
+
+console.log('\n--- Kopyaladıktan sonra gizle: geç etiket zamanlayıcısı kalmasın ---');
+{
+  const { list, timers, reveal } = setup();
+  reveal.show(MNEMONIC);
+  copyBtn(list).tikla();
+  await new Promise((r) => setTimeout(r, 0));
+  reveal.hide();
+  check('0 kelime', wordCount(list), 0);
+  check('bekleyen zamanlayıcı yok', timers.pendingCount(), 0);
+  timers.fireAll();
+  check('geç ateşleme kelime yazmadı', wordCount(list), 0);
 }
 
 console.log(failures === 0 ? '\nTÜM TESTLER GEÇTİ' : `\n${failures} TEST BAŞARISIZ`);
