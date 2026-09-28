@@ -185,7 +185,27 @@ doğrulama: `docs/evidence/crypto-tests/sprint3-live-signature-verification.md`.
 oluşturuluyor; referans kontrat güncellenirse sarmalayıcı yeniden deploy
 edilmelidir. Bu madde değişmedi.
 
+### 4. § 2'deki "resmi `SLH-DSA-SHA2-128-24`" ifadesi YANLIŞ
+
+`:68` eski hedefi **"resmi `SLH-DSA-SHA2-128-24`"** diye anıyor. Bu ifade
+depodaki iki kayıtla çelişiyor:
+
+| kayıt | ne diyor |
+|---|---|
+| `docs/evidence/crypto-tests/sprint0-noble-post-quantum-risk-test.md:10-18` | `@noble/post-quantum` altı standart FIPS 205 setini (`128f/128s/192f/192s/256f/256s`, SHA2 ve SHAKE) dışa veriyor ve **hiçbiri** SLH-DSA-SHA2-128-24'ün parametreleriyle eşleşmiyor; varyant "**Consigny'nin özel varyantı**" diye adlandırılıyor (`h=22 d=1 a=24 k=6 w=4`) |
+| `docs/DECISIONS.md:176` | aynı parametreler, "bizim eski hedefimiz SLH-DSA-SHA2-128-24'ün **özel parametreleri**" |
+| `docs/DECISIONS.md:190` | varyant FIPS 205'e değil, "vanilla SPHINCS+" ve **NIST SP 800-230 taslağına** yakın diye konumlandırılıyor |
+
+**Doğrusu:** SLH-DSA-SHA2-128-24 de resmî bir FIPS 205 parametre seti
+**değildi**; o da C13'ün ailesiyle aynı yazarın (Consigny) özel varyantıydı.
+Yani 19 Ağustos 2026'daki şema değişikliği "standart setten araştırma
+varyantına geçiş" değil, **iki araştırma varyantı arasında geçiş**tir.
+
+`:68`'deki "resmi" kelimesi silinmedi — defter kuralı. Bu ek onu geçersiz
+kılıyor. `docs/RAPOR.md` § 3.1 doğru ifadeyi kullanıyor.
+
 ### Bu ekin kapsamadığı
 
-§ 1-4 bu ek tarafından değiştirilmiyor. Özellikle § 4'ün güvenlik
-değerlendirmesi (C13-X-f2, C13-X-f3) aynen geçerlidir.
+§ 1, § 3 ve § 4 bu ek tarafından değiştirilmiyor. Özellikle § 4'ün güvenlik
+değerlendirmesi (C13-X-f2, C13-X-f3) aynen geçerlidir. § 2'de yalnızca
+"resmi" nitelemesi düşmüştür; C13'e dair anlatım geçerli.

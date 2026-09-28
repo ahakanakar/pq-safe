@@ -26,8 +26,8 @@
 | 1 | Problem ve tehdit | Akif | ~55 |
 | 2 | Çözüm ve mimari | **Hakan** | ~70 |
 | 3 | SPHINCS-/C13 seçimi ve bedeli | Akif | ~80 |
-| 4 | Ölçüm yöntemi | Akif | ~55 |
-| 5 | Sonuçlar | Akif | ~110 |
+| 4 | Ölçüm yöntemi | Akif | ~100 |
+| 5 | Sonuçlar | Akif | ~140 |
 | 6 | Nonce 7 canlı demosu | Akif | ~15 → ~60 |
 | 7 | Tekrar üretilebilirlik | Akif | ~45 |
 | 8 | Sınırlar ve açık kalemler | Akif | ~70 |
@@ -35,7 +35,7 @@
 | — | Kaynakça | Akif | ~12 |
 | A | Ek A — kanıt dizini | Akif | ~45 |
 
-Toplam ≈ 615 satır. **Şablon sınırı gelmeden bağlayıcı değil.**
+Toplam ≈ 710 satır. **Şablon sınırı gelmeden bağlayıcı değil.**
 
 ---
 
@@ -254,7 +254,50 @@ olarak yazılır; ön kaydın kendisi değiştirilmez
 Üçüncü adım yöntemin dayanağıdır. `pushed_at` bizim yazdığımız bir damga
 değil, üçüncü bir tarafın kaydıdır ve işlemden öncedir.
 
-### 4.2 Beklenti bir sayı değil, bir fonksiyon
+**Bu adımın sınırı.** `pushed_at` yalnızca **son** push'u gösterir. Jüri
+bugün o alanı okuduğunda 28 Eylül'deki değeri göremez, en son push'un
+damgasını görür. Kanıtımız alanın bugünkü değeri değil, o an okunup kanıt
+dosyasına geçirilen değerdir — yani kaydın kendisi bizim tuttuğumuz bir
+tutanaktır.
+
+### 4.2 Bağımsız doğrulama yolu — GitHub olay akışı
+
+Tutanağa güvenmek zorunda kalmamak için ikinci bir yol var. GitHub'ın olay
+akışı her push'u kendi zaman damgasıyla listeler:
+
+```
+curl -s "https://api.github.com/repos/akifaybek/pq-safe/events?per_page=100"
+```
+
+28 Eylül 2026 17:26 UTC'de okundu; akış 67 `PushEvent` döndü (en eski
+2026-08-28T20:30:54Z, en yeni 2026-09-28T08:45:17Z). Ön kayıt commit'lerinin
+push damgaları, karşılık gelen işlemlerin blok zamanlarıyla yan yana:
+
+| ön kayıt | push `created_at` | tx | blok | blok zamanı | fark |
+|---|---|---|---|---|---|
+| nonce 5 (B) · `aca65785` | **2026-09-24T19:04:44Z** | `0x6b8bbecd…` | 11774374 | 2026-09-24T20:18:12Z | push **73 dk önce** |
+| nonce 6 (C) · `95f93e17` | **2026-09-24T21:49:11Z** | `0x222556c3…` | 11774980 | 2026-09-24T22:19:36Z | push **30 dk önce** |
+
+Etiket: **ÖLÇÜM** — push damgaları GitHub olay akışından, blok zamanları
+Sepolia'dan bağımsız olarak okundu. İki koşuda da push işlemden öncedir.
+
+**Nonce 7 bu tabloda yok.** Ön kaydın iki commit'i (`a0f08aad`, `2a00a824`)
+`origin/main`'de duruyor, ama 28 Eylül 17:26 UTC'de okunan akışta **yer
+almıyorlar**; akışın en yeni kaydı `8c3e046b` (08:45:17Z) ve ön kayıt
+push'ları ondan sonra yapıldı. Push ile okuma arasında 8,5 saat var, yani
+bu yalnızca kısa bir gecikmeyle açıklanmıyor. **Sebep ölçülmedi.**
+
+**Bu yolun iki sınırı:**
+
+1. GitHub olay akışı kayıtları **sınırlı süre** tutar ve gerçek zamanlı
+   olduğu garanti edilmez. Bugün okunabilen üç ay sonra okunamayabilir;
+   nonce 7'nin durumu bu belirsizliğin canlı örneğidir.
+2. Akışın bize döndüğü yükte `commits` dizisi **yok**, yalnızca push'un
+   `head` SHA'sı var. Dolayısıyla bu yolla ancak **push başı olan**
+   commit'ler doğrulanabilir; bir push'un içindeki ara commit'ler
+   doğrulanamaz.
+
+### 4.3 Beklenti bir sayı değil, bir fonksiyon
 
 Ön kayıt tek bir sayıya değil, bir formüle bağlanır:
 
@@ -268,7 +311,7 @@ bu yüzden sonuca göre ayarlanabilecek bir sayı değil, `z` hangi değeri alı
 alsın bağlayıcı kalan bir fonksiyon taahhüt eder
 (`…sprint4-gas-table-and-second-tx.md:1005`, `:1214`).
 
-### 4.3 Durdurma kuralları
+### 4.4 Durdurma kuralları
 
 Ön kayıt beklentinin yanında **ön koşulları** da sabitler: nonce, alıcının
 sınıfı, ekranda görünmesi gereken digest. Bir ön koşul sağlanmazsa koşu
@@ -276,13 +319,13 @@ sınıfı, ekranda görünmesi gereken digest. Bir ön koşul sağlanmazsa koşu
 (`docs/evidence/demo-nonce7-prerecord.md:118-145` · kontrol listesi
 `docs/evidence/demo-run-sheet.md:185-200` · `…second-tx.md:1359`).
 
-### 4.4 Defter kuralı
+### 4.5 Defter kuralı
 
 Kanıt dosyaları düzeltilmez. Yanlış çıkan satır yerinde bırakılır, altına
 tarihli ek yazılır — bir sayının nasıl değiştiği de kayıtta kalsın diye.
 Bu raporun § 5.3, § 5.5 ve § 5.6 maddeleri böyle eklerden besleniyor.
 
-### 4.5 Yöntemin sınırı
+### 4.6 Yöntemin sınırı
 
 Bu yöntem beklentinin sonuca uydurulmadığını gösterir; modelin **doğru**
 olduğunu göstermez. Üç koşuda üç isabet üç örnektir, "her zaman tutar" sonucu
