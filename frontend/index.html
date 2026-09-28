@@ -96,7 +96,7 @@
 
       --gutter:clamp(16px,4vw,56px);
       --r-card:22px; --r-in:12px;
-      --sec-gap: clamp(72px,10vw,130px);   /* bolumler arasi TEK kaynak */
+      --sec-gap: clamp(44px,6vw,78px);     /* bolumler arasi TEK kaynak (28 Eyl: ~%40 azaltildi) */
 
       /* --- geçiş takma adları ---
          A2/A3'te değişecek eski bölümler (hero, süreç, sonuçlar, SSS) hâlâ
@@ -381,8 +381,8 @@
        Olculerek gorulda, sifirlaniyor. */
     section.sec { background: none; border: 0; border-radius: 0; padding-inline: 0; margin-bottom: 0; }
     .sec { padding-block: var(--sec-gap); }
-    .sec-top { display: grid; grid-template-columns: minmax(0,1.1fr) minmax(0,1fr); gap: 24px 72px; align-items: end; margin-bottom: 52px; position: relative; }
-    .sec-top h2 { font: 700 clamp(34px,4.6vw,62px)/1.02 var(--sans); letter-spacing: -.02em; margin: 14px 0 0; }
+    .sec-top { display: grid; grid-template-columns: minmax(0,1.45fr) minmax(0,1fr); gap: 24px 56px; align-items: end; margin-bottom: 40px; position: relative; }
+    .sec-top h2 { font: 700 clamp(34px,4.2vw,56px)/1.04 var(--sans); letter-spacing: -.02em; margin: 14px 0 0; text-wrap: balance; }
     .sec-top h2 em.s { color: var(--accent-2); }
     .sec-top p { margin: 0; color: var(--muted); max-width: 56ch; font-size: 16.5px; }
     @media (max-width: 860px) { .sec-top { grid-template-columns: minmax(0,1fr); } }
@@ -413,6 +413,8 @@
     .pc .gas { margin-top: 8px; font: 500 12.5px var(--mono); color: var(--text); display: flex; flex-wrap: wrap; gap: 8px; }
     .pc .gas span { display: inline-block; padding: 6px 11px; border-radius: 999px; background: var(--inset); border: 1px solid var(--line); }
     .pc .gas a { color: var(--accent-2); }
+    .pc .gas .addr { background: var(--inset-2); color: var(--muted); }
+    .pc .gas .addr code { font: inherit; }
     .pc.w6 { grid-column: span 6; } .pc.w4 { grid-column: span 4; }
     .pc.hl { background: var(--bone); color: var(--ink); border-color: transparent; }
     .pc.hl p { color: var(--ink-muted); } .pc.hl .label { color: #c43d0c; } .pc.hl h3 code { color: var(--ink); }
@@ -639,6 +641,11 @@
     }
 
     .hint { font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+    /* Alt bilgi basligi: hicbir genislikte tek kelime alt satira dusmesin. */
+    .foot2 h2 { text-wrap: balance; }
+    /* Kart 3'un gosterge kutulari: deger gelmeden once de, geldikten sonra da
+       dogru kalan kalici ipucu (main.js donmus, CSS metne gore secim yapamaz). */
+    .tile .tip { font: 400 11.5px/1.4 var(--sans); color: var(--faint); margin: 0; }
 
     /* -------------------------------------------- deneme anahtarı kelime --
        Kabuk kapalıyken [hidden] tek basina YETMEZ: display:grid UA'nin
@@ -661,7 +668,11 @@
     .console-h { padding: 10px 16px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; align-items: center; }
     .console-h i { width: 8px; height: 8px; border-radius: 50%; background: var(--line-2); }
     .console-b { padding: 16px; margin: 0; }
-    #send-out:empty::before { content: "Henüz çıktı yok"; color: var(--faint); }
+    /* Bos konsol ipucu. Metin HTML'de data-empty'de durur, CSS yalnizca
+       :empty iken basar — main.js kutuya ilk satiri yazdigi anda :empty duser
+       ve ipucu KENDILIGINDEN kaybolur; JS tarafinda tek satir degisiklik yok.
+       (Olcum tarayicida: Akif.) */
+    .console-b:empty::before { content: attr(data-empty); color: var(--faint); }
     /* Yer tutucu yalniz gonderim konsolunda. Digerleri bosken TAMAMEN gizli;
        main.js icine yazinca :empty duser ve kutu kendiliginden gorunur. */
     .console.hide-empty:has(> .console-b:empty) { display: none; }
@@ -711,6 +722,9 @@
        .finding — kontrat cevap verdi ama BEKLENEN mesaji vermedi. Bulgu adayi.
        .neutral — kontrata ulasilamadi. Kanit ALINAMADI; hukum yok, renk notr. */
     .finding { color: var(--finding); font-weight: 600; }
+    /* .tag-m varsayilani display:block (sutun basliklarinda alt satira gecer);
+       .limits paragrafinda CUMLENIN ICINDE kalmali. */
+    .limits .tag-m { display: inline-block; margin-top: 0; vertical-align: baseline; }
     .neutral { color: var(--neutral); font-weight: 600; }
 
     /* --------------------------------------------------------- DURUM hapi --
@@ -810,7 +824,11 @@
     .steps p { margin: 0; font-size: 14px; color: var(--muted); }
 
     /* gas tablosu */
-    .table-scroll { overflow-x: auto; margin: 10px -4px 0; padding: 0 4px; }
+    .table-scroll {
+      overflow-x: auto; margin: 10px 0 0; padding: 0;
+      border-radius: var(--r-card); border: 1px solid var(--ink-line);
+      background: #fbf6ee;
+    }
     table.gas { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 13px; }
     table.gas th, table.gas td { padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--line-2); }
     table.gas th {
@@ -825,6 +843,7 @@
     /* ÖLÇÜM / HESAP / ÇIKARIM etiketleri — sütunun epistemik durumu */
     .tag-m {
       display: block; margin-top: 5px;
+      white-space: nowrap;
       font-size: 9px; letter-spacing: .12em;
       padding: 2px 6px; border-radius: 2px; width: max-content;
     }
@@ -971,15 +990,19 @@
     <p class="sources reveal">Kaynaklar · P. W. Shor, “Polynomial-Time Algorithms for Prime Factorization and Discrete Logarithms on a Quantum Computer”, SIAM J. Computing, 1997 · L. K. Grover, “A fast quantum mechanical algorithm for database search”, STOC 1996 · Ethereum Yellow Paper, Ek F (ECDSA, secp256k1 ve imzadan açık anahtar kurtarma, ECRECOVER) · NIST FIPS 205 (SLH-DSA), Ağustos 2024.</p>
   </section>
 
+  <!-- Adresler src/config/contracts.js:8-10 dosyasindan KOPYALANDI (elle yazilmadi).
+       Uc kaynakla karsilastirildi ve birebir tutuyor: config, docs/evidence/tx-hashes.md:11-13,
+       docs/RAPOR.md ss 7.1. main.js dondugu icin statik HTML ikinci bir kopyadir:
+       kontratlar yeniden deploy edilirse BURASI DA guncellenmeli. -->
   <section class="sec" id="urun">
     <div class="sec-top reveal">
       <div><span class="label">Ürün</span><h2>Üç kontrat, bir imzalayıcı, <em class="s">bir arayüz.</em></h2></div>
       <p>Hepsi 1 Eylül 2026'da Sepolia'ya kuruldu. Kontrat başına kuruluş maliyetleri Foundry test ölçümü; toplam, zincirde ölçülen değer.</p>
     </div>
     <div class="prod reveal">
-      <div class="pc w6 hl"><span class="label">Cüzdan</span><h3><code>PQWallet</code></h3><p>Parayı yalnızca geçerli bir SPHINCS-/C13 imzasıyla hareket ettiren akıllı kontrat cüzdan. Nonce ile tekrar oynatmaya kapalı.</p><div class="gas"><span>kuruluş · 461.947 gas · Foundry</span></div></div>
-      <div class="pc w6"><span class="label">Doğrulayıcı</span><h3><code>SPHINCSVerifier</code></h3><p>İmzayı her işlemde zincir üstünde doğrular. Geçersiz imzada revert etmez, false döner.</p><div class="gas"><span>kuruluş · 460.466 gas · Foundry</span><span>doğrulama · 106.672 gas</span></div></div>
-      <div class="pc w4"><span class="label">Geçiş</span><h3><code>Migration</code></h3><p>Eski ECDSA adresinin sahipliği kanıtlanır ve adres kalıcı olarak işaretlenir. Para taşımaz. Sepolia'da bir kez çalıştırıldı.</p><div class="gas"><span>kuruluş · 289.095 gas · Foundry</span><span><a href="https://sepolia.etherscan.io/tx/0x1ccc11f14c8eaaad4fd0cb8e346234dc6256576c9e9c900c3632d4c32c75a609" target="_blank" rel="noopener noreferrer">gerçek işlem ↗</a></span></div></div>
+      <div class="pc w6 hl"><span class="label">Cüzdan</span><h3><code>PQWallet</code></h3><p>Parayı yalnızca geçerli bir SPHINCS-/C13 imzasıyla hareket ettiren akıllı kontrat cüzdan. Nonce ile tekrar oynatmaya kapalı.</p><div class="gas"><span>kuruluş · 461.947 gas · Foundry</span><span class="addr"><code>0x2Eaf…00BB</code></span><span><a href="https://sepolia.etherscan.io/address/0x2EafA294C14b6752128bfd4f5873D1EA39f000BB" target="_blank" rel="noopener noreferrer">Etherscan ↗</a></span></div></div>
+      <div class="pc w6"><span class="label">Doğrulayıcı</span><h3><code>SPHINCSVerifier</code></h3><p>İmzayı her işlemde zincir üstünde doğrular. Geçersiz imzada revert etmez, false döner.</p><div class="gas"><span>kuruluş · 460.466 gas · Foundry</span><span>doğrulama · 106.672 gas</span><span class="addr"><code>0x143D…4a2E</code></span><span><a href="https://sepolia.etherscan.io/address/0x143Db127BE77FdE689629b18F9F415014C514a2E" target="_blank" rel="noopener noreferrer">Etherscan ↗</a></span></div></div>
+      <div class="pc w4"><span class="label">Geçiş</span><h3><code>Migration</code></h3><p>Eski ECDSA adresinin sahipliği kanıtlanır ve adres kalıcı olarak işaretlenir. Para taşımaz. Sepolia'da bir kez çalıştırıldı.</p><div class="gas"><span>kuruluş · 289.095 gas · Foundry</span><span><a href="https://sepolia.etherscan.io/tx/0x1ccc11f14c8eaaad4fd0cb8e346234dc6256576c9e9c900c3632d4c32c75a609" target="_blank" rel="noopener noreferrer">gerçek işlem ↗</a></span><span class="addr"><code>0x93e2…5536</code></span><span><a href="https://sepolia.etherscan.io/address/0x93e2938A04AE4FbC59a5FDe59D7683667eDD5536" target="_blank" rel="noopener noreferrer">Etherscan ↗</a></span></div></div>
       <div class="pc w4"><span class="label">İmzalayıcı</span><h3>Rust / WASM</h3><p>BIP-39/44 ile anahtar türetir, imzayı tarayıcının içinde üretir.</p><div class="gas"><span>imza · 3.688 B</span></div></div>
       <div class="pc w4"><span class="label">Arayüz</span><h3>Bu sayfa</h3><p>Anahtar, bağlantı ve işlem adımlarını Sepolia'ya karşı canlı çalıştırır.</p><div class="gas"><span>ağ · Sepolia</span></div></div>
       <div class="deploy"><span class="label">Toplam kuruluş · Sepolia <span class="tag-m t-olc">ÖLÇÜM</span></span><b>1.256.479<small>gas</small></b></div>
@@ -1042,7 +1065,7 @@
                 <button id="btn-import-mnemonic" class="btn-primary">İçe aktar</button>
                 <button id="btn-keygen">Yeni çift üret (deneme)</button>
               </div>
-              <div class="console"><div class="console-h"><i></i><i></i><i></i></div><div class="console-b" id="keygen-out"></div></div>
+              <div class="console"><div class="console-h"><i></i><i></i><i></i></div><div class="console-b" id="keygen-out" data-empty="Anahtar üretilince ya da içe aktarılınca açık anahtar burada görünür."></div></div>
               <!-- Deneme anahtarının kelime yüzeyi. Kabuk statik ve
                    #keygen-out'un DIŞINDA: içe aktarma keygen-out'u baştan
                    yazıyor, içeride olsa bu kabuk da silinirdi. Kelimeler
@@ -1060,7 +1083,7 @@
             <div class="card-b">
               <p class="note">Ağ kimliğini ve son bloğu okur. İşlem göndermez, gaz harcamaz.</p>
               <div class="actions"><button id="btn-check-connection" class="btn-primary">Bağlantıyı test et</button></div>
-              <div class="console"><div class="console-h"><i></i><i></i><i></i></div><div class="console-b" id="connection-out"></div></div>
+              <div class="console"><div class="console-h"><i></i><i></i><i></i></div><div class="console-b" id="connection-out" data-empty="Test edince ağ kimliği ve son blok burada görünür."></div></div>
             </div>
           </article>
 
@@ -1069,8 +1092,8 @@
             <div class="card-b">
               <div class="tiles">
                 <div class="tile"><label>PQWallet adresi</label><div class="field" id="tx-wallet-display">—</div></div>
-                <div class="tile"><label>Nonce</label><div class="field big" id="tx-nonce-display">—</div></div>
-                <div class="tile"><label>Bakiye</label><div class="field big" id="tx-balance-display">—</div></div>
+                <div class="tile"><label>Nonce</label><div class="field big" id="tx-nonce-display">—</div><p class="tip">Zincirden yenile ile okunur.</p></div>
+                <div class="tile"><label>Bakiye</label><div class="field big" id="tx-balance-display">—</div><p class="tip">Zincirden yenile ile okunur.</p></div>
               </div>
               <div class="actions">
                 <button id="btn-refresh-chain">Zincirden yenile</button>
@@ -1100,7 +1123,7 @@
                    kaybeder. -->
               <div class="console hide-empty"><div class="console-h"><i></i><i></i><i></i></div><div class="console-b" id="wallet-out"></div></div>
               <div class="console hide-empty"><div class="console-h"><i></i><i></i><i></i></div><div class="console-b" id="tx-out"></div></div>
-              <div class="console"><div class="console-h"><i></i><i></i><i></i></div><div class="console-b" id="send-out"></div></div>
+              <div class="console"><div class="console-h"><i></i><i></i><i></i></div><div class="console-b" id="send-out" data-empty="İmzalayıp gönderince durum, tx hash ve gas burada görünür."></div></div>
             </div>
           </article>
 
@@ -1112,7 +1135,7 @@
                 <input id="digest" value="0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef" />
               </div>
               <div class="actions"><button id="btn-sign">İmzala</button></div>
-              <div class="console hide-empty"><div class="console-h"><i></i><i></i><i></i></div><div class="console-b" id="sign-out"></div></div>
+              <div class="console hide-empty"><div class="console-h"><i></i><i></i><i></i></div><div class="console-b" id="sign-out" data-empty="İmza burada görünür."></div></div>
             </div>
           </details>
 
@@ -1192,7 +1215,7 @@
   </main>
 
   <footer class="foot2">
-    <h2>PQ-Safe <em>imzası kuantum sonrası.</em></h2>
+    <h2>PQ-Safe <em>imzası kuantum&nbsp;sonrası.</em></h2>
     <div class="foot-row"><span>TEKNOFEST 2026 · Blokzincir</span><span>Araştırma prototipi, üretim cüzdanı değildir</span></div>
     <!-- GitHub bağlantısı: depo AÇIK ise aşağıdaki satırı yorumdan çıkar ve
          adresi yaz. ÖZEL ise link eklenmez. Karar Akif'te. -->
