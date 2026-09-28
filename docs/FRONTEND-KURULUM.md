@@ -125,8 +125,9 @@ npm script'i yoktur, doğrudan çalıştırılır. `cwd: frontend/`:
 
 ```bash
 node src/format-test.mjs                   # 8 assertion — gas/wei biçimi
-node src/tx/send-transaction-test.mjs      # 83 assertion
+node src/tx/send-transaction-test.mjs      # 99 assertion (28 Eylül 2026 ölçümü)
 node src/tx/build-transaction-test.mjs     # 21 assertion
+node src/components/mnemonic-reveal-test.mjs  # 37 assertion (28 Eylül 2026)
 node src/crypto/wasm-signer-test.mjs       # keygen + sign
 
 # pqwallet-test.mjs CAST_EXPECTED olmadan BİLEREK patlar: cast, bu paketin
@@ -138,7 +139,17 @@ cd ../frontend
 CAST_EXPECTED="$EXPECTED" node src/contracts/pqwallet-test.mjs   # 9 assertion
 ```
 
-Beklenen: **8 · 83 · 21 · 9**. `cast` için Foundry gerekir (README § Kurulum).
+Beklenen: **8 · 99 · 21 · 37 · 9**. `cast` için Foundry gerekir
+(README § Kurulum).
+
+> **Düzeltme — 28 Eylül 2026.** Bu bölüm 18 Eylül'e kadar
+> `send-transaction-test.mjs` için **83**, toplam için **8 · 83 · 21 · 9**
+> yazıyordu. Suite o tarihten sonra büyüdü; 28 Eylül ölçümü **99**. Aynı gün
+> `mnemonic-reveal-test.mjs` (37 assertion) eklendi. 18 Eylül'ün değeri
+> kanıt dosyasında yerinde duruyor —
+> `docs/evidence/sprint4-ok2-clean-clone.md:81` ve aynı dosyanın 28 Eylül
+> tarihli eki. Burası kurulum kılavuzu olduğu için sayı **yerinde
+> güncellendi**; defter kuralı kanıt dosyaları içindir.
 
 ## `.env`
 
