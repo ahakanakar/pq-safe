@@ -22,7 +22,7 @@
 
 | # | Bölüm | Sahibi | Bütçe |
 |---|---|---|---|
-| 0 | Yönetici özeti | Akif | ~25 satır |
+| 0 | Yönetici özeti | Akif | ~65 satır (443 kelime ≈ 1 sayfa) |
 | 1 | Problem ve tehdit | Akif | ~55 |
 | 2 | Çözüm ve mimari | **Hakan** | ~70 |
 | 3 | SPHINCS-/C13 seçimi ve bedeli | Akif | ~80 |
@@ -48,24 +48,65 @@ satır sayısı değil, kalem sayısı (14) ölçüdür.
 **Amaç:** jürinin ne inşa edildiğini, üç ölçülmüş sayıyı ve en önemli sınırı
 30 saniyede görmesi.
 
-**Sahibi:** Akif · **Bütçe:** ~25 satır
+**Sahibi:** Akif · **Bütçe:** ~55 satır (≈ 1 sayfa)
 
-**Üç sayı (R2'de gövdeye geçecek):**
+Sepolia test ağında çalışan, yetkilendirmesi kuantum sonrası bir imzaya bağlı
+bir akıllı kontrat cüzdanı inşa edildi: **PQWallet** (nonce'lu `execute()`,
+imza doğrulanmadan hiçbir çağrı geçmez), **SPHINCSVerifier** (C13
+doğrulayıcısının asla revert etmeyen `view` sarmalayıcısı — geçersiz imzada
+`false` döner), **Migration** (eski ECDSA adresinin sahipliğini `ecrecover`
+ile kanıtlayıp adresi kalıcı işaretler), tarayıcının içinde çalışan
+**Rust/WASM imzalayıcı** (BIP-39/44 anahtar türetmeli, C13-only) ve hepsini
+tek akışta gösteren bir **arayüz**. Dört kontrat da Etherscan'de doğrulanmış
+durumda; imza **3.688 bayt**, doğrulayıcının çıplak maliyeti **106.672 gas**
+ve aşağıdaki sayıların tamamı gerçek işlemlerden geliyor, simülasyondan değil.
+C13 resmî bir FIPS 205 seti değil, araştırma varyantıdır (§ 3.1, § 3.2,
+§ 7.1, § 7.2).
 
-| sayı | ne | etiket | dayanak |
+### Üç ölçülmüş işlem
+
+| satır | alıcı koşulu | `gasUsed` | etiket |
 |---|---|---|---|
-| **106.672 gas** | C13 doğrulayıcısının çıplak referans maliyeti | ÖLÇÜM | `docs/evidence/gas-reports/sprint0-c13-verifier-gas.md` · `CLAUDE.md` |
-| **216.269 gas** | `PQWallet.execute()` kalıcı rejimde, uçtan uca gerçek tx (sıcak + var olan alıcı) | ÖLÇÜM | `docs/evidence/crypto-tests/sprint4-gas-table-and-second-tx.md:1547` |
-| **3.688 bayt** | bir C13 imzasının boyutu | ÖLÇÜM | `docs/ARCHITECTURE.md:65,81` · `docs/FRONTEND-KURULUM.md:178-181` |
+| **A** | sıcak + var olan (nonce 4) | **216.269** | ÖLÇÜM |
+| **B** | soğuk + var olan (nonce 5) | **218.721** | ÖLÇÜM |
+| **C** | soğuk + boş, hesap oluşuyor (nonce 6) | **243.817** | ÖLÇÜM |
 
-**Tek cümlelik sınır:** C13 resmi FIPS 205 setlerinden biri değil, aynı
-ailenin bir araştırma varyantıdır (ePrint 2025/2203) ve standart setler
-kadar incelenmemiştir — bu, maliyet lehine bilinçli olarak verilmiş bir
-ödündür.
+Fark rastgele değildir: intrinsic arındırıldıktan sonra uzlaştırılmış
+yürütme farkları **2.500** (A→B) ve **25.000** (B→C), **sapma sıfır**
+(HESAP, § 5.3). **B ve C ön kayıtlıdır** — beklenen değer işlem
+gönderilmeden önce yazılıp push edildi ve iki koşuda da ölçülenle arasındaki
+**fark 0** (§ 4.1, § 5.4). Ön kaydın önce yazıldığı, kendi tutanağımızın
+yanı sıra GitHub olay akışıyla da bağımsız gösterildi (§ 4.2).
 
-**Kaynak (özet paragrafı için):** `docs/RAPOR_HAM_ICERIK.md:12-23`
+### Ne ölçtük / ne ölçmedik
 
-> YAZILACAK — R2
+**Ölçtük:** üç gerçek işlemin `gasUsed`'ını · doğrulayıcının çıplak
+maliyetini · imza boyutunu · iki ön kayıtlı tahminin tuttuğunu · temiz
+klondan kurulumun çalıştığını · mnemonic'in içe aktarmada DOM'a hiç
+basılmadığını.
+
+**Ölçmedik:** ikinci bir koşuyu · işlem trace'ini · uzlaştırmada açık kalan
+**5.000 gas**'ı · EIP sabitlerinin spec metnine karşı teyidini · WASM'ın
+çapraz-makine determinizmini · PQWallet'ın kendi revert'iyle bir
+`status = 0` receipt'ini. On dört kalemin tamamı, "nasıl ölçülür"
+sütunuyla birlikte **§ 8**'de.
+
+### Tek cümlelik sınır
+
+Her satır **tek koşudur** ve kuantum sonrası olan şey **yetkilendirmedir**:
+işlemi gönderip gazı ödeyen hesap sıradan bir ECDSA hesabıdır ve öyle
+olması bu tasarımda bir eksik değildir — o hesap yetki taşımaz (§ 9.3).
+
+### Okuma rehberi
+
+- **5 dakikanız varsa:** § 0, § 5 (sonuçlar), § 8 (sınırlar).
+- **Yöntemi merak ediyorsanız:** § 4 — bir sayının ölçüm mü, sonuca
+  uydurulmuş mu olduğunun nasıl ayırt edildiği.
+- **Doğrulamak istiyorsanız:** § 7 — adresler, hash'ler, çalıştırma adımları.
+
+> **§ 6 henüz boştur.** Nonce 7 demosunun ön kaydı 28 Eylül 2026 08:49:48
+> UTC'de kesinleşti (blok 11799423); **çekim bu satır yazılırken
+> yapılmamıştı** ve bu özet sonucu tahmin etmez.
 
 ---
 
@@ -157,10 +198,12 @@ akışına bağlandığını anlatmak.
 
 ### 3.1 C13 nedir
 
-C13, FIPS 205'in resmî parametre setlerinden biri **değildir**.
-`nconsigny/sphincs-minus` reposundaki "+C" ailesinden gelir (ePrint
-2025/2203, Kaynakça [5]) ve EVM doğrulama maliyetini düşürmek için
-tasarlanmış bir araştırma varyantıdır (`docs/ARCHITECTURE.md:56-58`).
+C13, FIPS 205'in resmî parametre setlerinden biri **değildir**. Dayandığı
+**WOTS+C / FORS+C** yapısı ePrint 2025/2203'ten gelir (Kaynakça [5]);
+`h=22 d=2 a=19 k=7 w=8` parametre seçimi ve EVM doğrulayıcısı
+`nconsigny/sphincs-minus` deposunun katkısıdır (Kaynakça [6]). İkisi birlikte
+EVM doğrulama maliyetini düşürmek için tasarlanmış bir araştırma varyantı
+verir (`docs/ARCHITECTURE.md:56-58`).
 
 Eski hedef **SLH-DSA-SHA2-128-24 de standart bir set değildi.** O da
 Consigny'nin özel varyantıydı (`h=22 d=1 a=24 k=6 w=4`) ve FIPS 205'in
@@ -278,6 +321,9 @@ push damgaları, karşılık gelen işlemlerin blok zamanlarıyla yan yana:
 
 Etiket: **ÖLÇÜM** — push damgaları GitHub olay akışından, blok zamanları
 Sepolia'dan bağımsız olarak okundu. İki koşuda da push işlemden öncedir.
+Tx hash'leri ve blokları: `docs/evidence/tx-hashes.md:27-33` (tablo hâlinde
+§ 7.2); ön kayıt commit'leri `docs/evidence/demo-nonce5-prerecord.md` ve
+`docs/evidence/c-nonce6-prerecord.md`.
 
 **Nonce 7 bu tabloda yok.** Ön kaydın iki commit'i (`a0f08aad`, `2a00a824`)
 `origin/main`'de duruyor, ama 28 Eylül 17:26 UTC'de okunan akışta **yer
@@ -802,11 +848,35 @@ güvenlik sınırları ayrıca § 3.4'te duruyor.
 3. G. Wood ve diğerleri, *Ethereum: A Secure Decentralised Generalised
    Transaction Ledger* (Yellow Paper), **Ek F** — ECDSA, secp256k1 ve
    imzadan açık anahtar kurtarma (`ECRECOVER`).
+   **Sürüm/revizyon depoda kayıtlı değil**; atıf bölüm (Ek F) düzeyindedir.
 4. NIST, **FIPS 205** — *Stateless Hash-Based Digital Signature Standard
-   (SLH-DSA)*, Ağustos 2024.
-5. T. Consigny, *WOTS+C / FORS+C* ailesi — **IACR ePrint 2025/2203**. Bu
-   projenin kullandığı **C13** varyantının kaynağı (`h=22 d=2 a=19 k=7 w=8`);
-   resmî FIPS 205 setlerinden biri **değildir**.
+   (SLH-DSA)*, Federal Information Processing Standards Publication 205,
+   Ağustos 2024. Bu raporda ayrıca § 11.2.2'nin sıkıştırılmamış 32 baytlık
+   ADRS düzenine atıf var (`contracts/lib/sphincs-minus/CLAUDE.md:85`).
+5. M. Kudinov ve J. Nick, "Hash-based Signature Schemes for Bitcoin",
+   *Cryptology ePrint Archive*, Paper **2025/2203**, 2025.
+   **WOTS+C / FORS+C** yapısının kaynağı — checksum zincirlerini grinding ile
+   kaldıran ve son auth path'i atlayan aile.
+   Künye: `contracts/lib/sphincs-minus/writeUp.md:296`. Aynı çalışma depoda
+   ikinci bir kayıtta "Blockstream SPHINCS+ Parameter Exploration, Authors:
+   Blockstream Research" olarak da geçiyor
+   (`contracts/lib/sphincs-minus/sphincs_parameters_paper_corpus.md:40-42`,
+   kod deposu `github.com/BlockstreamResearch/SPHINCS-Parameters`).
+6. N. Consigny, "SPHINCs-: Efficient Stateless Post-Quantum Signature
+   Verification on the EVM", *Companion paper*, 2026 —
+   `contracts/lib/sphincs-minus/writeUp.md:294`. Bu projenin kullandığı
+   **C13** parametre seçiminin (`h=22 d=2 a=19 k=7 w=8`) ve EVM
+   doğrulayıcısının kaynağı; `nconsigny/sphincs-minus` deposu.
+   **Resmî FIPS 205 setlerinden biri değildir.**
+
+> **Künye düzeltmesi, kayda geçsin.** Bu raporun daha önceki taslakları ve
+> `CLAUDE.md:34` ePrint 2025/2203'ü **Consigny'ye** atfediyordu. Depodaki iki
+> kayıt bunu desteklemiyor: 2025/2203 Kudinov & Nick / Blockstream Research
+> çalışmasıdır [5], Consigny'nin katkısı ayrı bir companion paper ve bu depodur
+> [6]. C13'ün *araştırma varyantı olduğu* ve FIPS 205 seti olmadığı iddiası
+> **değişmiyor** — değişen, hangi künyenin hangi katkıya ait olduğudur.
+> `CLAUDE.md` ortak dosyadır, bu oturumda **dokunulmadı**; düzeltilmesi
+> Akif–Hakan kararıdır.
 
 ---
 
@@ -815,31 +885,37 @@ güvenlik sınırları ayrıca § 3.4'te duruyor.
 `docs/evidence/crypto-tests/` altındaki **23 kanıt notu** (ÖLÇÜM, 28 Eylül
 2026; `.gitkeep` hariç):
 
-| # | not | sprint |
-|---|---|---|
-| 1 | `sprint0-noble-post-quantum-risk-test.md` | 0 |
-| 2 | `sprint1-frontend-keygen-sign-ui.md` | 1 |
-| 3 | `sprint1-wasm-signer-test.md` | 1 |
-| 4 | `sprint2-js-digest-function.md` | 2 |
-| 5 | `sprint2-onchain-roundtrip.md` | 2 |
-| 6 | `sprint2-pqwallet-real-verifier-integration.md` | 2 |
-| 7 | `sprint3-end-to-end-transaction.md` | 3 |
-| 8 | `sprint3-live-signature-verification.md` | 3 |
-| 9 | `sprint3-metamask-connection.md` | 3 |
-| 10 | `sprint3-negative-proof.md` | 3 |
-| 11 | `sprint3-owner-key-rotation.md` | 3 |
-| 12 | `sprint3-owner-mnemonic-import-leak-audit.md` | 3 |
-| 13 | `sprint3-sepolia-readonly-connection.md` | 3 |
-| 14 | `sprint3-three-shields.md` | 3 |
-| 15 | `sprint3-transaction-builder.md` | 3 |
-| 16 | `sprint3-ui-chain-rewiring.md` | 3 |
-| 17 | `sprint4-browser-signing.md` | 4 |
-| 18 | `sprint4-c-row-measurement.md` | 4 |
-| 19 | `sprint4-gas-table-and-second-tx.md` | 4 |
-| 20 | `sprint4-number-format-and-status-labels.md` | 4 |
-| 21 | `sprint4-recorded-demo-run.md` | 4 |
-| 22 | `sprint4-screen-consistency.md` | 4 |
-| 23 | `sprint4-untested-branches.md` | 4 |
+Tarih sütunu **dosyanın kendi `**Tarih:**` alanıdır**; uzun notların tarihli
+ekleri sonraki günlere uzar (defter kuralı, § 4.5).
+
+| # | not | tarih | ne kanıtlıyor | raporda |
+|---|---|---|---|---|
+| 1 | `sprint0-noble-post-quantum-risk-test.md` | 19 Ağu 2026 | `@noble/post-quantum` yalnız altı standart FIPS 205 setini veriyor, C13'ü üretemiyor — kendi imzalayıcımızın gerekçesi | § 3.1, § 3.3 |
+| 2 | `sprint1-frontend-keygen-sign-ui.md` | 23 Ağu 2026 | keygen/sign akışı tarayıcıda çalışıyor | § 2 |
+| 3 | `sprint1-wasm-signer-test.md` | 19 Ağu 2026 | WASM imzalayıcı C13 anahtarı üretiyor ve imzalıyor | § 3.3, § 7.4 |
+| 4 | `sprint2-js-digest-function.md` | 23 Ağu 2026 | JS digest'i Foundry `cast` ile bağımsız olarak doğrulandı | § 2, § 7.4 |
+| 5 | `sprint2-onchain-roundtrip.md` | 23 Ağu 2026 | tarayıcıda üretilen gerçek imza, zincirdeki gerçek doğrulayıcıdan geçiyor | § 2 |
+| 6 | `sprint2-pqwallet-real-verifier-integration.md` | 26 Ağu 2026 | `execute()` sahte değil **gerçek** doğrulayıcıyla entegre | § 2 |
+| 7 | `sprint3-end-to-end-transaction.md` | 13 Eyl 2026 | uçtan uca ilk gerçek işlem (nonce 0→1, 233.429 gas) | § 5.5, § 7.2 |
+| 8 | `sprint3-live-signature-verification.md` | 4 Eyl 2026 | canlı Sepolia kontratlarına karşı imza doğrulaması | § 2 |
+| 9 | `sprint3-metamask-connection.md` | 8 Eyl 2026 | MetaMask bağlantısı ve bağlantı sonrası ağ/hesap değişiminin yakalanması | § 2 |
+| 10 | `sprint3-negative-proof.md` | 13 Eyl 2026 | bozuk imza reddediliyor — **aynı yoldan**, tek yol ilkesiyle | § 9 tablosu |
+| 11 | `sprint3-owner-key-rotation.md` | 1 Eyl 2026 | "public key kesilmiş" bulgusunun çürütülmesi + rotasyonun canlıda iki kez yapılabildiği | § 9.2 |
+| 12 | `sprint3-owner-mnemonic-import-leak-audit.md` | 5 Eyl 2026 | içe aktarılan mnemonic üç yüzeyin hiçbirinde görünmüyor (kanarya, otomatik) | § 9.1 |
+| 13 | `sprint3-sepolia-readonly-connection.md` | 28 Ağu 2026 | frontend'in salt-okunur zincir bağlantısı | § 2 |
+| 14 | `sprint3-three-shields.md` | 12 Eyl 2026 | üç kalkan (nonce · canlı digest · `eth_call` ön-uçuş) ve sırası | § 9 tablosu, § 8 madde 9 |
+| 15 | `sprint3-transaction-builder.md` | 28 Ağu 2026 | işlem oluşturma ve imzalama akışı | § 2 |
+| 16 | `sprint3-ui-chain-rewiring.md` | 5 Eyl 2026 | cüzdan adresi config'ten, nonce zincirden — ekranda sabit değer kalmadı | § 2 |
+| 17 | `sprint4-browser-signing.md` | 20 Eyl 2026 | WASM imzalayıcı tarayıcıda koştu; imza beş koşunun beşinde de 3.688 bayt | § 7.3 |
+| 18 | `sprint4-c-row-measurement.md` | 24 Eyl 2026 | **C satırı** (nonce 6, 243.817) ve ön kayıtlı beklentinin ikinci kez sıfır farkla tutması; `−1 gas` gözlemi | § 5.1, § 5.4, § 8 madde 6 |
+| 19 | `sprint4-gas-table-and-second-tx.md` | 14 Eyl 2026 ‡ | gas tablosunun gövdesi: A satırı, intrinsic ayrıştırması, uzlaştırma, `z` sayımı, ön kayıt formülü | § 5.1–§ 5.7, § 4.3 |
+| 20 | `sprint4-number-format-and-status-labels.md` | 24 Eyl 2026 | sayı biçimi ve DURUM etiketleri; kanaryanın **görsel** olduğu şerhi | § 9.1 |
+| 21 | `sprint4-recorded-demo-run.md` | 24 Eyl 2026 | **B satırı** (nonce 5, 218.721): kayıtlı demo koşusu, ön kayıt birebir tuttu | § 5.1, § 5.4, § 6 |
+| 22 | `sprint4-screen-consistency.md` | 15 Eyl 2026 | bayat imza bloğu bulgusu (`invalidateSignature`) ve arşiv düğümü gereksinimi | § 7.2 kutusu |
+| 23 | `sprint4-untested-branches.md` | 16 Eyl 2026 | hangi dalların **hiç gözlenmediği** — `status = 0` dahil | § 8 madde 9 |
+
+‡ Bu notta `**Tarih:**` alanı yok; 14 Eylül 2026 dosyanın başındaki plan
+dosyası adından okundu (`…plans/2026-09-14-sprint4-demo-measurement-report.md`).
 
 **Diğer kanıt dizinleri:**
 

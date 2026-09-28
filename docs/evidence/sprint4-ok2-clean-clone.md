@@ -541,3 +541,7 @@ kalması ona zarar vermiyor.
    (yukarıdaki bölüm). Bu maddeyi yazdıran ölçümler (17 ve 18 Eylül) hâlâ
    yalnızca Akif'in makinesinde koştu; kapatan şey Hakan'ın bağımsız koşusudur
    ve **ajan tarafından doğrulanmadı.**
+
+## TARİHLİ EK — 28 Eylül 2026
+
+`send-transaction-test.mjs` assertion sayısı 18 Eylül'den sonra büyüdü; 28 Eylül ölçümü **99** (yukarıdaki tablodaki 83 o günün değeridir, silinmedi).
