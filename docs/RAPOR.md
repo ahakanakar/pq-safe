@@ -23,9 +23,9 @@
 | # | Bölüm | Sahibi | Bütçe |
 |---|---|---|---|
 | 0 | Yönetici özeti | Akif | ~25 satır |
-| 1 | Problem ve tehdit | Akif | ~45 |
+| 1 | Problem ve tehdit | Akif | ~55 |
 | 2 | Çözüm ve mimari | **Hakan** | ~70 |
-| 3 | SPHINCS-/C13 seçimi ve bedeli | Akif | ~70 |
+| 3 | SPHINCS-/C13 seçimi ve bedeli | Akif | ~80 |
 | 4 | Ölçüm yöntemi | Akif | ~55 |
 | 5 | Sonuçlar | Akif | ~110 |
 | 6 | Nonce 7 canlı demosu | Akif | ~15 → ~60 |
@@ -35,7 +35,7 @@
 | — | Kaynakça | Akif | ~12 |
 | A | Ek A — kanıt dizini | Akif | ~45 |
 
-Toplam ≈ 605 satır. **Şablon sınırı gelmeden bağlayıcı değil.**
+Toplam ≈ 615 satır. **Şablon sınırı gelmeden bağlayıcı değil.**
 
 ---
 
@@ -101,9 +101,19 @@ mertebe büyüktür ve EVM'de doğrulaması pahalıdır. Bu raporun ölçtüğü
 tam olarak bu bedeldir.
 
 Bu rapor, böyle bir kuantum bilgisayarın ne zaman ortaya çıkacağına dair
-tahmin yürütmez. Tahmin zaten gerekmiyor: göç yolu tehdit gerçekleştikten
-sonra kurulamaz, çünkü açık anahtarlar o an çoktan yayımlanmış olur.
-Mühendislik sorusu "ne zaman" değil, "yol hazır mı" sorusudur.
+tahmin yürütmez. Tahmin zaten gerekmiyor: açık anahtarı zincirde görünen
+hesaplar için geçiş, ECDSA hâlâ güvenliyken yapılmalıdır. Mühendislik
+sorusu "ne zaman" değil, "yol hazır mı" sorusudur.
+
+Bu kısıt bizim tasarımımıza doğrudan uygulanır. `Migration` kontratı eski
+adresin sahipliğini o adresin **ECDSA imzasıyla** kanıtlar: `personal_sign`
+(EIP-191) ile üretilmiş 65 baytlık imza, `ecrecover` ile doğrulanır
+(`contracts/src/Migration.sol:43-50`, `:79` · `docs/RAPOR_HAM_ICERIK.md:44-48`).
+Özel anahtarı hesaplayabilen bir saldırgan bu kanıtı da üretebilir.
+Dolayısıyla `Migration` yalnızca tehdit gerçekleşmeden önce anlamlıdır;
+sonrasında eski adresin sahipliğini kanıtlayan imza, saldırganın da
+üretebileceği bir imzaya dönüşür. Etiket: **ÇIKARIM** — bu sonuç
+`Migration.sol`'un imza şemasından çıkarıldı, ölçülmedi.
 
 > **NOT — R2 için.** Bu bölüm literatüre dayanır, projenin tanıtım
 > sayfasına değil. `frontend/index.html`'den alıntı yapılmadı.
@@ -147,7 +157,15 @@ C13, FIPS 205'in resmî parametre setlerinden biri **değildir**.
 `nconsigny/sphincs-minus` reposundaki "+C" ailesinden gelir (ePrint
 2025/2203, Kaynakça [5]) ve EVM doğrulama maliyetini düşürmek için
 tasarlanmış bir araştırma varyantıdır (`docs/ARCHITECTURE.md:56-58`).
-Standart setten iki noktada ayrılır: **WOTS+C** checksum yerine sabit
+
+Eski hedef **SLH-DSA-SHA2-128-24 de standart bir set değildi.** O da
+Consigny'nin özel varyantıydı (`h=22 d=1 a=24 k=6 w=4`) ve FIPS 205'in
+standart setlerinden — 128s/f · 192s/f · 256s/f, SHA2 ve SHAKE aileleri —
+biri değildi (`crypto-tests/sprint0-noble-post-quantum-risk-test.md:10-18` ·
+`docs/DECISIONS.md:176`). Aşağıdaki karşılaştırma bu yüzden iki araştırma
+varyantı arasındadır, varyant ile standart arasında değil.
+
+C13 standart setten iki noktada ayrılır: **WOTS+C** checksum yerine sabit
 "target sum" kısıtı kullanır ve doğrulamada gezilen zincir adımı sayısını
 azaltır; **FORS+C**'de son FORS ağacı "forced-zero"dur ve imzayı gizli
 anahtar entropisinden feragat ederek kısaltır (`:60-63`).
@@ -168,15 +186,12 @@ imzalar beş koşunun beşinde de 3.688 bayt çıktı (ÖLÇÜM,
 | SLH-DSA-SHA2-128-24 (eski hedef) | **143.057** (geçerli imza) – **146.192 gas** (geçersiz mesaj reddi) | 3.856 bayt | `gas-reports/sprint0-reference-verifier-gas.md:74,84-86` · `:30` |
 
 Doğrulama **%25 daha ucuz** (HESAP, `docs/DECISIONS.md:184`), imza **168
-bayt** daha küçük (HESAP, yukarıdaki iki ölçümden).
-
-Zincirde çağrılan kontrat çıplak referans değil, onu saran
-`SPHINCSVerifier`'dır: **111.074 gas** (ÖLÇÜM,
+bayt** daha küçük (HESAP). Zincirde çağrılan kontrat ise çıplak referans
+değil, onu saran `SPHINCSVerifier`'dır: **111.074 gas** (ÖLÇÜM,
 `gas-reports/sprint1-sphincsverifier-wrapper-gas.md:67` ·
 `docs/DECISIONS.md:323`), çıplak referansın ~%4 üzerinde. Fark, hiçbir
-girdide revert etmemeyi sağlayan katmanın bedelidir (bkz. § 9).
-
-Şema 19 Ağustos 2026'da değiştirildi; Hakan onayladı, karar donduruldu
+girdide revert etmemeyi sağlayan katmanın bedelidir (bkz. § 9). Şema
+19 Ağustos 2026'da değiştirildi; Hakan onayladı, karar donduruldu
 (`docs/DECISIONS.md:161`, `:213-214`).
 
 ### 3.3 İmzalayıcı neden kendi yazıldı
@@ -200,21 +215,19 @@ Seçim, maliyet lehine ve güvenlik olgunluğu aleyhine verilmiş bilinçli bir
    yapılmadı. C13 tarafındaki sonucu: sahtecilik, anahtar kurtarma veya
    yanlış-kabul zafiyeti **bulunamadı** (`docs/ARCHITECTURE.md:112-118`).
 3. **C13-X-f2 — mesaj randomizer'ı `R` tamamen kamuya açıktır**, gizli
-   anahtara bağlı değildir (`grind_r`, `sk_seed` almıyor). İncelemenin
-   tahminine göre en iyi bilinen sahtecilik **~2^133 iş** gerektirir —
-   128-bit hedefin üzerinde, pratik bir kırılma değil. Etiket: **ÇIKARIM**,
-   incelemenin tahmini; bizim ölçümümüz değil. Açık kalan: "few-time"
-   güvenlik kanıtı, saldırganın indeks haritasını kontrol ettiği daha güçlü
-   modelde repo içinde ispatlanmamış (`docs/ARCHITECTURE.md:126`).
+   anahtara bağlı değildir. İncelemenin tahminine göre en iyi bilinen
+   sahtecilik **~2^133 iş** gerektirir — 128-bit hedefin üzerinde, pratik
+   bir kırılma değil (**ÇIKARIM**: incelemenin tahmini, ölçümümüz değil).
+   Açık kalan: "few-time" kanıtı, saldırganın indeks haritasını kontrol
+   ettiği daha güçlü modelde ispatlanmamış (`docs/ARCHITECTURE.md:126`).
 4. **C13-X-f3 — target-sum WOTS+C'nin çoklu-kullanım direnci
    ispatlanmamıştır.** 2^22 tavanda ~2^21 `htIdx` çakışması beklenir. Aynı
    katman-0 WOTS anahtarının iki farklı mesajda kullanılmasının somut bir
    sahteciliğe yol açtığı **gösterilmemiş**, teorik argüman da **eksik**
    (`docs/ARCHITECTURE.md:127`).
 
-Pratik sonuç: C13 bu projenin hedeflediği düzeyde kullanılabilir durumdadır
-ve bilinen pratik bir saldırı yüzeyi yoktur. "Resmî FIPS 205 seti değil,
-araştırma varyantıdır" uyarısı geçerliliğini korur (`:135-137`).
+Pratik sonuç: C13 hedeflenen düzeyde kullanılabilir, bilinen pratik bir
+saldırı yüzeyi yok; "araştırma varyantı" uyarısı geçerli (`:135-137`).
 
 > **DİKKAT — R2 için, düzeltme commit'lenince KALDIRILACAK.**
 > `frontend/index.html:1144` imza boyutlarını **ters** yazmış ("3.688 bayt
@@ -226,39 +239,60 @@ araştırma varyantıdır" uyarısı geçerliliğini korur (`:135-137`).
 
 ## 4. Ölçüm yöntemi
 
-**Amaç:** bu raporun sayılarının neden tahmin değil ölçüm olduğunu
-gösterecek yöntemi anlatmak: beklenti işlemden **önce** yazılıp
-zincire çivilendi.
+Bir gas sayısı işlemden **sonra** yazılırsa, o sayının ölçüm mü olduğu yoksa
+sonuca uydurulmuş mu olduğu ayırt edilemez. Bu rapordaki her canlı ölçüm bu
+ayrımı kurabilmek için aynı sırayı izledi.
 
-**Sahibi:** Akif · **Bütçe:** ~55 satır
+### 4.1 Yöntem zinciri
 
-**Yöntem zinciri:** ön kayıt yazılır → commit + push → `pushed_at` okunur
-(tx'ten önce) → tx gönderilir → sonuç ön kayda **tarihli ek** olarak
-yazılır, ön kaydın kendisi değiştirilmez.
+Ön kayıt yazılır (beklenen `gasUsed`, beklenen digest, alıcının sınıfı,
+cüzdanın nonce'u) → commit ve push → **`pushed_at` okunur**, tx gönderilmeden
+önce, ham çıktısı kanıta geçer → tx gönderilir → sonuç ön kayda **tarihli ek**
+olarak yazılır; ön kaydın kendisi değiştirilmez
+(`docs/evidence/demo-nonce7-prerecord.md:18`, `:382`, `:399`).
 
-**Dayanaklar:**
+Üçüncü adım yöntemin dayanağıdır. `pushed_at` bizim yazdığımız bir damga
+değil, üçüncü bir tarafın kaydıdır ve işlemden öncedir.
 
-| konu | dayanak |
-|---|---|
-| Ön kayıt örneği (nonce 7), kesinleşme damgası ve blok | `docs/evidence/demo-nonce7-prerecord.md` |
-| Ön kayıt örneği (nonce 5, B satırı) | `docs/evidence/demo-nonce5-prerecord.md` |
-| Ön kayıt örneği (nonce 6, C satırı) | `docs/evidence/c-nonce6-prerecord.md` |
-| Ön kayıtlı `gasUsed` formülü `216.305 − 12·(z − 203)` | `docs/evidence/crypto-tests/sprint4-gas-table-and-second-tx.md:1005,1214` |
-| Ön kayıt koşullarının tx'ten önce sağlanması | aynı dosya `:1359` |
-| Belirsizlikte tahmin yasağı ("emin değilsen sor", stub kuralı) | `docs/GOREV_SINIRLARI.md:206-225` |
-| "Bitti" tanımı — çalışıyor + kanıtı var + commit'li | `docs/GOREV_SINIRLARI.md:226-241` |
-| Kabul edilen kanıt türleri (gas ölçümü = `forge test --gas-report`) | `docs/GOREV_SINIRLARI.md:234-241` |
+### 4.2 Beklenti bir sayı değil, bir fonksiyon
 
-> **AÇIK — belgelenmemiş kural.** **ÖLÇÜM / HESAP / ÇIKARIM** etiket
-> disiplininin depoda yazılı bir kaynağı **yok** (ÖLÇÜM 28 Eylül 2026:
-> `CLAUDE.md`, `docs/GOREV_SINIRLARI.md` ve ön kayıtta arandı — tanımı hiçbir
-> yerde geçmiyor). Kanıt notlarında **uygulanıyor** ama tanımlanmamış; ör.
-> `docs/evidence/demo-nonce7-prerecord.md` dört ÖLÇÜM ve bir ÇIKARIM etiketi
-> taşıyor. Rapor bu etiketleri kullanacağı için tanımı bu belgenin
-> "Bu belgenin kuralları" bölümünde **kendisi veriyor**. Kuralın
-> `CLAUDE.md`'ye veya `GOREV_SINIRLARI.md`'ye taşınması Akif'in kararı.
+Ön kayıt tek bir sayıya değil, bir formüle bağlanır:
 
-> YAZILACAK — R2
+```
+gasUsed = 216.305 − 12 · (z − 203)
+```
+
+`z`, calldata'daki sıfır bayt sayısıdır ve **imza üretilmeden bilinemez**:
+imzalayıcı her koşuda farklı bir imza verir, `z` de onunla değişir. Ön kayıt
+bu yüzden sonuca göre ayarlanabilecek bir sayı değil, `z` hangi değeri alırsa
+alsın bağlayıcı kalan bir fonksiyon taahhüt eder
+(`…sprint4-gas-table-and-second-tx.md:1005`, `:1214`).
+
+### 4.3 Durdurma kuralları
+
+Ön kayıt beklentinin yanında **ön koşulları** da sabitler: nonce, alıcının
+sınıfı, ekranda görünmesi gereken digest. Bir ön koşul sağlanmazsa koşu
+**iptal edilir**, yeniden yorumlanmaz
+(`docs/evidence/demo-nonce7-prerecord.md:118-145` · kontrol listesi
+`docs/evidence/demo-run-sheet.md:185-200` · `…second-tx.md:1359`).
+
+### 4.4 Defter kuralı
+
+Kanıt dosyaları düzeltilmez. Yanlış çıkan satır yerinde bırakılır, altına
+tarihli ek yazılır — bir sayının nasıl değiştiği de kayıtta kalsın diye.
+Bu raporun § 5.3, § 5.5 ve § 5.6 maddeleri böyle eklerden besleniyor.
+
+### 4.5 Yöntemin sınırı
+
+Bu yöntem beklentinin sonuca uydurulmadığını gösterir; modelin **doğru**
+olduğunu göstermez. Üç koşuda üç isabet üç örnektir, "her zaman tutar" sonucu
+çıkarılamaz (`…second-tx.md:1674-1678`).
+
+> **AÇIK — belgelenmemiş kural.** **ÖLÇÜM / HESAP / ÇIKARIM** disiplininin
+> depoda yazılı bir tanımı **yok** (ÖLÇÜM 28 Eylül 2026: `CLAUDE.md`,
+> `docs/GOREV_SINIRLARI.md` ve ön kayıtta arandı). Kanıt notlarında
+> uygulanıyor ama tanımlanmamış. Tanımı şimdilik yalnız bu rapor veriyor;
+> kalıcı bir yere taşınması Akif'in kararı.
 
 ---
 
@@ -269,35 +303,86 @@ vermek. Bu bölüm raporun sayısal çekirdeğidir.
 
 **Sahibi:** Akif · **Bütçe:** ~110 satır
 
-### 5.1 Task 7 tablosu — üç satır, üç alıcı koşulu
+### 5.1 Ölçülen `gasUsed` — üç alıcı koşulu
 
-Tablo **üç satırdır**. Alıcı koşulu satırı belirler; EIP-2929'da erişim
-listesi her tx'te sıfırlandığı için cüzdan dışındaki bir alıcı ilk erişimde
-**soğuktur**.
+Alıcının durumu maliyeti belirler. EIP-2929'da erişim listesi her işlemde
+sıfırlanır, bu yüzden cüzdanın dışındaki bir alıcı ilk erişimde
+**soğuktur**. Üç koşu, üç farklı alıcı sınıfında ölçüldü.
 
-| satır | alıcı koşulu | `gasUsed` | `z` | intrinsic | yürütme |
-|---|---|---|---|---|---|
-| A | sıcak + var olan (kendine iade) | **216.269** | 206 | 81.056 | 135.213 |
-| B | **soğuk** + var olan | **218.721** | 210 | 81.008 | 137.713 |
-| C | **soğuk** + boş | **243.817** | 202 | 81.104 | 162.713 |
+| satır | alıcı koşulu | `gasUsed` | tx |
+|---|---|---|---|
+| A | sıcak + var olan (kendine iade) | **216.269** | nonce 4 · `0x0fd4b9b3…` |
+| B | **soğuk** + var olan | **218.721** | nonce 5 · `0x6b8bbecd…` |
+| C | **soğuk** + boş | **243.817** | nonce 6 · `0x222556c3…` |
 
-Etiket: **ÖLÇÜM** (üçü de zincirden) · Dayanak:
+Etiket: **ÖLÇÜM** — üç değer de zincirden okundu. Dayanak:
 `docs/evidence/crypto-tests/sprint4-gas-table-and-second-tx.md:1546-1548`
 
-**Ayrı satır — tabloya girmez:**
+**Tabloya girmeyen ayrı satır:**
 
 | tx | `gasUsed` | ne |
 |---|---|---|
-| 7 Eylül 2026, `0xd62b812e…631ad9` | **233.429** | **ilk tx, nonce 0→1, ilk nonce yazımı** |
+| 7 Eylül 2026 · `0xd62b812e…631ad9` | **233.429** | ilk tx, nonce 0→1, **ilk nonce yazımı** |
 
-Dayanak: aynı dosya `:1549` · `docs/evidence/tx-hashes.md:30`
+Cüzdanın ilk `execute()` çağrısıdır ve nonce'u sıfırdan yazmanın tek
+seferlik bedelini taşır; uzlaştırması § 5.5'te. Dayanak: aynı dosya `:1549` ·
+`docs/evidence/tx-hashes.md:30`
 
-### 5.2 İki ön kayıtlı tahmin, sıfır fark
+### 5.2 Intrinsic ve yürütme bileşenleri
 
-B ve C satırları işlemden **önce** yazılmış beklentilerle ölçüldü ve ikisi
-de sıfır farkla tuttu.
+`gasUsed`, işlemin taban maliyeti (intrinsic, `21.000 + 4z + 16nz`) ile EVM
+içindeki yürütmenin toplamıdır. Yürütme, ölçülen `gasUsed`'dan intrinsic
+çıkarılarak bulunur.
 
-| satır | ön kayıtlı beklenti | ölçülen | fark |
+| satır | `z` | intrinsic | yürütme |
+|---|---|---|---|
+| A | 206 | 81.056 | 135.213 |
+| B | 210 | 81.008 | 137.713 |
+| C | 202 | 81.104 | 162.713 |
+
+Etiket: **HESAP** — `z` calldata'dan sayıldı (ÖLÇÜM), intrinsic ve yürütme
+ondan aritmetikle çıktı. Dayanak: aynı dosya `:1546-1548`
+
+**Sınır:** yürütme bileşeni frame bazında ölçülmedi, aritmetikle türetildi.
+Trace alınmadı (`:1596-1600`).
+
+### 5.3 Uzlaştırılmış yürütme farkları — sapma sıfır
+
+Karşılaştırma yürütme bileşenleri üzerinde yapılır. Üç koşu üç **farklı**
+alıcıda ölçüldüğü için `z` değerleri farklıdır; intrinsic arındırılmadan
+farklar karşılaştırılabilir değildir.
+
+| büyüklük | B − A | C − B | C − A | etiket |
+|---|---|---|---|---|
+| **uzlaştırılmış yürütme farkı** | **2.500** | **25.000** | **27.500** | HESAP |
+| **sapma** | **0** | **0** | **0** | — |
+| ham `gasUsed` farkı (şeffaflık satırı) | 2.452 | 25.096 | 27.548 | HESAP |
+
+Dayanak: `…sprint4-gas-table-and-second-tx.md:1644-1650`; ham farklar § 5.1'in
+üç ölçümünden aritmetikle.
+
+**Ham fark satırı neden duruyor:** ham farklar hiçbir yuvarlak sayıya oturmaz,
+oturması da beklenmez. Satır uzlaştırmanın neyi değiştirdiğini görünür kılıyor;
+gizlemek "sayılar tam çıktı" izlenimini hak edilmemiş biçimde güçlendirirdi.
+
+**EIP sabitleriyle örtüşme.** Üç fark, EIP-2929'un soğuk hesap erişimi
+(`2.600 − 100 = 2.500`) ve boş hesap oluşturma (`25.000`) kalemleriyle birebir
+örtüşüyor (`:162-163`). Etiket: **ÇIKARIM** — bu sabitler **EIP metinlerine
+karşı doğrulanmadı** (§ 8 madde 5). Örtüşme, ölçülmüş farklar ile doğrulanmamış
+sabitler arasındadır; sabitler yanlışsa örtüşme de yanlış olur.
+
+> **Rapora GİRMEYEN kalem.** `eth_estimateGas` farkları (`+2.520`, `+25.198`)
+> ve bunları açıklayan `est()` çarpanı (`×1,0079`) rapora alınmadı — § 5.3
+> ölçümler üzerine kurulduğu için gerekmiyor. Kaynağı duruyor: aynı dosya
+> `:292-294` (tahmin tablosu) · `:302-327` (eps ölçümü) · `:1652-1660`
+> (sapmanın kaynağı).
+
+### 5.4 İki ön kayıtlı tahmin, sıfır fark
+
+B ve C satırlarının `gasUsed` değeri işlemden **önce** yazıldı ve ikisi de
+sıfır farkla tuttu.
+
+| satır | beklenti | ölçülen | fark |
 |---|---|---|---|
 | B (nonce 5) | ön kayıtta yazılı | 218.721 | **0** |
 | C (nonce 6) | ön kayıtta yazılı | 243.817 | **0** |
@@ -307,38 +392,10 @@ Etiket: **ÖLÇÜM** · Dayanak: `…sprint4-gas-table-and-second-tx.md:1295-129
 `docs/evidence/crypto-tests/sprint4-c-row-measurement.md` ·
 `docs/evidence/tx-hashes.md:35-50`
 
-### 5.3 EIP-2929 / EIP-3529 uzlaştırması — yürütme farkları tam oturuyor
+Yöntem § 4'te. İki isabet, yöntemin beklentiyi sonuca uydurmadığını gösterir;
+modelin her koşuda tutacağını göstermez (§ 4.5).
 
-**Başlık sayısı uzlaştırılmış olandır.** İki ayrı büyüklük, iki ayrı satır:
-
-| büyüklük | B − A | C − B | C − A | etiket |
-|---|---|---|---|---|
-| **z-uzlaştırmalı yürütme farkı** (intrinsic arındırılmış) | **2.500** | **25.000** | **27.500** | ÖLÇÜM + HESAP |
-| spesifikasyonun beklediği | 2.500 | 25.000 | 27.500 | — |
-| **sapma** | **0** | **0** | **0** | — |
-| ham `gasUsed` farkı (intrinsic dahil, `z`'ler farklı) | 2.452 | 25.096 | 27.548 | HESAP |
-
-Kalemler: `+2.500` = soğuk hesap erişimi (2.600 − 100) · `+25.000` = boş
-hesap oluşturma.
-
-Dayanak: yürütme farkları ve sıfır sapma
-`…sprint4-gas-table-and-second-tx.md:1644-1650`; kalemlerin türetilmesi
-aynı dosya `:162-163`; ham `gasUsed` farkları § 5.1'in üç satırından
-aritmetikle.
-
-> **Neden ham fark da yazılıyor:** üç satır üç **farklı alıcıda** ölçüldü,
-> dolayısıyla `z`'leri farklı ve ham farklar spesifikasyonun kesin
-> sayılarına oturmaz. Oturması için intrinsic'in arındırılması gerekir.
-> İki büyüklüğü aynı satırda göstermek, "sayılar tutmadı" izlenimini
-> önlüyor.
-
-> **Rapora GİRMEYEN kalem.** `eth_estimateGas` farkları (`+2.520`, `+25.198`)
-> ve bunları açıklayan `est()` çarpanı (`×1,0079`) rapora alınmıyor —
-> § 5.3 ölçümler üzerinden kurulduğu için gerekmiyor. Kaynağı duruyor:
-> aynı dosya `:292-294` (tahmin tablosu) · `:302-327` (eps ölçümü) ·
-> `:1652-1660` (sapmanın kaynağı).
-
-### 5.4 `233.429` → `216.269` köprüsü
+### 5.5 `233.429` → `216.269` köprüsü
 
 17.160 gas farkının tamamı kalansız kapanıyor: 17.100 ilk nonce yazımı
 (`SSTORE_SET` − `SSTORE_RESET`) + 60 calldata.
@@ -348,7 +405,7 @@ ayrıca ölçülmedi — "hesaplanmış eşleşme").
 Dayanak: `…sprint4-gas-table-and-second-tx.md:1765-1826` (28 Eylül 2026
 tarihli ek); ekin kendi kaynağı `docs/handoff/2026-09-27-devir.md:192-222`.
 
-### 5.5 `216.221` ile `216.269` çelişmiyor
+### 5.6 `216.221` ile `216.269` çelişmiyor
 
 İki **ayrı** işlem, farklı bloklar. 48 gas fark = 4 sıfır bayt × 12 gas,
 kalansız. README'nin `216.221`'i doğrudur ve düzeltilmeyecek.
@@ -357,7 +414,7 @@ Etiket: iki `gasUsed` **ÖLÇÜM**; `z(216.221) = 210` **ÇIKARIM** (ham
 calldata hiçbir uçtan okunamadı).
 Dayanak: aynı dosya `:1680-1760`
 
-### 5.6 `88.247` nedir — Foundry tablosu ile canlı ölçüm neden 2,5 kat ayrı
+### 5.7 `88.247` nedir — Foundry tablosu ile canlı ölçüm neden 2,5 kat ayrı
 
 `docs/RAPOR_HAM_ICERIK.md` Böl. 5'teki `88.247`, canlı ölçümle
 karşılaştırılabilir bir sayı değildir. Böl. 5'in kendisi üç sınırını
@@ -365,13 +422,21 @@ yazmış: doğrulama **sıfır** sayılmış (`MockVerifier`), intrinsic (21.000
 **dahil değil**, calldata **dahil değil**. Ayrıca `88.247` **Max** kolonudur,
 tipik değer değil.
 
-Etiket: ÖLÇÜM (suite çıktısı) · Dayanak: `docs/RAPOR_HAM_ICERIK.md:111-126` ·
-`docs/evidence/gas-reports/sprint2.txt` ·
-`docs/evidence/gas-reports/sprint3-execute-real-gas.md` ·
-`docs/handoff/2026-09-27-devir.md:176-190` (260 çağrının 260'ı `hex"00"`
-sahte imza — ölçüldü)
+Suite'in `execute` çağrılarının **260'ının 260'ı** tek baytlık sahte imza
+(`hex"00"`) ve `MockVerifier` kullanıyor; 260 çağrının ~256'sı fuzz'dan geliyor
+(ÖLÇÜM, `docs/handoff/2026-09-27-devir.md:176-190`).
 
-> YAZILACAK — R2
+Etiket: **ÖLÇÜM** (suite çıktısı) · Dayanak: `docs/RAPOR_HAM_ICERIK.md:111-126` ·
+`docs/evidence/gas-reports/sprint2.txt` ·
+`docs/evidence/gas-reports/sprint3-execute-real-gas.md`
+
+Jüri "iki yerde iki farklı sayı" derse cevap: iki sayı aynı şeyi ölçmüyor.
+Foundry tablosu doğrulama maliyetini sıfır sayar ve işlem taban maliyetini
+görmez; canlı ölçüm ikisini de içerir.
+
+**Açık kalan:** `147.313 + 81.116 = 228.429` ile ölçülen `233.429` arasındaki
+**5.000 gas** açıklanmadan duruyor. `vm.cool` bu farkı üretemedi. Sebep
+**ölçülmedi** ve bu raporda bir açıklaması yoktur (§ 8 madde 4).
 
 ---
 
