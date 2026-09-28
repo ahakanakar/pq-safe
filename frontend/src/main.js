@@ -205,7 +205,7 @@ const connectionOut = document.getElementById('connection-out');
 const txOut = document.getElementById('tx-out');
 
 document.getElementById('btn-keygen').addEventListener('click', async () => {
-  keygenOut.innerHTML = '<p>Üretiliyor…</p>';
+  keygenOut.innerHTML = '<p class="busy">Üretiliyor…</p>';
   try {
     const t0 = performance.now();
     currentMnemonic = generateNewMnemonic();
@@ -242,7 +242,7 @@ document.getElementById('btn-sign').addEventListener('click', async () => {
     return;
   }
   const digest = document.getElementById('digest').value.trim();
-  signOut.innerHTML = '<p>İmzalanıyor…</p>';
+  signOut.innerHTML = '<p class="busy">İmzalanıyor…</p>';
   try {
     const t0 = performance.now();
     const { signature, sigBytes } = await signDigest(currentMnemonic, digest);
@@ -365,7 +365,7 @@ btnBuildSign.addEventListener('click', async () => {
   for (const el of txInputs) el.disabled = true;
   // "~10 sn": 24 Eylül'de tarayıcıda ÖLÇÜLDÜ — 9.303,4 ms. Eski metin "~7-8 sn"
   // diyordu ve ekranın kendi bildirdiği süreyle çelişiyordu.
-  txOut.innerHTML = '<p>Digest hesaplanıyor ve imzalanıyor… (~10 sn)</p>';
+  txOut.innerHTML = '<p class="busy">Digest hesaplanıyor ve imzalanıyor… (~10 sn)</p>';
   try {
     const { domainSeparator, digest, fields, signature, sigBytes, signMs } = await buildAndSign({
       walletAddress: CONTRACTS.pqWallet,
@@ -436,7 +436,7 @@ btnImportMnemonic.addEventListener('click', async () => {
     return;
   }
   btnImportMnemonic.disabled = true;
-  keygenOut.innerHTML = '<p>Anahtar türetiliyor…</p>';
+  keygenOut.innerHTML = '<p class="busy">Anahtar türetiliyor…</p>';
   try {
     const keys = await keygen(phrase);
     // Alan HEMEN temizlenir: ekran kaydında noktaların sayısı bile kelime

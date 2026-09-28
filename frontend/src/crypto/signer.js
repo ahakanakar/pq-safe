@@ -35,8 +35,19 @@ export function generateNewMnemonic() {
   return mnemonic;
 }
 
+// WASM cagrisi ana is parcacigini SENKRON bloke ediyor; hemen oncesinde
+// tarayiciya bir cizim firsati verilmezse "Imzalaniyor..." gibi mesajlar hic
+// gorunmeden bloklama basliyor. Kriptografik hicbir sey degismiyor, yalniz
+// bir kare beklenip devam ediliyor. Node'da requestAnimationFrame yok: guard
+// bu yuzden var, testler etkilenmez.
+async function nextPaint() {
+  if (typeof requestAnimationFrame !== 'function') return;
+  await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
+}
+
 export async function keygen(mnemonic, passphrase = '') {
   await ensureWasmInit();
+  await nextPaint();
   const json = keygen_from_mnemonic(mnemonic, passphrase);
   const { seed, root, ecdsa_address } = JSON.parse(json);
   return {
@@ -49,6 +60,7 @@ export async function keygen(mnemonic, passphrase = '') {
 
 export async function signDigest(mnemonic, digestHex, passphrase = '') {
   await ensureWasmInit();
+  await nextPaint();
   const signature = sign_from_mnemonic(mnemonic, passphrase, digestHex);
   const sigBytes = (signature.length - 2) / 2;
   return { signature, sigBytes };
