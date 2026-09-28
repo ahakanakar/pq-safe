@@ -1759,3 +1759,75 @@ aranmadı — bu ek kapsamında ÇIKARIM olarak bırakıldı (Akif kararı).
   notlamıştı.
 - Jüri "iki yerde iki farklı sayı" derse cevap: **iki ayrı işlem**, fark
   4 sıfır baytlık calldata, 48 gas, kalansız kapanıyor.
+
+---
+
+## TARİHLİ EK — 28 Eylül 2026, `233.429` → `216.269` KÖPRÜSÜ (ilk nonce yazımı)
+
+**Yukarısı silinmedi, düzeltilmedi.** Bu ek, daha önce yalnızca bir devir
+notunda duran bir uzlaştırmayı kanıt dosyasına taşıyor.
+
+### Bu ekin kaynağı ve neden yazıldı
+
+Uzlaştırma 27 Eylül 2026'da yapıldı ve `docs/handoff/2026-09-27-devir.md:192-222`
+(§ 4, "YENİ BULGU") içinde duruyordu. Aynı notun § 5 açık kalem tablosu
+(`:234`) bunu *"yeni bulgu kanıt dosyasına yazılmadı"* diye işaretlemişti.
+Rapor (`docs/RAPOR.md` § 5) bu köprüye atıf yapacağı ve **bir devir notu kanıt
+dosyası değildir** için, buraya taşınıyor. Sayılar yeniden üretilmedi; kaynak
+nottan birebir alındı ve aşağıda etiketlendi.
+
+### Soru
+
+`233.429` (Hakan, 7 Eylül, `0xd62b812e…631ad9`) ile bu dosyanın `:1547`
+A satırındaki `216.269` (nonce 4, `0x0fd4b9b3…`) arasındaki **17.160 gas**
+farkı nereden geliyor?
+
+### İki tx'in ortak ve farklı koşulları
+
+| koşul | eski tx | A satırı |
+|---|---|---|
+| alıcı sınıfı | sıcak + var olan, kendine iade | sıcak + var olan, kendine iade |
+| calldata uzunluğu | 3.908 bayt | 3.908 bayt |
+| `z` (sıfır bayt) | **201** | **206** |
+| `nonce` geçişi | **0 → 1** | **4 → 5** |
+
+Alıcı koşulu aynı: `docs/evidence/gas-reports/sprint3-execute-real-gas.md:19-20`
+ve bu dosya `:1547`. Bilinen tek fark `nonce` geçişi
+(`sprint3-execute-real-gas.md:15`).
+
+### Bölme
+
+```
+233.429 − 216.269                                      = 17.160   ÖLÇÜM (iki uç da zincirden)
+  ilk nonce yazımı: SSTORE_SET 22.100 − SSTORE_RESET 5.000 = 17.100   SPEC sabiti
+  calldata: eski tx'te 5 bayt daha az sıfır × 12 gas   =     60   ÖLÇÜM
+                                                         ------
+  artık                                                =      0
+```
+
+**ÇIKARIM.** Planın *"tek seferlik ek maliyet"* dediği ama adlandırmadığı
+kalem **ilk nonce yazımıdır**: sıfırdan yazmak, üzerine yazmaktan 17.100 gas
+pahalıdır.
+
+### SINIRLARI — abartmadan
+
+- İki uç (`233.429`, `216.269`) **ÖLÇÜM**'dür, ama **bölme SPEC sabitlerine
+  dayanıyor** (`SSTORE_SET` = 22.100, `SSTORE_RESET` = 5.000). Bu sabitler
+  bu oturumda **spec metnine karşı doğrulanmadı** — Hakan'a giden EIP teyit
+  listesinin beşinci satırı (`docs/handoff/2026-09-27-devir.md:233`).
+  Dolayısıyla bu bir **hesaplanmış eşleşmedir**, ölçülmüş ayrıştırma değil.
+- Artığın sıfır çıkması iki tx'in `value` koşulunun da eşit olduğunu **ima
+  eder**; ayrıca doğrulanmadı.
+- **ÖLÇÜM'e çevirmenin yolu:** Foundry'de `nonce`'u 5'e kurup aynı testi
+  koşmak, `17.100`'ü doğrudan ölçmek. Hakan'dan istendi
+  (`docs/handoff/2026-09-27-devir.md:237`, opsiyonel). Gelmezse rapor bunu
+  **"hesaplanmış eşleşme"** diye yazar.
+- `z(216.221) = 210` bu dosyanın 27 Eylül ekinde bir **ÇIKARIM** olarak
+  kalmıştır; bu ek onu değiştirmiyor.
+
+### Rapor için hüküm
+
+- `233.429` **Task 7 tablosuna girmez.** Ayrı bir satır olarak yazılır:
+  *"ilk tx, nonce 0→1, ilk nonce yazımı"*.
+- Task 7 tablosu üç satırdır: A `216.269` · B `218.721` · C `243.817`
+  (bu dosya `:1546-1548`).

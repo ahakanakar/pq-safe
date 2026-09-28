@@ -153,3 +153,39 @@ tutarlılığını KAT fixture'ı üzerinden test ediyoruz (`c13-kat.json`,
   `new SphincsC13Asm()` ile oluşturuyor — referans kontrat güncellenirse
   (ör. C13-X-f2/f3'ün üstündeki dokümantasyon/ispat boşlukları
   kapatılırsa) sarmalayıcının yeniden deploy edilmesi gerekir.
+
+---
+
+## TARİHLİ EK — 28 Eylül 2026, § 5'in ilk iki maddesi ARTIK GEÇERSİZ
+
+**Yukarısı silinmedi.** § 5 Sprint 1 döneminde yazıldı; ilk iki maddesi o
+günün durumunu anlatıyor ve bugün doğru değil. Bu ek onları kapatıyor.
+`docs/RAPOR.md` § 5'in **ilk iki maddesine atıf yapmaz**, bu eke yapar.
+
+### 1. "Frontend'de gerçek keygen/imza akışı henüz UI'a bağlanmadı" — KAPANDI
+
+Akış UI'a bağlandı ve tarayıcıda koştu (Sprint 3 ve sonrası):
+
+| kanıt | ne gösteriyor |
+|---|---|
+| `docs/evidence/crypto-tests/sprint1-frontend-keygen-sign-ui.md` | keygen + imza UI'a ilk bağlanışı |
+| `docs/evidence/crypto-tests/sprint3-end-to-end-transaction.md` | gerçek WASM imzasıyla uçtan uca `PQWallet.execute()` |
+| `docs/evidence/crypto-tests/sprint4-browser-signing.md` | tarayıcıda imzalama, eklentisiz Misafir penceresi dahil |
+| `docs/FRONTEND-KURULUM.md:178-181` | imza **beşinin beşinde de 3688 bayt** (ÖLÇÜM) |
+
+### 2. "Digest'in Solidity ↔ JS eşleşme testi Sprint 2'de zorunlu" — KAPANDI
+
+Test yazıldı ve geçiyor: `test_DigestMatchesJsVector_*`
+(`docs/RAPOR_HAM_ICERIK.md:150-156`), ayrıca bağımsız JS türetmesiyle canlı
+doğrulama: `docs/evidence/crypto-tests/sprint3-live-signature-verification.md`.
+
+### 3. Üçüncü madde HÂLÂ GEÇERLİ
+
+`SPHINCSVerifier.sol`'un referans kontratı `immutable` olarak deploy anında
+oluşturuluyor; referans kontrat güncellenirse sarmalayıcı yeniden deploy
+edilmelidir. Bu madde değişmedi.
+
+### Bu ekin kapsamadığı
+
+§ 1-4 bu ek tarafından değiştirilmiyor. Özellikle § 4'ün güvenlik
+değerlendirmesi (C13-X-f2, C13-X-f3) aynen geçerlidir.
