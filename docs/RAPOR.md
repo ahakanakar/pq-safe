@@ -229,12 +229,6 @@ Seçim, maliyet lehine ve güvenlik olgunluğu aleyhine verilmiş bilinçli bir
 Pratik sonuç: C13 hedeflenen düzeyde kullanılabilir, bilinen pratik bir
 saldırı yüzeyi yok; "araştırma varyantı" uyarısı geçerli (`:135-137`).
 
-> **DİKKAT — R2 için, düzeltme commit'lenince KALDIRILACAK.**
-> `frontend/index.html:1144` imza boyutlarını **ters** yazmış ("3.688 bayt
-> yerine 3.856 bayt"). Doğrusu: C13 = 3.688 bayt, eski SLH-DSA referansı =
-> 3.856 bayt (`docs/evidence/gas-reports/sprint0-reference-verifier-gas.md:30`).
-> Bu bölüm sayfadan kopyalamadı; sayıları kanıt dosyalarından aldı.
-
 ---
 
 ## 4. Ölçüm yöntemi
