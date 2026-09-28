@@ -1,4 +1,5 @@
 import { generateNewMnemonic, keygen, signDigest, C13_SIG_BYTES } from './crypto/signer.js';
+import { createMnemonicReveal } from './components/mnemonicReveal.js';
 import { checkSepoliaConnection } from './network/sepolia.js';
 // Sayı biçimi DOM'suz ayrı modülde: ekranın kullandığı fonksiyonun ta kendisi
 // node'dan import edilip doğrulanabilsin diye (bkz. format.js başlığı).
@@ -41,6 +42,13 @@ const statusLine = (label, cls) => `<p${cls ? ` class="${cls}"` : ''}><strong>DU
 
 let currentMnemonic = null;
 let currentKeys = null;
+
+// Göster/gizle yüzeyinin okuduğu TEK değer. `currentMnemonic`'ten bilerek
+// ayrı: içe aktarılan owner mnemonic'i buraya hiçbir yoldan yazılmaz, bu
+// yüzden yüzey onu basamaz. Koruma tek bir `if`'e değil, değişkenin
+// kimliğine dayanıyor — butonun görünürlüğü yanlışlıkla açık kalsa bile
+// gösterilecek bir değer olmaz.
+let trialMnemonic = null;
 
 // Owner mnemonic'i içe aktarıldığında true olur. Sahnede yanlışlıkla "Yeni
 // anahtar çifti üret"e basmak currentMnemonic'i sessizce rastgele bir
@@ -200,24 +208,48 @@ btnRefreshChain.addEventListener('click', () => refreshChainState());
 refreshChainState();
 
 const keygenOut = document.getElementById('keygen-out');
+// Deneme anahtarının kelime yüzeyi. Kabuk `index.html`'de STATİK ve
+// `#keygen-out`'un DIŞINDA duruyor: içe aktarma `keygenOut.innerHTML`'i baştan
+// yazıyor (aşağıda), içeride olsa kabuk sessizce yok olurdu.
+const btnMnemonicShow = document.getElementById('btn-mnemonic-show');
+const mnemonicReveal = createMnemonicReveal({
+  box: document.getElementById('mnemonic-reveal'),
+  button: btnMnemonicShow,
+  list: document.getElementById('mnemonic-words'),
+  doc: document,
+  warningText: 'Deneme anahtarı: bu kelimeleri gerçek varlık için kullanmayın.',
+});
+btnMnemonicShow.addEventListener('click', () => mnemonicReveal.toggle(trialMnemonic));
+
 const signOut = document.getElementById('sign-out');
 const connectionOut = document.getElementById('connection-out');
 const txOut = document.getElementById('tx-out');
 
 document.getElementById('btn-keygen').addEventListener('click', async () => {
+  // Silme tetikleyicilerinden biri: yeniden üretim. Önce kapatılır, üretim
+  // başarılıysa yeni anahtar için yeniden açılır — üretim patlarsa ekranda
+  // ÖNCEKİ anahtarın kelimelerine açılan bir buton kalmaz.
+  trialMnemonic = null;
+  mnemonicReveal.setAvailable(false);
   keygenOut.innerHTML = '<p class="busy">Üretiliyor…</p>';
   try {
     const t0 = performance.now();
     currentMnemonic = generateNewMnemonic();
     currentKeys = await keygen(currentMnemonic);
+    trialMnemonic = currentMnemonic;
     const ms = (performance.now() - t0).toFixed(1);
     // Mnemonic EKRANA YAZILMAZ. Yazılırsa demo kaydına, ekran görüntülerine ve
     // omuz üstünden bakan herkese düşer; üretilen anahtar da gerçek bir anahtar.
     // Kelime sayısı / nokta maskesi / kısaltma da yazılmaz: maskenin uzunluğu
     // bile bilgi sızdırır. Anahtar bellekte (`currentMnemonic`) duruyor ve
     // imzalama yolu onu oradan okuyor — kanarya testi: Task 2.
+    //
+    // 28 Eylül: istisna yalnız deneme anahtarı (Hakan önerisi); içe aktarılan
+    // anahtar için kural aynen geçerli.
     keygenOut.innerHTML = `
       <p class="ok">Anahtar çifti üretildi.</p>
+      <p>12 kelime üretildi (BIP-39, 128 bit). Kelimeler ekrana yazılmadı —
+      aşağıdaki <strong>Göster</strong> ile isteğe bağlı görüntülenir.</p>
       <p>Gizli anahtar ekrana yazılmıyor; yalnızca bu sekmenin belleğinde
       tutuluyor ve sayfa yenilenince düşer. Aşağıdakiler <strong>açık</strong>
       anahtar bileşenleri — zincirde zaten herkese açık.</p>
@@ -225,12 +257,17 @@ document.getElementById('btn-keygen').addEventListener('click', async () => {
       <div class="field">${currentKeys.pkSeed}</div>
       <label>pkRoot</label>
       <div class="field">${currentKeys.pkRoot}</div>
+      <p class="note">C13'te hash çıktısı 16 bayt; 32 baytlık kontrat biçimine
+      sağa sıfır eklenerek yazılır — alt yarısı sıfır olmayan anahtarı
+      doğrulayıcı reddeder (signer-wasm/src/hash.rs:23 ·
+      SPHINCs-C13Asm.sol:60).</p>
       <label>publicKey (pkSeed‖pkRoot, SPHINCSVerifier.sol formatı — 64 bayt)</label>
       <div class="field">${currentKeys.publicKey}</div>
       <label>ECDSA adresi (migration için)</label>
       <div class="field">${currentKeys.ecdsaAddress}</div>
       <p class="ok">keygen tamamlandı (${ms} ms)</p>
     `;
+    mnemonicReveal.setAvailable(true);
   } catch (e) {
     keygenOut.innerHTML = `<p class="err">Hata: ${esc(e.message)}</p>`;
   }
@@ -429,6 +466,12 @@ btnBuildSign.addEventListener('click', async () => {
 const btnImportMnemonic = document.getElementById('btn-import-mnemonic');
 
 btnImportMnemonic.addEventListener('click', async () => {
+  // Göster/gizle yüzeyi BURADA kapanır ve bu oturumda bir daha açılmaz:
+  // içe aktarılan mnemonic hiçbir koşulda gösterilmez. Handler'ın ilk satırı
+  // olması bilerek — erken dönüşlerin (boş alan) ve hata yollarının hepsi
+  // bu kapanışın ARKASINDA kalsın diye.
+  trialMnemonic = null;
+  mnemonicReveal.setAvailable(false);
   const input = document.getElementById('import-mnemonic');
   const phrase = input.value.trim();
   if (!phrase) {
@@ -488,6 +531,10 @@ btnImportMnemonic.addEventListener('click', async () => {
       <p class="ok">Mnemonic içe aktarıldı (ekranda gösterilmiyor).</p>
       <label>publicKey (pkSeed‖pkRoot, 64 bayt)</label>
       <div class="field">${esc(keys.publicKey)}</div>
+      <p class="note">pkSeed ‖ pkRoot: her biri 32 baytın üst 16 baytı, alt
+      yarısı sıfır — C13'te hash çıktısı 16 bayt ve kontrat biçimine sağa
+      sıfır eklenerek yazılır (signer-wasm/src/hash.rs:23 ·
+      SPHINCs-C13Asm.sol:60).</p>
       <label>ECDSA adresi (migration için)</label>
       <div class="field">${esc(keys.ecdsaAddress)}</div>
       ${verdictHtml}

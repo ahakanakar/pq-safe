@@ -640,6 +640,22 @@
 
     .hint { font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
 
+    /* -------------------------------------------- deneme anahtarı kelime --
+       Kabuk kapalıyken [hidden] tek basina YETMEZ: display:grid UA'nin
+       display:none kuralini ezer, bu yuzden ayri kural. */
+    .mnemo-box { margin-top: 14px; display: grid; gap: 10px; justify-items: start; }
+    .mnemo-box[hidden] { display: none; }
+    .mnemo { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; width: 100%; }
+    .mnemo:empty { display: none; }
+    .mnemo .warn { grid-column: 1 / -1; margin: 0; }
+    .mnemo .w {
+      font: 400 13px var(--mono); color: var(--text);
+      background: var(--inset); border: 1px solid var(--line);
+      border-radius: 8px; padding: 8px 10px;
+      font-variant-numeric: tabular-nums;
+    }
+    @media (max-width: 640px) { .mnemo { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+
     /* Konsol — main.js çıktısının kabı. */
     .console { background: var(--inset); border: 1px solid var(--line); border-radius: 16px; font: 400 13px/1.7 var(--mono); color: var(--muted); }
     .console-h { padding: 10px 16px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; align-items: center; }
@@ -659,6 +675,9 @@
     .console-b label { display: block; font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--faint); margin: 14px 0 4px; }
     .console-b strong { font-weight: 600; }
     .console-b a { color: var(--accent-2); text-decoration: underline; text-underline-offset: 3px; }
+    /* Dayanak notu: .console-b p rengi (0,1,1) .note'u (0,1,0) eziyordu,
+       bu yuzden ayri kural. Cikti satirlarindan SOLUK durmali. */
+    .console-b .note { font-size: 12.5px; color: var(--faint); margin: 6px 0 0; max-width: none; }
     .console-b .field {
       display: block; margin: 0 0 4px; padding: 8px 12px; border-radius: 8px;
       background: var(--inset-2); border: 0;
@@ -1014,7 +1033,7 @@
           <article class="card" id="s1">
             <div class="card-h"><span class="n">1</span><h3>Anahtar</h3><span class="where">Tarayıcı</span></div>
             <div class="card-b">
-              <p class="note">Zincirdeki cüzdanın sahibi olduğunuzu kanıtlamak için mevcut mnemonic'i içe aktarın. Kelimeler ekranda gösterilmez; yalnızca türetilen açık anahtar görünür.</p>
+              <p class="note">Zincirdeki cüzdanın sahibi olduğunuzu kanıtlamak için mevcut mnemonic'i içe aktarın. İçe aktarılan kelimeler ekranda gösterilmez; yalnızca deneme amaçlı üretilen anahtarın kelimeleri istek üzerine gösterilir.</p>
               <div class="fieldset">
                 <label for="import-mnemonic">Mnemonic · 12 kelime</label>
                 <input id="import-mnemonic" type="password" autocomplete="off" placeholder="ekrana yazdırılmaz" />
@@ -1024,6 +1043,15 @@
                 <button id="btn-keygen">Yeni çift üret (deneme)</button>
               </div>
               <div class="console"><div class="console-h"><i></i><i></i><i></i></div><div class="console-b" id="keygen-out"></div></div>
+              <!-- Deneme anahtarının kelime yüzeyi. Kabuk statik ve
+                   #keygen-out'un DIŞINDA: içe aktarma keygen-out'u baştan
+                   yazıyor, içeride olsa bu kabuk da silinirdi. Kelimeler
+                   varsayılan olarak DOM'DA YOK — mnemonicReveal.js yalnız
+                   "Göster"de yazar, dört durumda siler. -->
+              <div class="mnemo-box" id="mnemonic-reveal" hidden>
+                <button id="btn-mnemonic-show" type="button">Göster</button>
+                <div class="mnemo" id="mnemonic-words"></div>
+              </div>
             </div>
           </article>
 
@@ -1142,7 +1170,7 @@
       <div>
         <details class="qa" open><summary><span class="q">1</span>Gas'ı kim ödüyor? Bu da kuantuma karşı güvenli mi?</summary><div class="a"><p><b>Hayır.</b> İşlemi zincire gönderen ve gazı ödeyen taraf sıradan bir ECDSA hesabıdır (EOA). Kuantum sonrası olan şey <b>yetkilendirme</b>: cüzdanın parayı hareket ettirmesi SPHINCS-/C13 imzasına bağlıdır. Taşıma katmanı değildir, öyleymiş gibi de sunulmamalıdır.</p></div></details>
         <details class="qa"><summary><span class="q">2</span>Neden SPHINCS-/C13?</summary><div class="a"><p>C13 bir <b>araştırma varyantıdır</b> (WOTS+C/FORS+C, h=22 d=2 a=19 k=7 w=8, ePrint 2025/2203) — FIPS 205'in standart parametre setlerinden biri değildir. Eski hedefimiz <b>SLH-DSA-SHA2-128-24 de standart bir set değildi</b> (h=22 d=1 a=24 k=6 w=4, aynı yazarın varyantı). Yani seçim, standart bir setle bir araştırma varyantı arasında değil, <b>iki araştırma varyantı arasında</b> yapıldı.</p><p>Sebep ölçülen maliyet: doğrulayıcı <b>106.672 gas</b> (ölçüldü), 128-24 ise <b>143.057 gas</b> (ölçülen aralığın <b>en düşüğü</b>, 143.057–146.192). İmza da daha küçük: 3.856 bayt yerine <b>3.688 bayt</b>.</p><p><b>Bedeli:</b> C13 yeni bir varyanttır ve FIPS 205'in standart setleri kadar incelenmemiştir. Bu, bilinçli bir takas — güvenlik olgunluğundan maliyet lehine verilen bir ödün.</p></div></details>
-        <details class="qa"><summary><span class="q">3</span>Mnemonic ekranda görünür mü, imza nerede üretilir?</summary><div class="a"><p>Mnemonic ekranda <b>gösterilmez</b>: alan <code>type="password"</code> ve girilen kelimeler sayfaya yazılmaz; yalnızca türetilen açık anahtar görünür. İmza <b>tarayıcının içinde</b>, WASM imzalayıcıda üretilir.</p><p>Tarayıcı ortamının üretim kullanımı için uygunluğu <b>değerlendirilmedi</b>.</p></div></details>
+        <details class="qa"><summary><span class="q">3</span>Mnemonic ekranda görünür mü, imza nerede üretilir?</summary><div class="a"><p><b>İçe aktarılan kelimeler ekranda gösterilmez</b>: alan <code>type="password"</code>, girilen kelimeler sayfaya yazılmaz ve içe aktarmadan sonra gösterme yolu kapanır; yalnızca türetilen açık anahtar görünür. <b>Yalnızca deneme amaçlı üretilen</b> anahtarın kelimeleri istek üzerine gösterilir — "Göster"e basılmadıkça sayfada yoktur, "Gizle" / 30 saniye / yeni üretim / içe aktarma ile silinir. İmza <b>tarayıcının içinde</b>, WASM imzalayıcıda üretilir.</p><p>Tarayıcı ortamının üretim kullanımı için uygunluğu <b>değerlendirilmedi</b>.</p></div></details>
         <details class="qa"><summary><span class="q">4</span>Anahtarımı kaybedersem ne olur?</summary><div class="a"><p><b>Kurtarma yolu yok.</b> Cüzdanın açık anahtarı yalnızca kuruluş anında yazılır ve onu değiştirecek bir fonksiyon kontratta bulunmuyor — kontratta yalnızca digest hesabı ve <code>execute</code> var. Mnemonic kaybolursa cüzdandaki varlıklara erişilemez.</p></div></details>
       </div>
       <div>
