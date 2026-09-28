@@ -29,13 +29,17 @@
 | 4 | Ölçüm yöntemi | Akif | ~100 |
 | 5 | Sonuçlar | Akif | ~140 |
 | 6 | Nonce 7 canlı demosu | Akif | ~15 → ~60 |
-| 7 | Tekrar üretilebilirlik | Akif | ~45 |
-| 8 | Sınırlar ve açık kalemler | Akif | ~70 |
-| 9 | Güvenlik notları | Akif | ~55 |
-| — | Kaynakça | Akif | ~12 |
-| A | Ek A — kanıt dizini | Akif | ~45 |
+| 7 | Tekrar üretilebilirlik | Akif | ~130 |
+| 8 | Sınırlar ve açık kalemler | Akif | ~60 |
+| 9 | Güvenlik notları | Akif | ~95 |
+| — | Kaynakça | Akif | ~18 |
+| A | Ek A — kanıt dizini | Akif | ~42 |
 
-Toplam ≈ 710 satır. **Şablon sınırı gelmeden bağlayıcı değil.**
+Toplam ≈ 850 satır (ÖLÇÜM, 28 Eylül 2026). **Şablon sınırı gelmeden
+bağlayıcı değil.** § 7 eski ~45 hedefini aşıyor: adres ve hash tabloları tek
+başına ~50 satır ve kısaltılırsa bölümün işi (üçüncü tarafın yeniden
+üretmesi) yapılamaz. § 8 hedefin altında kaldı çünkü maddeler tabloya girdi;
+satır sayısı değil, kalem sayısı (14) ölçüdür.
 
 ---
 
@@ -502,7 +506,7 @@ kapatıldığını göstermek.
 **Amaç:** jürinin ve üçüncü bir tarafın bu raporun her iddiasını kendi
 makinesinde ve kendi zincir sorgusuyla yeniden üretebilmesi.
 
-**Sahibi:** Akif · **Bütçe:** ~45 satır
+**Sahibi:** Akif · **Bütçe:** ~130 satır (ÖLÇÜM; eski hedef ~45, bkz. bölüm haritası)
 
 ### 7.1 Kontrat adresleri (Sepolia, hepsi Etherscan'de "Verified")
 
@@ -571,7 +575,60 @@ C, `docs/evidence/sprint4-ok2-clean-clone.md:236-264`), böylece Rust ön koşul
 kalktı. Kararın koşulu **cross-machine determinizmin ölçülmemiş olmasıydı**
 (`:240-251`) — bkz. § 8.
 
-> YAZILACAK — R2
+İki koşu birbirinin tekrarı değil: 17 Eylül çalışma ağacının kopyasıydı ve
+yalnızca "bu makinede kurulum tutuyor mu" sorusunu kapatır; 18 Eylül **ağdan
+taze klondur** ve jürinin koşulunu taklit eder — `npm i` yerel önbelleği
+kullanıp 1 sn'de bittiği için önbellek boş bir dizine zorlanıp yeniden
+ölçülmüştür (16 sn, `:59-70`). Ölçüm, jürinin göreceği süredir.
+
+### 7.4 Çalıştırma adımları
+
+**Frontend** (`cwd: frontend/`, Rust ön koşulu yok — WASM çıktısı depoda):
+
+```bash
+npm i
+cp .env.example .env          # el düzenlemesi YOK, anahtar gerekmiyor
+npx vite build                # ÖLÇÜM 28 Eylül 2026: 181–256 ms (üç koşu)
+npx vite                      # sayfa
+node src/format-test.mjs                       # 8 assertion
+node src/tx/build-transaction-test.mjs         # 21 assertion
+node src/tx/send-transaction-test.mjs          # 99 assertion
+node src/components/mnemonic-reveal-test.mjs   # 37 assertion
+node src/crypto/wasm-signer-test.mjs           # keygen + sign, imza 3.688 bayt
+```
+
+Assertion sayıları **ÖLÇÜM, 28 Eylül 2026** (dördü de çıkış 0).
+`npm run dev` **yoktur** — `package.json`'da `scripts` alanı tanımlı değil
+(`docs/FRONTEND-KURULUM.md:50-51`). `pqwallet-test.mjs` `CAST_EXPECTED`
+olmadan **bilerek** patlar: `cast`, bu paketin `ethers`'tan bağımsız tek
+oracle'ıdır ve koşullu atlanan kontrol yapılmamış kontroldür
+(`docs/FRONTEND-KURULUM.md:132-138`).
+
+> **Sayı uyuşmazlığı, kayda geçsin.** `docs/FRONTEND-KURULUM.md:128` ve
+> `sprint4-ok2-clean-clone.md:81` `send-transaction-test.mjs` için **83**
+> assertion yazıyor; bugün ölçülen **99**. Suite 18 Eylül'den sonra büyüdü,
+> iki satır eskidir — testin kendisinde bir sorun değil, belge güncellemesi
+> açık kalemdir.
+
+**Kontratlar** (`cwd: contracts/`): `forge test` → **6 suite, 35 test, 0 fail**
+(ÖLÇÜM, 18 Eylül 2026 temiz klon, `sprint4-ok2-clean-clone.md:85`).
+Foundry komutları depo kökünden değil `contracts/` içinden koşar
+(`docs/DECISIONS.md:233`).
+
+### 7.5 Bizden bağımsız doğrulanabilecekler
+
+Bu raporun iddialarının üç ayağı **bize sormadan** kontrol edilebilir:
+
+| iddia | bağımsız kaynak | sınırı |
+|---|---|---|
+| Kontratlar bu kaynaktan derlendi | Etherscan "Verified" kaynağı vs. `contracts/src/` | — |
+| İşlemler gerçekten yapıldı, `gasUsed` bu | herhangi bir **arşiv** Sepolia düğümü, tx hash ile | ücretsiz uçlar ~30 saat sonra receipt'i budar (yukarıdaki kutu) |
+| Ön kayıt işlemden **önce** yazıldı | GitHub olay akışı, `created_at` vs. blok zamanı (**§ 4.2**) | akış kayıtları sınırlı süre tutulur; nonce 7'nin push'ları 28 Eylül okumasında akışta **yoktu** |
+
+Üçüncü satır yöntemin en kırılgan ayağıdır ve § 4.1'deki `pushed_at`
+tutanağının yerine geçmez, onu **destekler**: tutanak bizim tuttuğumuz bir
+kayıttır, olay akışı üçüncü tarafın. İkisi de aynı yönü gösteriyor
+(push işlemden 73 ve 30 dk önce), ama ikisi de kalıcı değildir.
 
 ---
 
@@ -580,7 +637,7 @@ kalktı. Kararın koşulu **cross-machine determinizmin ölçülmemiş olmasıyd
 **Amaç:** jürinin sorabileceği her zayıf noktayı bizim önce söylememiz.
 Bu bölüm gizlenmez ve kısaltılmaz.
 
-**Sahibi:** Akif · **Bütçe:** ~70 satır
+**Sahibi:** Akif · **Bütçe:** ~60 satır, 14 kalem
 
 | # | sınır | etiket | dayanak |
 |---|---|---|---|
@@ -597,8 +654,42 @@ Bu bölüm gizlenmez ve kısaltılmaz.
 | 11 | **Performance kaydı alınmadı.** "WASM ana iş parçacığını ~9,3 sn senkron bloke ediyor" bir **ÇIKARIM**'dır; 9.303,4 ms ölçülen imzalama süresidir, bloklama kanıtı değil | ÇIKARIM | `docs/handoff/2026-09-27-devir.md:502-512` |
 | 12 | Yükleniyor göstergesinin doğruluğu **yalnız tarayıcıda** kanıtlanabilir — `nextPaint` kaldırılınca testler kırılmadı (mutasyon testi) | SINIR | `docs/handoff/2026-09-27-devir.md:513-518` |
 | 13 | Güvenlik incelemesi **bağımsız profesyonel denetim değil** | SINIR | `docs/ARCHITECTURE.md:112-115` |
+| 14 | **Göster/gizle bağlamasının otomatik regresyon ağı yok** — modül testi (37 assertion) modülü korur, `main.js` bağlamasını değil; jsdom kurulu değil | SINIR | `frontend/src/components/mnemonic-reveal-test.mjs:7-9` |
 
-> YAZILACAK — R2
+### 8.1 Her maddenin üç sorusu
+
+Bir sınırı yazmak yetmez: ne ölçülmediği, neden önemli olduğu ve **nasıl
+ölçüleceği** birlikte durmazsa okuyan kişi maddenin ağırlığını tartamaz.
+
+| # | ne ölçülmedi | neden önemli | nasıl ölçülür |
+|---|---|---|---|
+| 1 | A/B/C satırlarının ikinci koşusu | Tek koşu bir dağılım vermez; tablo "bu koşuda böyleydi" der, "her zaman böyle" diyemez | Aynı üç alıcı koşulu aynı nonce sırasıyla ikinci kez gönderilir; fark `gasUsed` cinsinden yazılır |
+| 2, 3 | Yürütme bileşeninin frame bazlı trace'i; `nonce++`'ın kendi maliyeti | Yürütme sayısı **aritmetikle** türetildi (`gasUsed − intrinsic`); içindeki kalemler ayrıştırılmadı, `nonce++` üç koşuda aynı **varsayıldı** | Arşiv düğümünde `debug_traceTransaction` (`callTracer` + `structLogs`); `SSTORE` adımı tek başına okunur |
+| 4 | Açıklanmayan **5.000 gas** | Uzlaştırmanın kalanı; sayı kapanmadıkça "her gas kalemi anlaşıldı" denemez. `vm.cool` bu farkı üretemedi | Aynı işlem arşivde trace'lenip `SSTORE` erişim durumu (soğuk/sıcak) ve `SELFBALANCE`/`CALL` kalemleri tek tek toplanır |
+| 5 | EIP sabitlerinin **spec metnine karşı** teyidi (5 satır) | Sayılar doğru çıksa bile dayanakları ikinci elden; jüri "bu sabiti nereden aldın" diye sorar | EIP-2929/3529/7623 metinleri ve `SSTORE_SET`/`SSTORE_RESET` değerleri Yellow Paper + EIP metninden satır satır alıntılanır |
+| 6 | **−1 gas**'ın sebebi (B'de −1, C'de 0) | Küçük ama açıklanmamış bir sapma; formülün bir yerinde yuvarlama mı, sayım mı olduğu bilinmiyor | Ham calldata arşivden çekilip `z` elle sayılır; formül aynı girdiyle yeniden yürütülür |
+| 7 | `0x320e03d9…` işleminin ham calldata'sı | `z(216.221) = 210` bir **ÇIKARIM**'dır; beş uç denendi, üçü bilinen-iyi hash'lerde de `null` döndü | Arşiv düğümünde `eth_getTransactionByHash` → `input` alanı; sıfır/sıfırdışı bayt sayımı tekrarlanır |
+| 8 | WASM'ın **çapraz-makine** determinizmi | Depoya konan ikili çıktı, jürinin kendi makinesinde bit-aynı üretilmezse "kaynaktan derlenebilir" iddiası zayıflar | İkinci bir makinede `bash scripts/build-wasm.sh`, ardından `sha256sum` karşılaştırması |
+| 9 | PQWallet'ın **kendi** revert'iyle `receipt.status === 0` | İddia kaynak okumasına dayanıyor, gözleme değil; hata yolunun ekranda nasıl göründüğü hiç görülmedi | Bilerek bozuk imzayla gerçek bir `execute()` gönderilir (gas yakar) ve receipt okunur |
+| 10 | Gerçek **390 px** cihaz görünümü | `@media (max-width:420px)` kuralları yazıldı ama hiç koşulmadı; headless Chrome macOS'ta 500 CSS px altına inmiyor | Chrome cihaz görünümünde 390 px'te hero/menü/panel/SSS elle gezilir ya da `playwright` kurulup kare alınır |
+| 11 | **Performance kaydı** | "WASM ana iş parçacığını ~9,3 sn bloke ediyor" bir ÇIKARIM; 9.303,4 ms **imzalama süresidir**, bloklama kanıtı değil | DevTools → Performance kaydı, imzalama penceresinde uzun görev (long task) ve boyama aralıkları okunur |
+| 12, 14 | Tarayıcıya bağlı davranışın testle korunması | `nextPaint` kaldırılınca 8/21/99 kırılmadı; göster/gizle bağlaması da aynı boşlukta — Node'da boyama ve `document` yok | jsdom ya da `playwright` kurulup gerçek DOM'da koşulur; kod donduğu için bu Sprint 5 kalemidir |
+| 13 | Bağımsız profesyonel denetim | İnceleme kendi ekibimizce yapıldı; bulunan şey bulunmayanın kanıtı değil | Üçüncü taraf denetim; kapsam dışı ve bu raporda **iddia edilmiyor** |
+
+### 8.2 Bugünkü elle kontroller (28 Eylül 2026)
+
+Kod donmadan önceki son frontend turunda üç liste elle koşuldu:
+
+| liste | konu | sonuç |
+|---|---|---|
+| **A** | Göster/gizle akışının dört durumu, içe aktarma sonrası kelime taraması | **TEMİZ** (Akif, 28 Eylül) |
+| **B** | Kum saati ~9 sn imza boyunca dönmeye devam ediyor mu (3 adım) | *[Akif yazacak]* |
+| **C** | 390 px: hero, menü aç/kapa, panel, sonuç kartları, SSS | *[Akif yazacak]* |
+
+**B ve C bu satır yazılırken ölçülmemiştir.** Yukarıdaki 10 ve 11 numaralı
+maddeler bu iki liste kapanana kadar **açık** sayılır; sonuç geldiğinde
+buraya ÖLÇÜM olarak yazılır, madde 10/11 ona göre güncellenir. Boş kalan
+hücre, olumlu sonucun yerine geçmez.
 
 ---
 
@@ -606,7 +697,7 @@ Bu bölüm gizlenmez ve kısaltılmaz.
 
 **Amaç:** neyin korunduğunu ve neyin korunmadığını ayrı ayrı yazmak.
 
-**Sahibi:** Akif · **Bütçe:** ~55 satır
+**Sahibi:** Akif · **Bütçe:** ~95 satır
 
 | konu | durum | dayanak |
 |---|---|---|
@@ -622,7 +713,81 @@ Bu bölüm gizlenmez ve kısaltılmaz.
 | Üç kalkan (nonce · canlı digest · `eth_call` ön-uçuş) | ÖLÇÜM | `docs/evidence/crypto-tests/sprint3-three-shields.md` |
 | Negatif kanıt ve tek yol ilkesi | ÖLÇÜM | `docs/evidence/crypto-tests/sprint3-negative-proof.md` |
 
-> YAZILACAK — R2
+### 9.1 Mnemonic kuralı — iki ayrı yol, iki ayrı kural
+
+Sayfada mnemonic'in iki yolu var ve **aynı kurala tabi değiller**. Ayrım
+kasıtlıdır: biri zincirdeki cüzdanın gerçek sahibinin anahtarıdır, diğeri
+sayfada o an üretilen atılabilir bir anahtar.
+
+**İçe aktarılan owner mnemonic'i: hiçbir koşulda gösterilmez.** Alan
+`type="password"`, girilen değer doğrulamadan hemen sonra temizlenir, hata
+mesajları **sabit metindir** (istisna nesnesi bilerek yakalanmaz — mesajı
+girdiyi taşıyabilir), ve içe aktarmadan sonra gösterme yüzeyi kapanır.
+Gerekçesi kontratta: `ownerPublicKey` yalnız constructor'da yazılıyor, setter
+yok — sızarsa çaresi rotasyon değil, **yeniden deploy**'dur.
+ÖLÇÜM: kanarya denetiminde mnemonic üç yüzeyin hiçbirinde görünmedi
+(`docs/evidence/crypto-tests/sprint3-owner-mnemonic-import-leak-audit.md:82-92`).
+
+**Deneme anahtarı: istek üzerine gösterilir.** Bu yol **28 Eylül 2026'da,
+Hakan'ın önerisiyle** eklendi — yarışma sonrası bir ekleme değil, kod donmadan
+önceki son frontend turunun kalemidir. Davranışı:
+
+- Varsayılan hâl: kelimeler **DOM'da yoktur**. Bulanık metin, nokta maskesi ya
+  da kısaltma da yazılmaz; maskenin uzunluğu bile bilgi sızdırır.
+- "Göster" 12 kelimeyi numaralı ızgaraya yazar, üstünde "Deneme anahtarı: bu
+  kelimeleri gerçek varlık için kullanmayın" uyarısıyla.
+- Dört tetikleyici kelimeleri **DOM'dan siler**: "Gizle", 30 saniyenin
+  dolması, yeniden üretim, owner anahtarının içe aktarılması.
+- Gösterme yüzeyi `currentMnemonic`'i değil ayrı bir `trialMnemonic`
+  değişkenini okur. Koruma tek bir koşula değil değişkenin kimliğine dayanır:
+  içe aktarılan ifade oraya hiçbir yoldan yazılmaz.
+
+**Kanıtı ve kanıtın sınırı.** Modülün dört silme durumu otomatik testte:
+**37 assertion, çıkış 0**; silme satırı kaldırılınca **11 assertion kırmızı**
+(mutasyon testi — test gerçekten o satırı koruyor). Ama bu test modülün
+mantığını kanıtlar, `main.js`'teki **bağlamayı** kanıtlamaz: jsdom kurulu
+olmadığı için butonun hangi değişkeni okuduğu Node'da görülemez. Bağlama
+**yalnız tarayıcıda** doğrulandı (28 Eylül, liste A: dört durum + içe aktarma
+sonrası kelime taraması, temiz). Otomatik regresyon ağı yok — § 8 madde 14.
+
+### 9.2 Kontrat tarafı: geri dönüşü olmayan üç nokta
+
+1. **Owner açık anahtarı için setter yok.** Rotasyon = yeniden deploy; bedeli
+   yeni adres, yeniden doğrulama ve `tx-hashes.md`'nin baştan yazılmasıdır.
+   Canlıda iki kez yapıldı, operasyonel olarak yönetilebilir olduğu görüldü.
+2. **Kurtarma mekanizması yok.** Mnemonic kaybolursa cüzdandaki varlıklara
+   erişilemez; sosyal kurtarma ya da zaman kilidi **kapsam dışıdır** ve
+   eklenmiş gibi sunulmaz.
+3. **Self-migration kalıcı kilit.** Kendi adresini kendine migrate eden hesap
+   `AlreadyMigrated` yüzünden bir daha gerçek bir PQ cüzdanına geçemez
+   (`contracts/src/Migration.sol:27,45-46`). Saldırgan yolu yok — kurbanın
+   kendi imzası gerekir — ama zararsız da değil. Kasıtlı olarak belgelendi,
+   düzeltilmedi; redeploy bedeli finale göre gereksiz görüldü.
+
+### 9.3 Kuantum-güvenli olmayan iki yer — bilerek
+
+**Gası ödeyen taraf klasik bir ECDSA hesabıdır.** `execute()` `msg.sender`'a
+bakmaz; yetki tamamen SPHINCS-/C13 imzasından gelir. Ödeyen EOA'nın
+kuantum-güvenli **olması gerekmiyor**, çünkü yetki taşımıyor: kuantum
+saldırganı o anahtarı kırsa bile cüzdandaki parayı hareket ettiremez,
+yalnızca kendi gazını harcar. Taşıma katmanı kuantum-güvenli değildir ve
+öyleymiş gibi sunulmamalıdır.
+
+**Migration'ın kendisi ECDSA kanıtına dayanır.** `proveOwnership()` eski
+adresin sahipliğini `ecrecover` ile doğrular
+(`contracts/src/Migration.sol:45,79`) — yani tam olarak § 1'in "kırılacak"
+dediği varsayımın üstünde durur. Bu bir çelişki değil, bir **sıralama
+koşuludur**: migration, tehdit gerçekleşmeden önce yapılmak zorundadır.
+Kuantum saldırganı ECDSA'yı kırabildiği gün eski adresin sahipliğini o da
+kanıtlayabilir; o noktadan sonra migration bir kurtarma yolu değildir.
+Bu sınır kapatılmadı, **yazıldı**.
+
+### 9.4 Bu bölümün sınırı
+
+Yukarıdakiler bizim kendi incelememizin sonucudur. **Bağımsız profesyonel
+denetim yapılmadı** (`docs/ARCHITECTURE.md:112-115`); bulunmayan bir açık,
+olmadığının kanıtı değildir. C13'ün araştırma varyantı olmasından gelen
+güvenlik sınırları ayrıca § 3.4'te duruyor.
 
 ---
 
