@@ -67,29 +67,46 @@ kadar incelenmemiştir — bu, maliyet lehine bilinçli olarak verilmiş bir
 
 ## 1. Problem ve tehdit
 
-**Amaç:** ECDSA'nın kuantum bir saldırgan karşısında neden düştüğünü, hash
-tabanlı imzanın neden ayakta kaldığını ve ikisi arasındaki farkın neden
-*derece* değil *tür* farkı olduğunu göstermek.
+Ethereum'da bir işlemi yetkilendiren şey ECDSA imzasıdır. İmzanın güvenliği
+tek bir varsayıma dayanır: secp256k1 eğrisinde ayrık logaritma problemi
+çözülemez. Klasik bilgisayarlar karşısında bu varsayım bugün ayakta.
 
-**Sahibi:** Akif · **Bütçe:** ~45 satır
+Shor'un algoritması doğrudan bu varsayımı hedef alır. Yeterli ölçekte ve
+hata toleranslı bir kuantum bilgisayar, ayrık logaritmayı polinom zamanda
+çözer [1]. Böyle bir makinede açık anahtarı bilen, özel anahtarı hesaplar.
 
-**Dayanaklar — literatür (bkz. Kaynakça):**
+Bu, Ethereum için ayrı bir sorun yaratır. Açık anahtar zincirde gizli
+değildir: imzadan geri kurtarılabilir ve `ECRECOVER` tam olarak bunu yapar
+[3]. Bir kez işlem göndermiş her hesabın açık anahtarı böylece fiilen
+yayımlanmıştır. Saldırganın bekleyeceği bir açıklanma anı yoktur — veri
+zaten ortadadır.
 
-- Shor'un algoritması ayrık logaritmayı polinom zamanda çözer → secp256k1
-  açık anahtarından özel anahtar hesaplanabilir. → **Kaynakça [1]**
-- Ethereum'da açık anahtar zaten imzadan kurtarılabilir (`ECRECOVER`), yani
-  bir kez işlem yapmış her hesabın açık anahtarı fiilen açıktır.
-  → **Kaynakça [3]**
-- Grover'ın algoritması hash fonksiyonlarına karşı yalnızca karekök
-  hızlanma verir; hash tabanlı imzalar bu yüzden parametre büyütmeyle
-  savunulabilir. → **Kaynakça [2]**
-- NIST'in standartlaştırdığı hash tabanlı imza ailesi (SLH-DSA) bu
-  yaklaşımın resmî hâlidir. → **Kaynakça [4]**
+Anahtarı büyütmek bu sorunu çözmez. Shor polinom zamanda çalıştığı için
+eğriyi büyütmek saldırganın işini orantılı olarak zorlaştırmaz. Aradaki
+fark derece farkı değil, tür farkıdır.
+
+Hash tabanlı imzalar başka bir temele oturur. Güvenlikleri yalnızca
+kullanılan hash fonksiyonunun özelliklerinden gelir; sayı teorisi varsayımı
+içermezler. Kuantum saldırganın hash fonksiyonlarına karşı bilinen genel
+aracı Grover'ın algoritmasıdır ve yalnızca karekök hızlanma sağlar [2].
+Karekök hızlanma parametre büyütmeyle telafi edilir: çıktı boyutunu iki
+katına çıkarmak kaybedilen marjı geri verir. Burada büyütmek işe yarar,
+çünkü saldırının ölçeklenmesi farklıdır.
+
+NIST bu aileyi 2024 Ağustos'unda SLH-DSA adıyla standartlaştırdı (FIPS 205)
+[4].
+
+Bedeli boyut ve maliyettir. Hash tabanlı bir imza, ECDSA imzasından iki
+mertebe büyüktür ve EVM'de doğrulaması pahalıdır. Bu raporun ölçtüğü şey
+tam olarak bu bedeldir.
+
+Bu rapor, böyle bir kuantum bilgisayarın ne zaman ortaya çıkacağına dair
+tahmin yürütmez. Tahmin zaten gerekmiyor: göç yolu tehdit gerçekleştikten
+sonra kurulamaz, çünkü açık anahtarlar o an çoktan yayımlanmış olur.
+Mühendislik sorusu "ne zaman" değil, "yol hazır mı" sorusudur.
 
 > **NOT — R2 için.** Bu bölüm literatüre dayanır, projenin tanıtım
-> sayfasına değil. `frontend/index.html`'den alıntı yapılmaz.
-
-> YAZILACAK — R2
+> sayfasına değil. `frontend/index.html`'den alıntı yapılmadı.
 
 ---
 
@@ -124,31 +141,86 @@ akışına bağlandığını anlatmak.
 
 ## 3. SPHINCS-/C13 seçimi ve bedeli
 
-**Amaç:** neden resmî FIPS 205 seti değil de bir araştırma varyantı
-seçildiğini, bunun ölçülmüş kazancını ve ödenen bedeli açıkça yazmak.
+### 3.1 C13 nedir
 
-**Sahibi:** Akif · **Bütçe:** ~70 satır
+C13, FIPS 205'in resmî parametre setlerinden biri **değildir**.
+`nconsigny/sphincs-minus` reposundaki "+C" ailesinden gelir (ePrint
+2025/2203, Kaynakça [5]) ve EVM doğrulama maliyetini düşürmek için
+tasarlanmış bir araştırma varyantıdır (`docs/ARCHITECTURE.md:56-58`).
+Standart setten iki noktada ayrılır: **WOTS+C** checksum yerine sabit
+"target sum" kısıtı kullanır ve doğrulamada gezilen zincir adımı sayısını
+azaltır; **FORS+C**'de son FORS ağacı "forced-zero"dur ve imzayı gizli
+anahtar entropisinden feragat ederek kısaltır (`:60-63`).
 
-**Dayanaklar:**
+Parametreler `h=22 d=2 a=19 k=7 w=8`, imza **3.688 bayt** (ÖLÇÜM,
+`docs/ARCHITECTURE.md:65`). Kontrat bunu şart olarak uygular:
+`sig.length == 3688` değilse revert eder (`:81`). Tarayıcıda üretilen
+imzalar beş koşunun beşinde de 3.688 bayt çıktı (ÖLÇÜM,
+`docs/FRONTEND-KURULUM.md:178-181`).
 
-| konu | etiket | dayanak |
-|---|---|---|
-| C13 nedir, parametreler `h=22 d=2 a=19 k=7 w=8` | — | `docs/ARCHITECTURE.md:54-75` |
-| C13 doğrulayıcı maliyeti **106.672 gas** | ÖLÇÜM | `docs/evidence/gas-reports/sprint0-c13-verifier-gas.md` |
-| Eski hedef SLH-DSA-SHA2-128-24 maliyeti (ölçülen aralığın en düşüğü) | ÖLÇÜM | `docs/evidence/gas-reports/sprint0-reference-verifier-gas.md` |
-| Sarmalayıcımızın maliyeti **111.074 gas**, çıplak referansın ~%4 üzerinde | ÖLÇÜM | `docs/evidence/gas-reports/sprint1-sphincsverifier-wrapper-gas.md:67` · `docs/DECISIONS.md:323` |
-| İmza boyutu **3.688 bayt** | ÖLÇÜM | `docs/ARCHITECTURE.md:65,81` · `docs/FRONTEND-KURULUM.md:178-181` |
-| Şema değişikliği kararı ve onayı (19 Ağustos 2026) | — | `docs/DECISIONS.md` |
-| `@noble/post-quantum` neden kullanılamadı (FIPS 205 setleri dışına çıkmıyor) | ÖLÇÜM | `docs/evidence/crypto-tests/sprint0-noble-post-quantum-risk-test.md` |
-| **Bedel:** güvenlik incelemesi bulguları C13-X-f2 (~2^133 iş), C13-X-f3 (reuse direnci ispatlanmamış) | — | `docs/ARCHITECTURE.md:110-143` |
-| İnceleme bağımsız profesyonel denetim **değil**, en iyi çaba mühendislik incelemesi | — | `docs/ARCHITECTURE.md:112-115` |
+### 3.2 Neden seçildi — ölçülmüş maliyet
 
-> **DİKKAT — R2 için.** `frontend/index.html:1144` imza boyutlarını **ters**
-> yazmış ("3.688 bayt yerine 3.856 bayt"). Doğrusu: C13 = 3.688 bayt, eski
-> SLH-DSA referansı = 3.856 bayt (`docs/evidence/gas-reports/sprint0-reference-verifier-gas.md:30`).
-> Rapor sayfadan kopyalamaz. Sayfanın düzeltilmesi ayrı bir iş.
+İki şema aynı ortamda, aynı sabitlenmiş submodule commit'iyle ölçüldü.
 
-> YAZILACAK — R2
+| şema | doğrulama | imza | kaynak (hepsi ÖLÇÜM) |
+|---|---|---|---|
+| **C13** (çıplak referans `SphincsC13Asm`) | **106.672 gas** | 3.688 bayt | `gas-reports/sprint0-c13-verifier-gas.md:71,85` |
+| SLH-DSA-SHA2-128-24 (eski hedef) | **143.057** (geçerli imza) – **146.192 gas** (geçersiz mesaj reddi) | 3.856 bayt | `gas-reports/sprint0-reference-verifier-gas.md:74,84-86` · `:30` |
+
+Doğrulama **%25 daha ucuz** (HESAP, `docs/DECISIONS.md:184`), imza **168
+bayt** daha küçük (HESAP, yukarıdaki iki ölçümden).
+
+Zincirde çağrılan kontrat çıplak referans değil, onu saran
+`SPHINCSVerifier`'dır: **111.074 gas** (ÖLÇÜM,
+`gas-reports/sprint1-sphincsverifier-wrapper-gas.md:67` ·
+`docs/DECISIONS.md:323`), çıplak referansın ~%4 üzerinde. Fark, hiçbir
+girdide revert etmemeyi sağlayan katmanın bedelidir (bkz. § 9).
+
+Şema 19 Ağustos 2026'da değiştirildi; Hakan onayladı, karar donduruldu
+(`docs/DECISIONS.md:161`, `:213-214`).
+
+### 3.3 İmzalayıcı neden kendi yazıldı
+
+`@noble/post-quantum` yalnızca FIPS 205'in standart setlerini üretir, C13
+üretemez (ÖLÇÜM, `crypto-tests/sprint0-noble-post-quantum-risk-test.md:26`).
+İmzalar bu yüzden `contracts/lib/sphincs-minus/signer-wasm` ile üretiliyor:
+Rust/WASM, yalnızca C13, BIP-39/44 anahtar türetmeli.
+
+### 3.4 Bedeli
+
+Seçim, maliyet lehine ve güvenlik olgunluğu aleyhine verilmiş bilinçli bir
+ödündür. Bedeli dört maddede:
+
+1. **Standart değil.** C13 bir FIPS 205 parametre seti değildir; güvenlik
+   kanıtı da FIPS 205'in kanıtı değil, C13'e özgü ayrı bir analizdir
+   (`docs/ARCHITECTURE.md:71-72`).
+2. **İnceleme bağımsız denetim değil.** Elimizdeki inceleme
+   (`SECURITY-REVIEW-C13-SLHDSA.md`) ajan destekli ve "en iyi çaba
+   mühendislik incelemesi" etiketli; bağımsız profesyonel denetim
+   yapılmadı. C13 tarafındaki sonucu: sahtecilik, anahtar kurtarma veya
+   yanlış-kabul zafiyeti **bulunamadı** (`docs/ARCHITECTURE.md:112-118`).
+3. **C13-X-f2 — mesaj randomizer'ı `R` tamamen kamuya açıktır**, gizli
+   anahtara bağlı değildir (`grind_r`, `sk_seed` almıyor). İncelemenin
+   tahminine göre en iyi bilinen sahtecilik **~2^133 iş** gerektirir —
+   128-bit hedefin üzerinde, pratik bir kırılma değil. Etiket: **ÇIKARIM**,
+   incelemenin tahmini; bizim ölçümümüz değil. Açık kalan: "few-time"
+   güvenlik kanıtı, saldırganın indeks haritasını kontrol ettiği daha güçlü
+   modelde repo içinde ispatlanmamış (`docs/ARCHITECTURE.md:126`).
+4. **C13-X-f3 — target-sum WOTS+C'nin çoklu-kullanım direnci
+   ispatlanmamıştır.** 2^22 tavanda ~2^21 `htIdx` çakışması beklenir. Aynı
+   katman-0 WOTS anahtarının iki farklı mesajda kullanılmasının somut bir
+   sahteciliğe yol açtığı **gösterilmemiş**, teorik argüman da **eksik**
+   (`docs/ARCHITECTURE.md:127`).
+
+Pratik sonuç: C13 bu projenin hedeflediği düzeyde kullanılabilir durumdadır
+ve bilinen pratik bir saldırı yüzeyi yoktur. "Resmî FIPS 205 seti değil,
+araştırma varyantıdır" uyarısı geçerliliğini korur (`:135-137`).
+
+> **DİKKAT — R2 için, düzeltme commit'lenince KALDIRILACAK.**
+> `frontend/index.html:1144` imza boyutlarını **ters** yazmış ("3.688 bayt
+> yerine 3.856 bayt"). Doğrusu: C13 = 3.688 bayt, eski SLH-DSA referansı =
+> 3.856 bayt (`docs/evidence/gas-reports/sprint0-reference-verifier-gas.md:30`).
+> Bu bölüm sayfadan kopyalamadı; sayıları kanıt dosyalarından aldı.
 
 ---
 
