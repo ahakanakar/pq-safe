@@ -643,6 +643,24 @@
     .hint { font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
     /* Alt bilgi basligi: hicbir genislikte tek kelime alt satira dusmesin. */
     .foot2 h2 { text-wrap: balance; }
+    /* Alt bilgi baglantilari. Turuncu zeminde KOYU metin (kontrast icin
+       #2a0f04, govdeyle ayni), alt cizgi yalniz hover/odakta. */
+    .foot-links { display: flex; flex-wrap: wrap; gap: 10px 32px; align-items: baseline;
+      margin-top: 18px; font: 500 12px var(--mono); letter-spacing: .08em;
+      text-transform: uppercase; color: #2a0f04; }
+    .foot-links .who { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; }
+    .foot-links .rol { text-transform: none; letter-spacing: .02em; opacity: .72; }
+    .foot-links a { color: #2a0f04; text-decoration: none; border-bottom: 1px solid transparent; }
+    /* Kullanici adi bir KIMLIKTIR: buyuk harfe cevrilmez. Turkce yerelde
+       text-transform "akifaybek" -> "AKIFAYBEK" (noktali I) yapiyor ve
+       GitHub adresiyle ayni gorunmuyordu. */
+    .foot-links .who a { text-transform: none; letter-spacing: .02em; font-size: 12.5px; }
+    .foot-links a:hover { text-decoration: underline; text-underline-offset: 3px; }
+    .foot-links a:focus-visible { outline: 2px solid #2a0f04; outline-offset: 3px; border-radius: 3px; }
+    @media (max-width: 420px) {
+      .foot-links { flex-direction: column; gap: 14px; }
+      .foot-links .who { flex-direction: column; gap: 2px; }
+    }
     /* Kart 3'un gosterge kutulari: deger gelmeden once de, geldikten sonra da
        dogru kalan kalici ipucu (main.js donmus, CSS metne gore secim yapamaz). */
     .tile .tip { font: 400 11.5px/1.4 var(--sans); color: var(--faint); margin: 0; }
@@ -1217,9 +1235,22 @@
   <footer class="foot2">
     <h2>PQ-Safe <em>imzası kuantum&nbsp;sonrası.</em></h2>
     <div class="foot-row"><span>TEKNOFEST 2026 · Blokzincir</span><span>Araştırma prototipi, üretim cüzdanı değildir</span></div>
-    <!-- GitHub bağlantısı: depo AÇIK ise aşağıdaki satırı yorumdan çıkar ve
-         adresi yaz. ÖZEL ise link eklenmez. Karar Akif'te. -->
-    <!-- <div class="foot-row"><a href="https://github.com/…">Kaynak kodu ↗</a></div> -->
+    <!-- Depo ve profiller GitHub API ile dogrulandi (29 Eylul 2026):
+         repos/akifaybek/pq-safe private:false · users/akifaybek ve
+         users/ahakanakar var. Iki profilde de "name" alani BOS, bu yuzden
+         gorunen ad kullanici adidir. "@" karakteri font altkumesinde yok,
+         o yuzden kullanilmadi. -->
+    <div class="foot-links">
+      <a href="https://github.com/akifaybek/pq-safe" target="_blank" rel="noopener noreferrer">Kaynak kodu ↗</a>
+      <span class="who">Ekip
+        <a href="https://github.com/akifaybek" target="_blank" rel="noopener noreferrer">akifaybek ↗</a>
+        <span class="rol">doğrulayıcı, kriptografi, arayüz</span>
+      </span>
+      <span class="who">
+        <a href="https://github.com/ahakanakar" target="_blank" rel="noopener noreferrer">ahakanakar ↗</a>
+        <span class="rol">akıllı kontratlar, migration</span>
+      </span>
+    </div>
   </footer>
 
   <script type="module" src="/src/main.js"></script>
