@@ -67,7 +67,7 @@ koşusunda aynı tuzak aynı yöntemle kapatılmıştı (`:128-133`).
 
 **Alıcının bakiyesi nonce 5 koşusundan sonraki değerin birebir aynısı**
 (`47235340130807312`, `:301`) — aradan üçüncü taraf işlemi **geçmemiş**.
-Koşul B ile aynı: **sıcak + var olan**, boş hesap oluşturma bedeli YOK.
+Koşul B ile aynı: **soğuk + var olan**, boş hesap oluşturma bedeli YOK.
 
 ### PQWallet ön durumu — ÖLÇÜLDÜ (aynı blok)
 
@@ -93,9 +93,9 @@ Kesinleştirme öncesi zincir yeniden okundu. **Bir değer değişti, üçü sab
 | ödeyen EOA bakiyesi | `46285709934898207` | **`46285709934898207`** | ✓ sabit |
 
 **DURDURMA KURALI TETİKLENMEDİ.** § 2 bu durumu zaten öngörmüştü: *"Alıcının
-bakiyesi değiştiyse durdurma sebebi DEĞİLDİR (sıcak + var olan koşulu
+bakiyesi değiştiyse durdurma sebebi DEĞİLDİR (soğuk + var olan koşulu
 bozulmaz), ama § 5'teki mutlak beklenti fark üzerinden doğrulanır ve durum
-yazılır."* Adres hâlâ **sıcak + var olan**; gas modeli açısından koşul B ile
+yazılır."* Adres hâlâ **soğuk + var olan**; gas modeli açısından koşul B ile
 aynı, boş hesap oluşturma bedeli yok.
 
 **ÇIKARIM:** araya üçüncü taraf bir transfer girdi (alıcı Hakan'ın EOA'sı,
@@ -128,7 +128,7 @@ PQWallet bakiyesi `0,0504 ETH`, gönderilecek `value` `0,0001 ETH`: yeterli.
 > - `nonce()` **7 değilse → GÖNDERME, DUR.** Digest geçersizdir.
 > - Alıcının `code` değeri `0x` **değilse → GÖNDERME, DUR.** Adres artık EOA
 >   değil, koşul B olmaktan çıkmıştır.
-> - Alıcının bakiyesi değiştiyse **durdurma sebebi DEĞİLDİR** (sıcak + var olan
+> - Alıcının bakiyesi değiştiyse **durdurma sebebi DEĞİLDİR** (soğuk + var olan
 >   koşulu bozulmaz), ama § 5'teki mutlak beklenti **fark** üzerinden
 >   doğrulanır ve durum yazılır.
 >
@@ -158,7 +158,7 @@ beşinin md5'i § 6'daki değerlerle birebir aynı olmalı. Biri bile farklıysa
 | alıcı adresi | `0x7268a7c3…075b6` | `0x7268a7c3…075b6` | ✓ **aynı** |
 | `value` | `100000000000000` | `100000000000000` | ✓ **aynı** |
 | `data` | `0x` | `0x` | ✓ **aynı** |
-| alıcı sıcak + var olan | ✓ | ✓ (§ 1'de ölçüldü) | ✓ **aynı** |
+| alıcı soğuk + var olan | ✓ | ✓ (§ 1'de ölçüldü) | ✓ **aynı** |
 | PQWallet nonce yazımı | 5 → 6, SSTORE_RESET | 7 → 8, SSTORE_RESET | ✓ **aynı** |
 | **nonce** | **5** | **7** | ✗ **TEK FARK** |
 
@@ -295,7 +295,7 @@ Gas **EOA'dan** ödenir, PQWallet'tan değil — cüzdanın bakiye düşüşü t
 > **Alıcının mutlak değeri şartlı:** adres bir EOA ve üçüncü taraf etkisine
 > açık. Araya işlem girerse mutlak değer tutmaz; doğrulama **fark** üzerinden
 > yapılır (`+100000000000000`) ve durum yazılır. Bu, § 2'nin durdurma
-> kuralını **tetiklemez** — sıcak + var olan koşulu bozulmaz.
+> kuralını **tetiklemez** — soğuk + var olan koşulu bozulmaz.
 
 ### Ödeyen EOA bakiyesi yetiyor mu — ÖLÇÜM
 
@@ -388,7 +388,7 @@ bu dosyaya karşı yapılır.
 
 ## DURUM
 
-- [x] Alıcı belirlendi, **sıcak + var olan** olduğu ölçüldü (§ 1)
+- [x] Alıcı belirlendi, **soğuk + var olan** olduğu ölçüldü (§ 1)
 - [x] Koşulun B ile birebir aynı olduğu tablo hâlinde gösterildi (§ 3)
 - [x] PQWallet ön durumu okundu: `nonce()` 7, bakiye `50400000000000000`
 - [x] Beklenen digest hesaplandı, iki kaynak **eşleşti** (§ 4)
