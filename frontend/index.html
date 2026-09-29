@@ -5,7 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PQ-Safe · Kuantum sonrası imzalı cüzdan</title>
   <meta name="description" content="Kuantum bilgisayarlar bugünkü cüzdan imzalarını (ECDSA) kırabilecek." />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231b100b'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23ff5a1f'/%3E%3C/svg%3E" />
+  <!-- Favicon = marka işareti (docs/assets/logo/PQ-Safe_logo_isaret.svg), path
+       verisi birebir. Koyu kare BURADA kalır: favicon'un kendi kabı yok, açık
+       temalı sekme şeridinde turuncu anahtar deliği zemine karışıyor. Nav'daki
+       kopyada kare YOK — gerekçe .brand .mark'ın yanında. -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Crect width='256' height='256' rx='58' fill='%231b100b'/%3E%3Cpath d='M128 38 a58 58 0 0 1 30 107.6 L182 218 H74 l24-72.4 A58 58 0 0 1 128 38z' fill='%23ff5a1f'/%3E%3Cg stroke='%231b100b' stroke-width='8' stroke-linecap='round' fill='none'%3E%3Cpath d='M128 96 L108 160 M128 96 L148 160'/%3E%3Cpath d='M108 160 L94 199 M108 160 L118 199 M148 160 L138 199 M148 160 L162 199'/%3E%3C/g%3E%3Cg fill='%231b100b'%3E%3Ccircle cx='128' cy='96' r='18'/%3E%3Ccircle cx='108' cy='160' r='10'/%3E%3Ccircle cx='148' cy='160' r='10'/%3E%3Ccircle cx='94' cy='199' r='8'/%3E%3Ccircle cx='118' cy='199' r='8'/%3E%3Ccircle cx='138' cy='199' r='8'/%3E%3Ccircle cx='162' cy='199' r='8'/%3E%3C/g%3E%3Ccircle cx='128' cy='96' r='7.5' fill='%23c9b8ff'/%3E%3C/svg%3E" />
   <style>
     /* ==========================================================================
        PQ-Safe — koyu lacivert, ikinci tur.
@@ -241,7 +245,12 @@
       border: 1px solid var(--line);
     }
     .brand { font: 800 18px var(--sans); letter-spacing: -.03em; color: var(--text); display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+    /* Marka işareti. Kaptaki koyu kare BİLEREK yok: karenin rengi #1b100b,
+       .top-in'in zemini de rgba(27,16,11,.72) — düz zeminde ikisi aynı renge
+       düşüyor, yani kare ya hiç görünmüyor ya da altından içerik kayarken
+       beliren bir artefakt oluyor. İşaret zeminsiz duruyor; ağacın "delik"
+       etkisini veren --ground, .top-in opak olmadığı için kasten opak. */
+    .brand .mark { width: 26px; height: 26px; display: block; flex: none; }
 
     .links { display: flex; gap: 4px; margin-left: auto; padding: 4px; border-radius: 999px; background: rgba(243,233,220,.04); }
     .links a { position: relative; padding: 8px 14px; border-radius: 999px; color: var(--muted); font: 500 14px var(--sans); white-space: nowrap; text-decoration: none; transition: color .2s, background .2s; }
@@ -942,7 +951,7 @@
 <body>
   <div class="top">
     <nav class="top-in" aria-label="Bölümler">
-      <a class="brand" href="#top"><span class="dot"></span>PQ-Safe</a>
+      <a class="brand" href="#top"><svg class="mark" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path d="M128 38 a58 58 0 0 1 30 107.6 L182 218 H74 l24-72.4 A58 58 0 0 1 128 38z" fill="var(--accent)"/><g stroke="var(--ground)" stroke-width="8" stroke-linecap="round" fill="none"><path d="M128 96 L108 160 M128 96 L148 160"/><path d="M108 160 L94 199 M108 160 L118 199 M148 160 L138 199 M148 160 L162 199"/></g><g fill="var(--ground)"><circle cx="128" cy="96" r="18"/><circle cx="108" cy="160" r="10"/><circle cx="148" cy="160" r="10"/><circle cx="94" cy="199" r="8"/><circle cx="118" cy="199" r="8"/><circle cx="138" cy="199" r="8"/><circle cx="162" cy="199" r="8"/></g><circle cx="128" cy="96" r="7.5" fill="var(--lilac)"/></svg>PQ-Safe</a>
       <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav-links">Menü</button>
       <div class="links" id="nav-links">
         <a href="#tehdit"><span class="ix">1</span>Tehdit</a>
