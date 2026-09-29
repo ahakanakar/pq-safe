@@ -1,3 +1,12 @@
+<!-- Kilit PNG'lerinin zemini şeffaf DEĞİL (RGB, alfa yok), bu yüzden tam
+     genişlikte banner olarak duruyor: dar/ortalanmış konunca GitHub'ın kendi
+     zeminine yapışmış bir dikdörtgen gibi görünüyor. Varlıklar ve kullanım
+     kuralları: docs/assets/logo/README.md -->
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo/PQ-Safe_logo_koyu.png">
+  <img src="docs/assets/logo/PQ-Safe_logo_acik.png" alt="PQ-Safe — kuantum sonrası cüzdan" width="100%">
+</picture>
+
 # PQ-SAFE
 
 Kuantum-güvenli (post-quantum) akıllı kontrat cüzdanı. Klasik ECDSA cüzdanların
