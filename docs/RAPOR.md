@@ -639,11 +639,12 @@ npx vite                      # sayfa
 node src/format-test.mjs                       # 8 assertion
 node src/tx/build-transaction-test.mjs         # 21 assertion
 node src/tx/send-transaction-test.mjs          # 99 assertion
-node src/components/mnemonic-reveal-test.mjs   # 37 assertion
+node src/components/mnemonic-reveal-test.mjs   # 57 assertion
 node src/crypto/wasm-signer-test.mjs           # keygen + sign, imza 3.688 bayt
 ```
 
-Assertion sayıları **ÖLÇÜM, 28 Eylül 2026** (dördü de çıkış 0).
+Assertion sayıları **ÖLÇÜM**: ilk üçü 28 Eylül 2026,
+`mnemonic-reveal-test.mjs` **29 Eylül 2026** (dördü de çıkış 0).
 `npm run dev` **yoktur** — `package.json`'da `scripts` alanı tanımlı değil
 (`docs/FRONTEND-KURULUM.md:50-51`). `pqwallet-test.mjs` `CAST_EXPECTED`
 olmadan **bilerek** patlar: `cast`, bu paketin `ethers`'tan bağımsız tek
@@ -700,7 +701,7 @@ Bu bölüm gizlenmez ve kısaltılmaz.
 | 11 | **Performance kaydı alınmadı.** "WASM ana iş parçacığını ~9,3 sn senkron bloke ediyor" bir **ÇIKARIM**'dır; 9.303,4 ms ölçülen imzalama süresidir, bloklama kanıtı değil | ÇIKARIM | `docs/handoff/2026-09-27-devir.md:502-512` |
 | 12 | Yükleniyor göstergesinin doğruluğu **yalnız tarayıcıda** kanıtlanabilir — `nextPaint` kaldırılınca testler kırılmadı (mutasyon testi) | SINIR | `docs/handoff/2026-09-27-devir.md:513-518` |
 | 13 | Güvenlik incelemesi **bağımsız profesyonel denetim değil** | SINIR | `docs/ARCHITECTURE.md:112-115` |
-| 14 | **Göster/gizle bağlamasının otomatik regresyon ağı yok** — modül testi (37 assertion) modülü korur, `main.js` bağlamasını değil; jsdom kurulu değil | SINIR | `frontend/src/components/mnemonic-reveal-test.mjs:7-9` |
+| 14 | **Göster/gizle bağlamasının otomatik regresyon ağı yok** — modül testi (57 assertion) modülü korur, `main.js` bağlamasını değil; jsdom kurulu değil | SINIR | `frontend/src/components/mnemonic-reveal-test.mjs:7-9` |
 
 ### 8.1 Her maddenin üç sorusu
 
@@ -784,13 +785,23 @@ Hakan'ın önerisiyle** eklendi — yarışma sonrası bir ekleme değil, kod do
   kelimeleri gerçek varlık için kullanmayın" uyarısıyla.
 - Dört tetikleyici kelimeleri **DOM'dan siler**: "Gizle", 30 saniyenin
   dolması, yeniden üretim, owner anahtarının içe aktarılması.
+- **Kopyala** butonu ızgaranın *içinde* üretilir; bu yüzden dört silme
+  durumunun hepsinde kelimelerle **aynı tek satırla** kalkar, ayrı bir
+  temizleme yoluna ihtiyaç duymaz. Panoya giden değer `words.join(' ')` —
+  küçük harf, tek boşluk; içe aktarma alanı BIP-39'u katı okuduğu için
+  kopyalanan ifade doğrudan yapıştırılabilir olmalı. Sonuç yalnız butonun
+  etiketinden okunur ("Kopyalandı" / "Kopyalanamadı", 2 sn sonra eski hâline
+  döner); ifade ne konsola ne hata mesajına yazılır.
 - Gösterme yüzeyi `currentMnemonic`'i değil ayrı bir `trialMnemonic`
   değişkenini okur. Koruma tek bir koşula değil değişkenin kimliğine dayanır:
   içe aktarılan ifade oraya hiçbir yoldan yazılmaz.
 
-**Kanıtı ve kanıtın sınırı.** Modülün dört silme durumu otomatik testte:
-**37 assertion, çıkış 0**; silme satırı kaldırılınca **11 assertion kırmızı**
-(mutasyon testi — test gerçekten o satırı koruyor). Ama bu test modülün
+**Kanıtı ve kanıtın sınırı.** Modülün dört silme durumu ve Kopyala butonu
+otomatik testte: **57 assertion, çıkış 0** (ÖLÇÜM, 29 Eylül 2026). Silme
+satırı (`mnemonicReveal.js:56`) kaldırılınca **15 assertion kırmızı**, 42
+yeşil, çıkış 1 — mutasyon testi, test gerçekten o satırı koruyor (ÖLÇÜM,
+29 Eylül 2026; mutasyon donmuş dosyanın kopyasında yapıldı, `frontend/`
+altındaki md5'ler değişmedi). Ama bu test modülün
 mantığını kanıtlar, `main.js`'teki **bağlamayı** kanıtlamaz: jsdom kurulu
 olmadığı için butonun hangi değişkeni okuduğu Node'da görülemez. Bağlama
 **yalnız tarayıcıda** doğrulandı (28 Eylül, liste A: dört durum + içe aktarma

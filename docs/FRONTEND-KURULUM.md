@@ -127,7 +127,7 @@ npm script'i yoktur, doğrudan çalıştırılır. `cwd: frontend/`:
 node src/format-test.mjs                   # 8 assertion — gas/wei biçimi
 node src/tx/send-transaction-test.mjs      # 99 assertion (28 Eylül 2026 ölçümü)
 node src/tx/build-transaction-test.mjs     # 21 assertion
-node src/components/mnemonic-reveal-test.mjs  # 37 assertion (28 Eylül 2026)
+node src/components/mnemonic-reveal-test.mjs  # 57 assertion (29 Eylül 2026)
 node src/crypto/wasm-signer-test.mjs       # keygen + sign
 
 # pqwallet-test.mjs CAST_EXPECTED olmadan BİLEREK patlar: cast, bu paketin
@@ -139,7 +139,7 @@ cd ../frontend
 CAST_EXPECTED="$EXPECTED" node src/contracts/pqwallet-test.mjs   # 9 assertion
 ```
 
-Beklenen: **8 · 99 · 21 · 37 · 9**. `cast` için Foundry gerekir
+Beklenen: **8 · 99 · 21 · 57 · 9**. `cast` için Foundry gerekir
 (README § Kurulum).
 
 > **Düzeltme — 28 Eylül 2026.** Bu bölüm 18 Eylül'e kadar
@@ -150,6 +150,13 @@ Beklenen: **8 · 99 · 21 · 37 · 9**. `cast` için Foundry gerekir
 > `docs/evidence/sprint4-ok2-clean-clone.md:81` ve aynı dosyanın 28 Eylül
 > tarihli eki. Burası kurulum kılavuzu olduğu için sayı **yerinde
 > güncellendi**; defter kuralı kanıt dosyaları içindir.
+
+> **Düzeltme — 29 Eylül 2026.** `mnemonic-reveal-test.mjs` 28 Eylül'de **37**
+> assertion ile eklendi; aynı gece kelimeler için Kopyala butonu gelince
+> pano davranışının testleri de yazıldı ve sayı **57**'ye çıktı (ÖLÇÜM,
+> 29 Eylül 2026, çıkış 0). Yukarıdaki komut satırı ve `8 · 99 · 21 · 57 · 9`
+> toplamı bu değere göre güncellendi. 28 Eylül'ün **37**'si bu kutuda
+> bilerek duruyor: o tarihte ölçülen değerdi.
 
 ## `.env`
 
