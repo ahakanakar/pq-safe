@@ -35,14 +35,42 @@ export function generateNewMnemonic() {
   return mnemonic;
 }
 
+// Bir karelik cizim firsati bekleyen ust sinir (ms). rAF gelmezse islem bu
+// sure sonunda yine baslar.
+export const NEXT_PAINT_TIMEOUT_MS = 50;
+
 // WASM cagrisi ana is parcacigini SENKRON bloke ediyor; hemen oncesinde
 // tarayiciya bir cizim firsati verilmezse "Imzalaniyor..." gibi mesajlar hic
 // gorunmeden bloklama basliyor. Kriptografik hicbir sey degismiyor, yalniz
-// bir kare beklenip devam ediliyor. Node'da requestAnimationFrame yok: guard
-// bu yuzden var, testler etkilenmez.
-async function nextPaint() {
+// bir kare beklenip devam ediliyor.
+//
+// NEDEN YARIS: sekme gorunur degilken (arka planda ya da kucultulmus)
+// tarayici requestAnimationFrame'i ATESLEMIYOR. Tek basina rAF beklenirse
+// keygen ve signDigest hic baslamaz; ekranda "Uretiliyor..." / "Imzalaniyor..."
+// sonsuza kadar kalir. Bu yuzden rAF ile NEXT_PAINT_TIMEOUT_MS'lik bir zaman
+// asimi YARISIR: hangisi once biterse promise bir kez cozulur, kaybeden
+// tarafin yaptigi tek sey no-op'tur. Gorunur sekmede kazanan rAF olur ve
+// davranis eskisiyle ayni kalir; gizli sekmede zaman asimi devrali.
+//
+// Node'da requestAnimationFrame yok: guard bu yuzden var, testler etkilenmez.
+//
+// EXPORT NEDENI: yarisin iki ucu da ancak rAF taklidiyle olculebiliyor
+// (`next-paint-test.mjs`). Uretimde bu fonksiyonu yalnizca asagidaki
+// keygen/signDigest cagirir.
+export async function nextPaint() {
   if (typeof requestAnimationFrame !== 'function') return;
-  await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
+  await new Promise((resolve) => {
+    let settled = false;
+    const done = () => {
+      if (settled) return;
+      settled = true;
+      resolve();
+    };
+    // rAF yolu: kare geldikten SONRA 0 ms daha beklenir, boylece cizim
+    // gercekten yapilmis olur (eski davranisin ta kendisi).
+    requestAnimationFrame(() => setTimeout(done, 0));
+    setTimeout(done, NEXT_PAINT_TIMEOUT_MS);
+  });
 }
 
 export async function keygen(mnemonic, passphrase = '') {
